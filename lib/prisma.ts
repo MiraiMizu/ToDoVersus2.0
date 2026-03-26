@@ -1,18 +1,30 @@
-import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3'
+import { PrismaD1 } from '@prisma/adapter-d1'
 import { PrismaClient } from '@prisma/client'
-import path from 'path'
+import { getCloudflareContext } from '@opennextjs/cloudflare'
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
 }
 
 function createPrismaClient(): PrismaClient {
-  const dbFile = process.env.DATABASE_URL?.replace('file:', '') ?? './dev.db'
-  const url = path.resolve(process.cwd(), dbFile)
+  let env;
+  try {
+    const context = getCloudflareContext();
+    env = context.env;
+  } catch (err) {
+    console.warn("Cloudflare context not found. Make sure you are running 'npm run dev' and next.config.ts calls initOpenNextCloudflareForDev().", err);
+    throw new Error("Missing Cloudflare Context");
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const adapter = new PrismaBetterSqlite3({ url } as any)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return new PrismaClient({ adapter } as any)
+  const cfEnv = env as any;
+
+  if (!cfEnv || !cfEnv.DB) {
+    throw new Error("D1 Database binding 'DB' not found in Cloudflare context.");
+  }
+
+  const adapter = new PrismaD1(cfEnv.DB);
+  return new PrismaClient({ adapter });
 }
 
 export const prisma = globalForPrisma.prisma ?? createPrismaClient()

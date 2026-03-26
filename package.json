@@ -7,9 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "db:push": "prisma db push",
-    "db:seed": "tsx prisma/seed.ts",
-    "db:setup": "prisma db push && tsx prisma/seed.ts",
+    "db:generate": "prisma generate",
+    "db:apply:local": "wrangler d1 execute todoversus-db --local --file=./prisma/schema.sql",
     "postinstall": "prisma generate",
     "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview"
@@ -18,12 +17,11 @@
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
-    "@prisma/adapter-better-sqlite3": "^7.5.0",
+    "@prisma/adapter-d1": "^7.5.0",
     "@prisma/client": "^7.5.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/better-sqlite3": "^7.6.13",
     "bcryptjs": "^3.0.3",
-    "better-sqlite3": "^12.8.0",
     "framer-motion": "^12.38.0",
     "lucide-react": "^1.7.0",
     "next": "16.2.1",

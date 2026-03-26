@@ -10,6 +10,13 @@
   "observability": {
     "enabled": true
   },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "todoversus-db",
+      "database_id": "REPLACE_WITH_ACTUAL_ID"
+    }
+  ],
   "compatibility_flags": [
     "nodejs_compat"
   ]
