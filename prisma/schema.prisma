@@ -1,0 +1,145 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id            String   @id @default(cuid())
+  username      String   @unique
+  email         String   @unique
+  passwordHash  String
+  avatarUrl     String?
+  rank          String   @default("Bronze")
+  streak        Int      @default(0)
+  lastLogDate   DateTime?
+  allTimeScore  Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  challengedMatches Match[] @relation("Challenger")
+  opponentMatches   Match[] @relation("Opponent")
+  activityLogs      ActivityLog[]
+  dailyScores       DailyScore[]
+  achievements      UserAchievement[]
+  suspiciousLogs    SuspiciousLog[]
+  wonMatches        Match[]           @relation("Winner")
+}
+
+model Category {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  weight      Int
+  description String?
+  color       String   @default("#6366f1")
+
+  matchCategories MatchCategory[]
+  activityLogs    ActivityLog[]
+}
+
+model Match {
+  id           String      @id @default(cuid())
+  challengerId String
+  opponentId   String
+  status       String      @default("PENDING")
+  startDate    DateTime?
+  endDate      DateTime?
+  winnerId     String?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  challenger     User            @relation("Challenger", fields: [challengerId], references: [id])
+  opponent       User            @relation("Opponent", fields: [opponentId], references: [id])
+  winner         User?           @relation("Winner", fields: [winnerId], references: [id])
+  bet            Bet?
+  categories     MatchCategory[]
+  activityLogs   ActivityLog[]
+  dailyScores    DailyScore[]
+}
+
+model Bet {
+  id                  String  @id @default(cuid())
+  matchId             String  @unique
+  content             String
+  challengerApproved  Boolean @default(false)
+  opponentApproved    Boolean @default(false)
+  createdAt           DateTime @default(now())
+
+  match Match @relation(fields: [matchId], references: [id], onDelete: Cascade)
+}
+
+model MatchCategory {
+  id         String @id @default(cuid())
+  matchId    String
+  categoryId String
+
+  match    Match    @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id])
+
+  @@unique([matchId, categoryId])
+}
+
+model ActivityLog {
+  id              String   @id @default(cuid())
+  userId          String
+  matchId         String?
+  categoryId      String
+  name            String
+  durationMinutes Int
+  score           Int
+  loggedAt        DateTime @default(now())
+  date            String   // YYYY-MM-DD for easy daily grouping
+
+  user     User     @relation(fields: [userId], references: [id])
+  match    Match?   @relation(fields: [matchId], references: [id])
+  category Category @relation(fields: [categoryId], references: [id])
+}
+
+model DailyScore {
+  id         String   @id @default(cuid())
+  userId     String
+  matchId    String?
+  date       String   // YYYY-MM-DD
+  totalScore Int      @default(0)
+  updatedAt  DateTime @updatedAt
+
+  user  User   @relation(fields: [userId], references: [id])
+  match Match? @relation(fields: [matchId], references: [id])
+
+  @@unique([userId, matchId, date])
+}
+
+model Achievement {
+  id          String @id @default(cuid())
+  code        String @unique
+  name        String
+  description String
+  icon        String @default("🏆")
+  rarity      String @default("Common")
+
+  userAchievements UserAchievement[]
+}
+
+model UserAchievement {
+  id            String   @id @default(cuid())
+  userId        String
+  achievementId String
+  awardedAt     DateTime @default(now())
+
+  user        User        @relation(fields: [userId], references: [id])
+  achievement Achievement @relation(fields: [achievementId], references: [id])
+
+  @@unique([userId, achievementId])
+}
+
+model SuspiciousLog {
+  id        String   @id @default(cuid())
+  userId    String
+  reason    String
+  metadata  String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
