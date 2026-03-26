@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "todolistversus",
+  "name": "todoversus",
   "compatibility_date": "2025-01-01",
   "main": ".open-next/worker.js",
   "assets": {
