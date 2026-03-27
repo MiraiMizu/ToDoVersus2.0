@@ -10,6 +10,7 @@
     "db:generate": "prisma generate",
     "db:apply:local": "wrangler d1 execute todoversus-db --local --file=./prisma/schema.sql",
     "postinstall": "prisma generate",
+    "build:cf": "next build && npx @opennextjs/cloudflare@latest build",
     "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview"
   },
