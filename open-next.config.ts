@@ -25,14 +25,17 @@ config.functions = {
     minify: true,
   },
   main: {
-    // Core dashboard and static landing
+    // Core dashboard, landing and system pages
     routes: [
       "app/(main)/dashboard/page",
       "app/(main)/achievements/page",
       "app/(main)/leaderboard/page",
-      "app/page"
+      "app/page",
+      "app/_not-found/page",
+      "app/_global-error/page",
+      "app/favicon.ico/route"
     ],
-    patterns: ["/dashboard", "/achievements", "/leaderboard", "/"],
+    patterns: ["/dashboard", "/achievements", "/leaderboard", "/", "/_not-found", "/_global-error", "/favicon.ico"],
     minify: true,
   },
   social: {
