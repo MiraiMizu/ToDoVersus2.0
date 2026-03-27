@@ -8,7 +8,6 @@ const globalForPrisma = globalThis as unknown as {
 
 function createPrismaClient(): PrismaClient {
   try {
-    // getCloudflareContext() works at runtime on Cloudflare and during 'next dev'
     const context = getCloudflareContext();
     const env = context.env as any;
 
@@ -17,16 +16,24 @@ function createPrismaClient(): PrismaClient {
       return new PrismaClient({ adapter });
     }
   } catch (err) {
-    // This block catches cases where getCloudflareContext() is called during 'next build' 
+    // This catches cases where getCloudflareContext() is called during 'next build'
     // or in other Node.js environments where the Cloudflare context is unavailable.
     console.warn(
       "Cloudflare context not found during Prisma initialization. " +
-      "This is expected during 'next build'. Using default PrismaClient."
+      "Using a mock adapter for build-time compatibility."
     );
   }
 
-  // Fallback to standard PrismaClient (uses provider/url from schema or prisma.config.ts)
-  return new PrismaClient();
+  // Fallback for build-time: Prisma v7 with driverAdapters requires an adapter.
+  // We provide a minimal mock adapter that satisfies the constructor but does nothing.
+  const mockAdapter = {
+    provider: 'sqlite',
+    adapterName: 'mock-build-adapter',
+    queryRaw: async () => ({ columns: [], rows: [] }),
+    executeRaw: async () => 0,
+  } as any;
+
+  return new PrismaClient({ adapter: mockAdapter });
 }
 
 export const prisma = globalForPrisma.prisma ?? createPrismaClient()
