@@ -7,24 +7,26 @@ const globalForPrisma = globalThis as unknown as {
 }
 
 function createPrismaClient(): PrismaClient {
-  let env;
   try {
+    // getCloudflareContext() works at runtime on Cloudflare and during 'next dev'
     const context = getCloudflareContext();
-    env = context.env;
+    const env = context.env as any;
+
+    if (env && env.DB) {
+      const adapter = new PrismaD1(env.DB);
+      return new PrismaClient({ adapter });
+    }
   } catch (err) {
-    console.warn("Cloudflare context not found. Make sure you are running 'npm run dev' and next.config.ts calls initOpenNextCloudflareForDev().", err);
-    throw new Error("Missing Cloudflare Context");
+    // This block catches cases where getCloudflareContext() is called during 'next build' 
+    // or in other Node.js environments where the Cloudflare context is unavailable.
+    console.warn(
+      "Cloudflare context not found during Prisma initialization. " +
+      "This is expected during 'next build'. Using default PrismaClient."
+    );
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const cfEnv = env as any;
-
-  if (!cfEnv || !cfEnv.DB) {
-    throw new Error("D1 Database binding 'DB' not found in Cloudflare context.");
-  }
-
-  const adapter = new PrismaD1(cfEnv.DB);
-  return new PrismaClient({ adapter });
+  // Fallback to standard PrismaClient (uses provider/url from schema or prisma.config.ts)
+  return new PrismaClient();
 }
 
 export const prisma = globalForPrisma.prisma ?? createPrismaClient()
