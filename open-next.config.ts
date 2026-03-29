@@ -1,6 +1,6 @@
 import { defineCloudflareConfig } from "@opennextjs/cloudflare";
 
+// @ts-expect-error - Ensure compatibility with the builder's expected types regardless of the local environment
 export default defineCloudflareConfig({
-  // This explicitly defines the configuration to avoid interactive prompts during CI build
   edgeExternals: ["node:crypto"],
 });
