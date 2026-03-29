@@ -1,7 +1,7 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "todoversus",
-	"account_id": "e2a8bba6625ca90c17aef37051684223",
+	"account_id": "3195c88918d75f67924d7112641b8be3",
 	"compatibility_date": "2025-01-01",
 	"main": ".open-next/worker.js",
 	"assets": {
