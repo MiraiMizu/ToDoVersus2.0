@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import useSWR from 'swr'
 import { Clock, Zap, AlertCircle, CheckCircle } from 'lucide-react'
+import { ScrollTimePicker } from '@/components/ScrollTimePicker'
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
@@ -21,8 +22,9 @@ interface ActivityFormProps {
 export default function ActivityForm({ matchId, onSuccess }: ActivityFormProps) {
   const [name, setName] = useState('')
   const [categoryId, setCategoryId] = useState('')
-  const [hours, setHours] = useState<number | ''>('')
-  const [minutes, setMinutes] = useState<number | ''>('')
+  const [hours, setHours] = useState<number | ''>(0)
+  const [minutes, setMinutes] = useState<number | ''>(0)
+  const [showPicker, setShowPicker] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -43,16 +45,6 @@ export default function ActivityForm({ matchId, onSuccess }: ActivityFormProps) 
   }
 
   const score = previewScore()
-
-  const handleHoursChange = (val: string) => {
-    const n = val === '' ? '' : Math.max(0, Math.min(16, Number(val)))
-    setHours(n)
-  }
-
-  const handleMinutesChange = (val: string) => {
-    const n = val === '' ? '' : Math.max(0, Math.min(59, Number(val)))
-    setMinutes(n)
-  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -122,8 +114,8 @@ export default function ActivityForm({ matchId, onSuccess }: ActivityFormProps) 
               }}
               className={`px-3 py-2.5 rounded-xl text-xs font-medium border transition-all text-left ${
                 categoryId === cat.id
-                  ? 'border-violet-500 bg-violet-500/20 text-violet-300'
-                  : 'border-slate-700 bg-slate-900/60 text-slate-400 hover:border-slate-600 hover:text-slate-300'
+                  ? 'border-violet-500 bg-violet-500/10 dark:bg-violet-500/20 text-violet-600 dark:text-violet-300'
+                  : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/60 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-600 hover:text-slate-900 dark:hover:text-slate-300'
               }`}
             >
               <div className="flex items-center gap-1.5 mb-0.5">
@@ -148,8 +140,8 @@ export default function ActivityForm({ matchId, onSuccess }: ActivityFormProps) 
                 onClick={() => setName(task)}
                 className={`text-xs px-3 py-1.5 rounded-full border transition-all font-medium ${
                   name === task
-                    ? 'border-violet-500 bg-violet-500/20 text-violet-300'
-                    : 'border-slate-700 text-slate-400 hover:border-slate-500 hover:text-white'
+                    ? 'border-violet-500 bg-violet-500/10 dark:bg-violet-500/20 text-violet-600 dark:text-violet-300'
+                    : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-500 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
                 {task}
@@ -169,7 +161,7 @@ export default function ActivityForm({ matchId, onSuccess }: ActivityFormProps) 
           onChange={(e) => setName(e.target.value)}
           placeholder={selectedCategory ? `e.g. ${predefinedTasks[0] ?? 'My Activity'}` : 'Select a category first'}
           required
-          className="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500/30 transition"
+          className="w-full bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500/30 transition shadow-sm"
           style={{ fontSize: '16px' }}
         />
       </div>
@@ -179,46 +171,38 @@ export default function ActivityForm({ matchId, onSuccess }: ActivityFormProps) 
         <label className="block text-xs text-slate-400 mb-1.5 font-medium uppercase tracking-wider">
           Duration
         </label>
-        <div className="flex gap-2">
-          <div className="relative flex-1">
-            <input
-              id="activity-hours"
-              type="number"
-              min={0}
-              max={16}
-              value={hours}
-              onChange={(e) => handleHoursChange(e.target.value)}
-              placeholder="0"
-              className="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500/30 transition"
-              style={{ fontSize: '16px' }}
-            />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-500">h</span>
-          </div>
-          <div className="relative flex-1">
-            <input
-              id="activity-minutes"
-              type="number"
-              min={0}
-              max={59}
-              value={minutes}
-              onChange={(e) => handleMinutesChange(e.target.value)}
-              placeholder="0"
-              className="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500/30 transition"
-              style={{ fontSize: '16px' }}
-            />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-500">m</span>
-          </div>
-        </div>
+        
+        {showPicker ? (
+          <ScrollTimePicker
+            initialHours={Number(hours) || 0}
+            initialMinutes={Number(minutes) || 0}
+            onChange={(h, m) => { setHours(h); setMinutes(m) }}
+            onClose={() => setShowPicker(false)}
+          />
+        ) : (
+          <button
+            type="button"
+            onClick={() => setShowPicker(true)}
+            className="w-full flex items-center justify-between bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white transition hover:bg-slate-50 dark:hover:bg-slate-800 shadow-sm"
+          >
+            <span className="font-medium">
+              {(hours || hours === 0) && (minutes || minutes === 0) 
+                ? `${hours} hr ${minutes} min` 
+                : 'Select duration...'}
+            </span>
+            <Clock className="w-4 h-4 text-slate-400" />
+          </button>
+        )}
       </div>
 
       {/* Score preview */}
       {score !== null && (
         <div className="flex items-center justify-between bg-violet-500/10 border border-violet-500/20 rounded-xl px-4 py-3 animate-fadeInUp">
-          <div className="flex items-center gap-2 text-sm text-violet-300">
+          <div className="flex items-center gap-2 text-sm text-violet-600 dark:text-violet-300 font-medium">
             <Zap className="w-4 h-4" />
             Score Preview
           </div>
-          <div className="text-lg font-bold text-violet-300">+{score} pts</div>
+          <div className="text-lg font-bold text-violet-600 dark:text-violet-300">+{score} pts</div>
         </div>
       )}
 

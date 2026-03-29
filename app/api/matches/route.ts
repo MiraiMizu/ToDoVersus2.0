@@ -21,6 +21,7 @@ export async function GET(request: NextRequest) {
         opponent: { select: { id: true, username: true, avatarUrl: true, rank: true } },
         bet: true,
         categories: { include: { category: true } },
+        matchTasks: { include: { category: true } },
         winner: { select: { id: true, username: true } },
       },
       orderBy: { createdAt: 'desc' },
@@ -41,14 +42,18 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { opponentId, categoryIds, betContent } = body
+    const { opponentId, matchTasks, betContent } = body
 
-    if (!opponentId || !categoryIds || categoryIds.length === 0) {
-      return NextResponse.json({ error: 'Opponent and categories are required' }, { status: 400 })
+    if (!opponentId || !matchTasks || matchTasks.length === 0) {
+      return NextResponse.json({ error: 'Opponent and tasks are required' }, { status: 400 })
     }
 
-    if (categoryIds.length > 5) {
-      return NextResponse.json({ error: 'Maximum 5 categories allowed' }, { status: 400 })
+    if (matchTasks.length > 5) {
+      return NextResponse.json({ error: 'Maximum 5 tasks allowed' }, { status: 400 })
+    }
+
+    for (const mt of matchTasks) {
+       if (!mt.content || !mt.categoryId) return NextResponse.json({ error: 'All tasks must have content and category assigned' }, { status: 400 })
     }
 
     if (opponentId === session.user.id) {
@@ -60,8 +65,11 @@ export async function POST(request: NextRequest) {
         challengerId: session.user.id,
         opponentId,
         status: 'PENDING',
-        categories: {
-          create: categoryIds.map((categoryId: string) => ({ categoryId })),
+        matchTasks: {
+          create: matchTasks.map((t: { content: string, categoryId: string }) => ({
+             content: t.content,
+             categoryId: t.categoryId
+          }))
         },
         bet: betContent
           ? {
@@ -75,7 +83,7 @@ export async function POST(request: NextRequest) {
       include: {
         challenger: { select: { id: true, username: true, avatarUrl: true } },
         opponent: { select: { id: true, username: true, avatarUrl: true } },
-        categories: { include: { category: true } },
+        matchTasks: { include: { category: true } },
         bet: true,
       },
     })

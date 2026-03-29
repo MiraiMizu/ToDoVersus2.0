@@ -14,20 +14,21 @@ import {
   Zap,
   Shield,
   Clock,
-  Medal,
-  User,
 } from 'lucide-react'
 import ActivityForm from '@/components/ActivityForm'
+import PersonalTodos from '@/components/PersonalTodos'
+import { ScrollTimePicker } from '@/components/ScrollTimePicker'
 import { formatScore } from '@/lib/scoring'
 import { getRank, getRankProgress, getNextRank } from '@/lib/ranks'
+import { useState } from 'react'
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
 function SkeletonCard() {
   return (
     <div className="glass rounded-2xl p-5 animate-pulse">
-      <div className="h-3 bg-slate-800 rounded w-1/2 mb-3" />
-      <div className="h-8 bg-slate-800 rounded w-1/3" />
+      <div className="h-3 bg-slate-200 dark:bg-slate-800 rounded w-1/2 mb-3" />
+      <div className="h-8 bg-slate-200 dark:bg-slate-800 rounded w-1/3" />
     </div>
   )
 }
@@ -48,56 +49,24 @@ function StatCard({
   return (
     <div className="glass rounded-2xl p-5 flex flex-col gap-3 hover:border-violet-500/30 transition-all duration-300">
       <div className="flex items-center justify-between">
-        <span className="text-xs text-slate-400 font-medium uppercase tracking-wider">{label}</span>
+        <span className="text-xs text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wider">{label}</span>
         <div className={`w-8 h-8 ${color} rounded-xl flex items-center justify-center`}>
           <Icon className="w-4 h-4 text-white" />
         </div>
       </div>
-      <div className="text-3xl font-bold text-white">{value}</div>
-      {sub && <div className="text-xs text-slate-500">{sub}</div>}
+      <div className="text-3xl font-bold text-slate-900 dark:text-white">{value}</div>
+      {sub && <div className="text-xs text-slate-600 dark:text-slate-500">{sub}</div>}
     </div>
   )
 }
-
-const NAV_CARDS = [
-  {
-    href: '/matches',
-    label: 'Matches',
-    icon: Swords,
-    color: 'from-rose-500 to-orange-600',
-    bg: 'bg-rose-500/10 border-rose-500/20 hover:border-rose-500/40',
-    desc: 'Challenge & compete',
-  },
-  {
-    href: '/leaderboard',
-    label: 'Leaderboard',
-    icon: Trophy,
-    color: 'from-yellow-500 to-amber-600',
-    bg: 'bg-amber-500/10 border-amber-500/20 hover:border-amber-500/40',
-    desc: 'See world rankings',
-  },
-  {
-    href: '/achievements',
-    label: 'Badges',
-    icon: Medal,
-    color: 'from-violet-500 to-indigo-600',
-    bg: 'bg-violet-500/10 border-violet-500/20 hover:border-violet-500/40',
-    desc: 'Unlock achievements',
-  },
-  {
-    href: null,
-    label: 'Profile',
-    icon: User,
-    color: 'from-emerald-500 to-teal-600',
-    bg: 'bg-emerald-500/10 border-emerald-500/20 hover:border-emerald-500/40',
-    desc: 'Your stats & history',
-  },
-]
 
 export default function DashboardPage() {
   const { data: session } = useSession()
   const userId = session?.user?.id
   const today = new Date().toISOString().split('T')[0]
+  
+  const [activeLogTask, setActiveLogTask] = useState<{ matchId: string, matchTaskId: string, categoryId: string, taskName: string } | null>(null)
+  const [loggingTask, setLoggingTask] = useState(false)
 
   const { data: userdata, isLoading: userLoading } = useSWR(userId ? `/api/users/${userId}` : null, fetcher)
   const { data: activitiesData, mutate: mutateActivities } = useSWR(
@@ -127,16 +96,38 @@ export default function DashboardPage() {
   const hour = new Date().getHours()
   const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening'
 
+  const handleQuickLog = async (hours: number, minutes: number) => {
+    if (!activeLogTask) return
+    setLoggingTask(true)
+    
+    await fetch('/api/activities', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: activeLogTask.taskName,
+        categoryId: activeLogTask.categoryId,
+        hours,
+        minutes,
+        matchId: activeLogTask.matchId,
+        matchTaskId: activeLogTask.matchTaskId
+      }),
+    })
+    
+    setLoggingTask(false)
+    setActiveLogTask(null)
+    mutateActivities()
+  }
+
   return (
-    <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-5 animate-fadeInUp">
+    <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-6 animate-fadeInUp">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl md:text-2xl font-bold text-white">
+          <h1 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white">
             {greeting},{' '}
-            <span className="text-violet-400">{session?.user?.name}</span> 👋
+            <span className="text-violet-600 dark:text-violet-400">{session?.user?.name}</span> 👋
           </h1>
-          <p className="text-slate-400 text-xs md:text-sm mt-0.5">
+          <p className="text-slate-500 dark:text-slate-400 text-xs md:text-sm mt-0.5">
             {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
           </p>
         </div>
@@ -152,39 +143,16 @@ export default function DashboardPage() {
 
       {/* Pending match alerts */}
       {pendingMatches.length > 0 && (
-        <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4">
-          <div className="flex items-center gap-2 text-amber-400 font-medium text-sm">
+        <div className="bg-amber-100 dark:bg-amber-500/10 border border-amber-300 dark:border-amber-500/30 rounded-2xl p-4">
+          <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400 font-medium text-sm">
             <Sword className="w-4 h-4" />
             You have {pendingMatches.length} pending challenge{pendingMatches.length > 1 ? 's' : ''}!
-            <Link href="/matches" className="ml-auto text-amber-300 hover:text-amber-200 transition flex items-center gap-1 text-xs">
+            <Link href="/matches" className="ml-auto text-amber-600 dark:text-amber-300 hover:opacity-80 transition flex items-center gap-1 text-xs">
               View <ChevronRight className="w-3 h-3" />
             </Link>
           </div>
         </div>
       )}
-
-      {/* Navigation Hub Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {NAV_CARDS.map(({ href, label, icon: Icon, color, bg, desc }) => {
-          const resolvedHref = href ?? (userId ? `/profile/${userId}` : '/profile')
-          return (
-            <Link
-              key={label}
-              href={resolvedHref}
-              id={`nav-card-${label.toLowerCase()}`}
-              className={`glass border rounded-2xl p-4 flex flex-col gap-3 transition-all duration-300 group ${bg}`}
-            >
-              <div className={`w-10 h-10 bg-gradient-to-br ${color} rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-                <Icon className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <div className="text-sm font-bold text-white">{label}</div>
-                <div className="text-[11px] text-slate-500 leading-tight">{desc}</div>
-              </div>
-            </Link>
-          )
-        })}
-      </div>
 
       {/* Stats grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
@@ -224,14 +192,17 @@ export default function DashboardPage() {
       </div>
 
       {/* Main content grid */}
-      <div className="grid lg:grid-cols-3 gap-5">
-        {/* Log activity + today's list */}
-        <div className="lg:col-span-2 space-y-4">
-          {/* Activity form */}
-          <div className="glass rounded-2xl p-5">
-            <h2 className="text-base font-semibold text-white mb-4 flex items-center gap-2">
-              <Plus className="w-4 h-4 text-violet-400" />
-              Log Activity
+      <div className="grid lg:grid-cols-12 gap-6">
+        
+        {/* Left Column: Command Center (7 cols) */}
+        <div className="lg:col-span-7 space-y-6">
+          
+          <PersonalTodos />
+
+          <div className="glass rounded-2xl p-5 lg:p-6 opacity-100">
+            <h2 className="text-base font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+              <Zap className="w-4 h-4 text-violet-500 dark:text-violet-400" />
+              General Productivity
             </h2>
             <ActivityForm
               onSuccess={() => {
@@ -240,17 +211,16 @@ export default function DashboardPage() {
             />
           </div>
 
-          {/* Today's activities */}
           <div className="glass rounded-2xl p-5">
-            <h2 className="text-base font-semibold text-white mb-4 flex items-center gap-2">
-              <Clock className="w-4 h-4 text-violet-400" />
-              Today&apos;s Activities
-              <span className="ml-auto text-xs text-slate-500 bg-slate-800 px-2 py-0.5 rounded-full">
+            <h2 className="text-base font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+              <Clock className="w-4 h-4 text-violet-500 dark:text-violet-400" />
+              Today&apos;s Logs
+              <span className="ml-auto text-xs text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">
                 {activities.length}
               </span>
             </h2>
             {activities.length === 0 ? (
-              <div className="text-center py-8 text-slate-500 text-sm">
+              <div className="text-center py-8 text-slate-500 dark:text-slate-500 text-sm">
                 No activities yet today. Log your first one! 🚀
               </div>
             ) : (
@@ -264,20 +234,20 @@ export default function DashboardPage() {
                 }) => (
                   <div
                     key={a.id}
-                    className="flex items-center gap-3 p-3 bg-slate-900/60 rounded-xl hover:bg-slate-900/80 transition-colors"
+                    className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-900/60 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-900/80 transition-colors"
                   >
                     <div
                       className="w-2 h-10 rounded-full flex-shrink-0"
                       style={{ backgroundColor: a.category.color }}
                     />
                     <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium text-white truncate">{a.name}</div>
+                      <div className="text-sm font-medium text-slate-900 dark:text-white truncate">{a.name}</div>
                       <div className="text-xs text-slate-500">
                         {Math.floor(a.durationMinutes / 60)}h {a.durationMinutes % 60}m ·{' '}
                         {a.category.name} (×{a.category.weight})
                       </div>
                     </div>
-                    <div className="text-sm font-bold text-violet-400">+{formatScore(a.score)}</div>
+                    <div className="text-sm font-bold text-violet-600 dark:text-violet-400">+{formatScore(a.score)}</div>
                   </div>
                 ))}
               </div>
@@ -285,63 +255,123 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Right column */}
-        <div className="space-y-4">
-          {/* Rank card */}
-          {user && rank && (
-            <div className="glass rounded-2xl p-5">
-              <div className="flex items-center gap-3 mb-4">
-                <Shield className="w-5 h-5 text-violet-400" />
-                <h2 className="text-base font-semibold text-white">Your Rank</h2>
+        {/* Right Column: Active Matches & History (5 cols) */}
+        <div className="lg:col-span-5 space-y-6">
+          
+          {/* Active matches quick view */}
+          {activeMatches.length > 0 ? (
+            <div className="glass rounded-2xl p-5 border-rose-500/20 shadow-[0_0_15px_rgba(244,63,94,0.1)]">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-base font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+                  <Sword className="w-4 h-4 text-rose-500 dark:text-rose-400" />
+                  Active Battles
+                </h2>
+                <Link href="/matches" className="text-xs text-violet-600 dark:text-violet-400 hover:text-violet-500 dark:hover:text-violet-300 transition">
+                  Manage
+                </Link>
               </div>
-              {/* Big rank display */}
-              <div className="text-center mb-4">
-                <div
-                  className="text-4xl font-extrabold mb-1"
-                  style={{ background: `linear-gradient(135deg, ${rank.color}, #fff)`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}
-                >
-                  {rank.icon} {rank.name}
-                </div>
-                <div className="text-xs text-slate-500">{formatScore(user.allTimeScore)} total points</div>
+              <div className="space-y-3">
+                {activeMatches.slice(0, 3).map((m: {
+                  id: string
+                  challenger: { id: string; username: string }
+                  opponent: { id: string; username: string }
+                  matchTasks: { id: string; content: string; categoryId: string; category: { name: string, weight: number } }[]
+                }) => {
+                  const opponent = m.challenger.id === userId ? m.opponent : m.challenger
+                  return (
+                    <div key={m.id} className="bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-transparent rounded-xl p-3">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-8 h-8 bg-gradient-to-br from-rose-500 to-orange-600 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0">
+                          {opponent.username[0]?.toUpperCase()}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm font-medium text-slate-900 dark:text-white truncate">vs {opponent.username}</div>
+                          <div className="text-[10px] text-slate-500 uppercase tracking-widest mt-0.5">Live Match</div>
+                        </div>
+                        <Link href={`/matches/${m.id}`} className="text-xs text-rose-500 hover:text-rose-600 font-medium transition">View</Link>
+                      </div>
+                      
+                      <div className="space-y-1.5 mt-2 border-t border-slate-200 dark:border-slate-800 pt-3">
+                        <div className="text-xs text-slate-500 mb-1">Click a task to log time:</div>
+                        {m.matchTasks && m.matchTasks.map(task => (
+                           <button 
+                             key={task.id}
+                             onClick={() => setActiveLogTask({
+                               matchId: m.id,
+                               matchTaskId: task.id,
+                               categoryId: task.categoryId,
+                               taskName: task.content
+                             })}
+                             className="w-full flex items-center justify-between text-left bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-violet-300 dark:hover:border-violet-600 px-3 py-2 rounded-lg transition group"
+                           >
+                              <div>
+                                <div className="text-xs font-semibold text-slate-700 dark:text-slate-300 group-hover:text-violet-600 dark:group-hover:text-violet-400">{task.content}</div>
+                                <div className="text-[10px] text-slate-400">{task.category?.name} (x{task.category?.weight})</div>
+                              </div>
+                              <Plus className="w-4 h-4 text-slate-400 group-hover:text-violet-500 transition" />
+                           </button>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
-              {/* Progress bar */}
-              <div className="h-2.5 bg-slate-800 rounded-full overflow-hidden mb-2">
-                <div
-                  className="h-full rounded-full transition-all duration-700"
-                  style={{
-                    width: `${rankProgress}%`,
-                    background: `linear-gradient(90deg, ${rank.color}, #7c3aed)`,
-                    boxShadow: `0 0 8px ${rank.color}80`
-                  }}
-                />
-              </div>
-              <div className="flex justify-between text-xs text-slate-500">
-                <span>{rankProgress}% complete</span>
-                {nextRank && <span>→ {nextRank.icon} {nextRank.name}</span>}
-              </div>
+            </div>
+          ) : (
+            <div className="glass rounded-2xl p-5 flex flex-col items-center justify-center text-center py-8">
+               <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-full flex justify-center items-center mb-3">
+                 <Swords className="w-6 h-6 text-slate-400" />
+               </div>
+               <h3 className="text-slate-900 dark:text-white font-medium text-sm">No Active Battles</h3>
+               <p className="text-slate-500 text-xs mt-1 mb-4">Challenge someone to boost your productivity.</p>
+               <Link href="/matches/new" className="text-xs font-semibold text-violet-600 dark:text-violet-400 bg-violet-100 dark:bg-violet-500/10 px-4 py-2 rounded-lg hover:bg-violet-200 dark:hover:bg-violet-500/20 transition">
+                 Start a Match
+               </Link>
             </div>
           )}
 
-          {/* Streak highlight */}
-          {user && user.streak > 0 && (
-            <div className="glass rounded-2xl p-5 border-rose-500/20 bg-rose-500/5">
-              <div className="text-center">
-                <div className="text-5xl mb-2 animate-pulse-glow">🔥</div>
-                <div className="text-3xl font-extrabold text-white">{user.streak}</div>
-                <div className="text-sm text-rose-400 font-semibold">Day Streak</div>
-                <div className="text-xs text-slate-500 mt-1">Don&apos;t break it!</div>
-              </div>
-            </div>
-          )}
+          <div className="grid grid-cols-2 gap-4">
+             {/* Rank card compact */}
+             {user && rank && (
+                <div className="glass rounded-2xl p-4 flex flex-col items-center justify-center text-center">
+                   <Shield className="w-5 h-5 text-violet-500 dark:text-violet-400 mb-2" />
+                   <div
+                    className="text-xl font-extrabold"
+                    style={{ background: `linear-gradient(135deg, ${rank.color}, #a78bfa)`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}
+                   >
+                    {rank.icon} {rank.name}
+                   </div>
+                   <div className="text-[10px] text-slate-500 uppercase tracking-wider mt-1 mb-2">Current Rank</div>
+                   <div className="h-1.5 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                     <div
+                      className="h-full rounded-full transition-all duration-700"
+                      style={{
+                        width: `${rankProgress}%`,
+                        background: `linear-gradient(90deg, ${rank.color}, #7c3aed)`,
+                      }}
+                     />
+                   </div>
+                </div>
+             )}
+             
+             {/* Streak highlight compact */}
+             {user && (
+                <div className={`glass rounded-2xl p-4 flex flex-col items-center justify-center text-center ${user.streak > 0 ? 'border-rose-500/20 bg-rose-50 dark:bg-rose-500/5' : ''}`}>
+                   <div className={`text-2xl mb-1 ${user.streak > 0 ? 'animate-pulse-glow' : 'opacity-50 blur-[1px]'}`}>🔥</div>
+                   <div className={`text-2xl font-extrabold ${user.streak > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-slate-800 dark:text-slate-400'}`}>{user.streak} <span className="text-sm font-medium">days</span></div>
+                   <div className="text-[10px] text-slate-500 uppercase tracking-wider mt-1">{user.streak > 0 ? 'Active Streak' : 'No Streak'}</div>
+                </div>
+             )}
+          </div>
 
           {/* Daily Leaderboard */}
           <div className="glass rounded-2xl p-5">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-base font-semibold text-white flex items-center gap-2">
-                <Trophy className="w-4 h-4 text-yellow-400" />
+              <h2 className="text-base font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+                <Trophy className="w-4 h-4 text-yellow-500 dark:text-yellow-400" />
                 Today&apos;s Top
               </h2>
-              <Link href="/leaderboard" className="text-xs text-violet-400 hover:text-violet-300 transition flex items-center gap-1">
+              <Link href="/leaderboard" className="text-xs text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 transition flex items-center gap-1">
                 All <ChevronRight className="w-3 h-3" />
               </Link>
             </div>
@@ -357,17 +387,17 @@ export default function DashboardPage() {
                   return (
                     <div
                       key={entry.user?.id ?? i}
-                      className={`flex items-center gap-3 p-2.5 rounded-xl transition-colors ${entry.user?.id === userId ? 'bg-violet-500/10 border border-violet-500/20' : 'hover:bg-slate-800/30'}`}
+                      className={`flex items-center gap-3 p-2.5 rounded-xl transition-colors ${entry.user?.id === userId ? 'bg-violet-100 dark:bg-violet-500/10 border border-violet-200 dark:border-violet-500/20' : 'hover:bg-slate-50 dark:hover:bg-slate-800/30'}`}
                     >
                       <span className="text-base w-6 text-center">{medals[i] ?? `${i + 1}`}</span>
                       <div className="flex-1 min-w-0">
-                        <div className="text-sm font-medium text-white truncate">
+                        <div className="text-sm font-medium text-slate-900 dark:text-white truncate">
                           {entry.user?.username ?? 'Unknown'}
-                          {entry.user?.id === userId && <span className="text-violet-400 text-xs ml-1">(you)</span>}
+                          {entry.user?.id === userId && <span className="text-violet-600 dark:text-violet-400 text-xs ml-1">(you)</span>}
                         </div>
-                        <div className="text-xs text-slate-500">{entry.user?.rank}</div>
+                        <div className="text-[10px] text-slate-500">{entry.user?.rank}</div>
                       </div>
-                      <div className="text-sm font-bold text-violet-400">{formatScore(entry.totalScore)}</div>
+                      <div className="text-sm font-bold text-violet-600 dark:text-violet-400">{formatScore(entry.totalScore)}</div>
                     </div>
                   )
                 })}
@@ -375,46 +405,38 @@ export default function DashboardPage() {
             )}
           </div>
 
-          {/* Active matches quick view */}
-          {activeMatches.length > 0 && (
-            <div className="glass rounded-2xl p-5">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-base font-semibold text-white flex items-center gap-2">
-                  <Sword className="w-4 h-4 text-rose-400" />
-                  Active Battles
-                </h2>
-                <Link href="/matches" className="text-xs text-violet-400 hover:text-violet-300 transition">
-                  All
-                </Link>
-              </div>
-              <div className="space-y-2">
-                {activeMatches.slice(0, 3).map((m: {
-                  id: string
-                  challenger: { id: string; username: string }
-                  opponent: { id: string; username: string }
-                }) => {
-                  const opponent = m.challenger.id === userId ? m.opponent : m.challenger
-                  return (
-                    <Link
-                      key={m.id}
-                      href={`/matches/${m.id}`}
-                      className="flex items-center gap-3 p-2.5 bg-slate-900/60 rounded-xl hover:bg-slate-800/60 transition"
-                    >
-                      <div className="w-7 h-7 bg-gradient-to-br from-rose-500 to-orange-600 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
-                        {opponent.username[0]?.toUpperCase()}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm font-medium text-white truncate">vs {opponent.username}</div>
-                      </div>
-                      <ChevronRight className="w-4 h-4 text-slate-500" />
-                    </Link>
-                  )
-                })}
-              </div>
-            </div>
-          )}
         </div>
       </div>
+
+      {activeLogTask && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 w-full max-w-sm shadow-2xl animate-scaleUp">
+             <div className="flex justify-between items-center mb-4">
+               <div>
+                 <div className="text-xs text-violet-600 dark:text-violet-400 font-bold uppercase tracking-wider mb-1">Log Match Auto-pilot</div>
+                 <h3 className="text-lg font-bold text-slate-900 dark:text-white">{activeLogTask.taskName}</h3>
+               </div>
+               <button onClick={() => setActiveLogTask(null)} className="p-2 bg-slate-100 dark:bg-slate-800 rounded-full text-slate-500 hover:text-red-500 transition">
+                  <Plus className="w-5 h-5 rotate-45" />
+               </button>
+             </div>
+             
+             {loggingTask ? (
+               <div className="py-12 flex flex-col items-center justify-center space-y-3">
+                 <div className="w-8 h-8 border-4 border-violet-500/30 border-t-violet-600 rounded-full animate-spin" />
+                 <div className="text-sm text-slate-500 font-medium">Recording progress...</div>
+               </div>
+             ) : (
+               <ScrollTimePicker 
+                 initialHours={0} 
+                 initialMinutes={0} 
+                 onChange={handleQuickLog} 
+                 onClose={() => setActiveLogTask(null)} 
+               />
+             )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

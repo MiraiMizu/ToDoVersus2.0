@@ -1,0 +1,24 @@
+CREATE TABLE "MatchTask" (
+  "id" TEXT NOT NULL PRIMARY KEY,
+  "matchId" TEXT NOT NULL,
+  "content" TEXT NOT NULL,
+  "categoryId" TEXT NOT NULL,
+  "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT "MatchTask_matchId_fkey" FOREIGN KEY ("matchId") REFERENCES "Match" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT "MatchTask_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+CREATE TABLE "Todo" (
+  "id" TEXT NOT NULL PRIMARY KEY,
+  "userId" TEXT NOT NULL,
+  "content" TEXT NOT NULL,
+  "isCompleted" BOOLEAN NOT NULL DEFAULT false,
+  "date" TEXT NOT NULL,
+  "categoryId" TEXT,
+  "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "updatedAt" DATETIME NOT NULL,
+  CONSTRAINT "Todo_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT "Todo_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+ALTER TABLE "ActivityLog" ADD COLUMN "matchTaskId" TEXT REFERENCES "MatchTask"("id") ON DELETE SET NULL;

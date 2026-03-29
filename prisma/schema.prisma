@@ -27,6 +27,7 @@ model User {
   achievements      UserAchievement[]
   suspiciousLogs    SuspiciousLog[]
   wonMatches        Match[]           @relation("Winner")
+  todos             Todo[]
 }
 
 model Category {
@@ -38,6 +39,8 @@ model Category {
 
   matchCategories MatchCategory[]
   activityLogs    ActivityLog[]
+  todos           Todo[]
+  matchTasks      MatchTask[]
 }
 
 model Match {
@@ -56,6 +59,7 @@ model Match {
   winner         User?           @relation("Winner", fields: [winnerId], references: [id])
   bet            Bet?
   categories     MatchCategory[]
+  matchTasks     MatchTask[]
   activityLogs   ActivityLog[]
   dailyScores    DailyScore[]
 }
@@ -82,10 +86,37 @@ model MatchCategory {
   @@unique([matchId, categoryId])
 }
 
+model MatchTask {
+  id         String @id @default(cuid())
+  matchId    String
+  content    String
+  categoryId String
+  createdAt  DateTime @default(now())
+
+  match    Match    @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id])
+  activityLogs ActivityLog[]
+}
+
+model Todo {
+  id          String   @id @default(cuid())
+  userId      String
+  content     String
+  isCompleted Boolean  @default(false)
+  date        String   // YYYY-MM-DD
+  categoryId  String?  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category    Category? @relation(fields: [categoryId], references: [id])
+}
+
 model ActivityLog {
   id              String   @id @default(cuid())
   userId          String
   matchId         String?
+  matchTaskId     String?
   categoryId      String
   name            String
   durationMinutes Int
@@ -93,9 +124,10 @@ model ActivityLog {
   loggedAt        DateTime @default(now())
   date            String   // YYYY-MM-DD for easy daily grouping
 
-  user     User     @relation(fields: [userId], references: [id])
-  match    Match?   @relation(fields: [matchId], references: [id])
-  category Category @relation(fields: [categoryId], references: [id])
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  match     Match?     @relation(fields: [matchId], references: [id], onDelete: SetNull)
+  matchTask MatchTask? @relation(fields: [matchTaskId], references: [id], onDelete: SetNull)
+  category  Category   @relation(fields: [categoryId], references: [id])
 }
 
 model DailyScore {

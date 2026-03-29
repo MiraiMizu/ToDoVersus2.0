@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { name, categoryId, hours, minutes, matchId } = body
+    const { name, categoryId, hours, minutes, matchId, matchTaskId } = body
 
     if (!name || !categoryId) {
       return NextResponse.json({ error: 'Activity name and category are required' }, { status: 400 })
@@ -106,6 +106,7 @@ export async function POST(request: NextRequest) {
       data: {
         userId,
         matchId: matchId || null,
+        matchTaskId: matchTaskId || null,
         categoryId,
         name,
         durationMinutes: totalMinutes,

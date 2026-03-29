@@ -59,18 +59,45 @@ CREATE TABLE "MatchCategory" (
 );
 
 -- CreateTable
+CREATE TABLE "MatchTask" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "matchId" TEXT NOT NULL,
+    "content" TEXT NOT NULL,
+    "categoryId" TEXT NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "MatchTask_matchId_fkey" FOREIGN KEY ("matchId") REFERENCES "Match" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "MatchTask_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "Todo" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "userId" TEXT NOT NULL,
+    "content" TEXT NOT NULL,
+    "isCompleted" BOOLEAN NOT NULL DEFAULT false,
+    "date" TEXT NOT NULL,
+    "categoryId" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "Todo_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "Todo_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+-- CreateTable
 CREATE TABLE "ActivityLog" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "userId" TEXT NOT NULL,
     "matchId" TEXT,
+    "matchTaskId" TEXT,
     "categoryId" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "durationMinutes" INTEGER NOT NULL,
     "score" INTEGER NOT NULL,
     "loggedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "date" TEXT NOT NULL,
-    CONSTRAINT "ActivityLog_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "ActivityLog_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT "ActivityLog_matchId_fkey" FOREIGN KEY ("matchId") REFERENCES "Match" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT "ActivityLog_matchTaskId_fkey" FOREIGN KEY ("matchTaskId") REFERENCES "MatchTask" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
     CONSTRAINT "ActivityLog_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
