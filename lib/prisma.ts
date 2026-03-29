@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client'
+import { PrismaD1 } from '@prisma/adapter-d1'
 import { getCloudflareContext } from '@opennextjs/cloudflare'
 
 const globalForPrisma = globalThis as unknown as {
@@ -12,10 +13,6 @@ function createPrismaClient(): PrismaClient {
     const env = context.env as any;
 
     if (env && env.DB) {
-      // We use a dynamic require or import here to avoid bundling issues, 
-      // but since it's a server-side file, standard imports are usually fine if the environment supports them.
-      // For Cloudflare D1:
-      const { PrismaD1 } = require('@prisma/adapter-d1');
       const adapter = new PrismaD1(env.DB);
       return new PrismaClient({ adapter });
     }
@@ -26,9 +23,11 @@ function createPrismaClient(): PrismaClient {
   // 2. Try Local SQLite (Development)
   if (process.env.NODE_ENV !== 'production') {
     try {
-      const { PrismaBetterSqlite3 } = require('@prisma/adapter-better-sqlite3');
-      const Database = require('better-sqlite3');
-      const path = require('path');
+      // We use eval('require') to hide these native modules from the Cloudflare/OpenNext bundler.
+      // These are only used in local development.
+      const { PrismaBetterSqlite3 } = eval('require')('@prisma/adapter-better-sqlite3');
+      const Database = eval('require')('better-sqlite3');
+      const path = eval('require')('path');
       
       const dbFile = process.env.DATABASE_URL?.replace('file:', '') ?? './dev.db';
       const resolvedPath = path.resolve(process.cwd(), dbFile);
