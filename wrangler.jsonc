@@ -19,5 +19,6 @@
 	],
 	"compatibility_flags": [
 		"nodejs_compat"
-	]
+	],
+	"minify": true
 }
