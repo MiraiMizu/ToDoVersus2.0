@@ -1,7 +1,7 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "todoversus",
-	"account_id": "e2a8bba6625ca90c17aef37051684223",
+	"account_id": "3195c88918d75f67924d7112641b8be3",
 	"compatibility_date": "2025-01-01",
 	"main": ".open-next/worker.js",
 	"assets": {
@@ -15,7 +15,7 @@
 		{
 			"binding": "DB",
 			"database_name": "todoversus-db",
-			"database_id": "d3fc2672-d0d7-4d90-bd9b-296a48683844"
+			"database_id": "73883563-661b-4114-b127-75ed6fe5fa63"
 		}
 	],
 	"compatibility_flags": [
