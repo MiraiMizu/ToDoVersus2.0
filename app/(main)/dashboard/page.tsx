@@ -47,15 +47,23 @@ function StatCard({
   sub?: string
 }) {
   return (
-    <div className="glass rounded-2xl p-5 flex flex-col gap-3 hover:border-violet-500/30 transition-all duration-300">
-      <div className="flex items-center justify-between">
-        <span className="text-xs text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wider">{label}</span>
-        <div className={`w-8 h-8 ${color} rounded-xl flex items-center justify-center`}>
-          <Icon className="w-4 h-4 text-white" />
+    <div className="glass rounded-2xl p-5 md:p-6 flex flex-col justify-between gap-6 hover:border-violet-500/30 transition-all duration-300 relative overflow-hidden group min-h-[140px]">
+      <div className="flex items-start justify-between relative z-10 w-full">
+        <div className="flex-1 min-w-0 pr-3">
+           <span className="block text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest truncate mb-2">{label}</span>
+           <div className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white truncate leading-none">{value}</div>
+        </div>
+        <div className={`w-10 h-10 ${color} rounded-xl flex items-center justify-center shadow-lg shadow-black/5 shrink-0 -mt-1 group-hover:scale-110 transition-transform`}>
+          <Icon className="w-5 h-5 text-white" />
         </div>
       </div>
-      <div className="text-3xl font-bold text-slate-900 dark:text-white">{value}</div>
-      {sub && <div className="text-xs text-slate-600 dark:text-slate-500">{sub}</div>}
+      {sub && (
+        <div className="relative z-10 mt-auto">
+          <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 truncate uppercase tracking-tighter bg-slate-100 dark:bg-slate-800/80 w-fit px-2.5 py-1 rounded-lg border border-slate-200/50 dark:border-slate-700/50">
+            {sub}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -119,25 +127,25 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-6 animate-fadeInUp">
+    <div className="p-4 md:p-8 lg:p-10 max-w-7xl mx-auto space-y-10 animate-fadeInUp mb-24 md:mb-10">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-4">
         <div>
-          <h1 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white">
+          <h1 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
             {greeting},{' '}
             <span className="text-violet-600 dark:text-violet-400">{session?.user?.name}</span> 👋
           </h1>
-          <p className="text-slate-500 dark:text-slate-400 text-xs md:text-sm mt-0.5">
+          <p className="text-slate-500 dark:text-slate-400 text-sm md:text-base font-medium mt-1">
             {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
           </p>
         </div>
         <Link
           href="/matches/new"
           id="challenge-button"
-          className="flex items-center gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-sm font-semibold px-3 py-2 md:px-4 md:py-2.5 rounded-xl transition-all shadow-lg shadow-violet-500/20"
+          className="flex items-center justify-center gap-2.5 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-sm font-bold px-6 py-3.5 rounded-2xl transition-all shadow-xl shadow-violet-500/25 active:scale-95"
         >
-          <Plus className="w-4 h-4" />
-          <span className="hidden sm:inline">Challenge</span>
+          <Plus className="w-5 h-5" />
+          <span>New Challenge</span>
         </Link>
       </div>
 
@@ -155,7 +163,7 @@ export default function DashboardPage() {
       )}
 
       {/* Stats grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         {userLoading ? (
           Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)
         ) : (
@@ -192,7 +200,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Main content grid */}
-      <div className="grid lg:grid-cols-12 gap-6">
+      <div className="grid lg:grid-cols-12 gap-8 lg:gap-10">
         
         {/* Left Column: Command Center (7 cols) */}
         <div className="lg:col-span-7 space-y-6">

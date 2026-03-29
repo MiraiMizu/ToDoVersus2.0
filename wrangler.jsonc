@@ -2,7 +2,7 @@
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "todoversus",
 	"account_id": "3195c88918d75f67924d7112641b8be3",
-	"compatibility_date": "2025-01-01",
+	"compatibility_date": "2024-09-23",
 	"main": ".open-next/worker.js",
 	"assets": {
 		"directory": ".open-next/assets",
@@ -21,5 +21,10 @@
 	"compatibility_flags": [
 		"nodejs_compat"
 	],
+	"vars": {
+		"NEXTAUTH_URL": "https://todoversus.brnoztugral.workers.dev",
+		"AUTH_TRUST_HOST": "true",
+		"AUTH_SECRET": "3195c88918d75f67924d7112641b8be3_todoversus_prod_secret_2026"
+	},
 	"minify": true
 }

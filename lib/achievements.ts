@@ -91,7 +91,7 @@ export async function checkAndAwardAchievements(ctx: AchievementCheckContext): P
   })
   if (!user) return []
 
-  const existingCodes = new Set(user.achievements.map((ua) => ua.achievement.code))
+  const existingCodes = new Set(user.achievements.map((ua: any) => ua.achievement.code))
   
   // Pre-fetch all necessary data once to avoid queries inside the loop
   const totalActivitiesCount = await prisma.activityLog.count({ where: { userId: ctx.userId } })
@@ -105,7 +105,7 @@ export async function checkAndAwardAchievements(ctx: AchievementCheckContext): P
       where: { userId: ctx.userId, date: ctx.date },
       include: { category: true },
     })
-    categoryWeightsToday = new Set(logs.map((l) => l.category.weight))
+    categoryWeightsToday = new Set(logs.map((l: any) => l.category.weight))
   }
 
   const enrichedCtx: AchievementCheckContext = {
@@ -116,8 +116,8 @@ export async function checkAndAwardAchievements(ctx: AchievementCheckContext): P
   }
 
   // Fetch all achievements from the database once
-  const allAchievements = await prisma.achievement.findMany()
-  const achievementMap = new Map(allAchievements.map(a => [a.code, a]))
+  const allAchievements = await prisma.achievement.findMany() as any[]
+  const achievementMap = new Map(allAchievements.map((a: any) => [a.code, a]))
 
   const newlyAwarded: string[] = []
 

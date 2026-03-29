@@ -49,23 +49,23 @@ export default function PersonalTodos() {
         <h2 className="text-base font-semibold text-slate-900 dark:text-white flex items-center gap-2">
           📝 Daily Focus
         </h2>
-        <span className="text-xs font-medium text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">
+        <span className="text-xs font-bold text-slate-400 bg-slate-100 dark:bg-slate-800/80 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700">
           {todos.filter((t: any) => t.isCompleted).length} / {todos.length}
         </span>
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-3 py-2">
         {todos.map((todo: any) => (
-          <div key={todo.id} className="group flex items-center gap-3 p-2 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-xl transition">
+          <div key={todo.id} className="group flex items-center gap-4 p-3 bg-slate-50/50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800/50 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/80 transition shadow-sm">
             <button 
               onClick={() => toggleComplete(todo.id, todo.isCompleted)}
-              className={`w-6 h-6 rounded flex items-center justify-center shrink-0 border transition-all ${
+              className={`w-6 h-6 rounded-lg flex items-center justify-center shrink-0 border-2 transition-all ${
                 todo.isCompleted 
-                  ? 'bg-emerald-500 border-emerald-500 text-white' 
-                  : 'bg-transparent border-slate-300 dark:border-slate-600 hover:border-violet-500 cursor-pointer'
+                  ? 'bg-emerald-500 border-emerald-500 text-white shadow-lg shadow-emerald-500/20' 
+                  : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 hover:border-violet-500 cursor-pointer shadow-sm'
               }`}
             >
-              {todo.isCompleted && <Check className="w-4 h-4" />}
+              {todo.isCompleted && <Check className="w-3.5 h-3.5 stroke-[3]" />}
             </button>
             <span className={`text-sm flex-1 ${todo.isCompleted ? 'text-slate-400 line-through' : 'text-slate-700 dark:text-slate-200'}`}>
               {todo.content}
@@ -83,19 +83,19 @@ export default function PersonalTodos() {
         )}
       </div>
 
-      <form onSubmit={handleAdd} className="relative mt-2">
+      <form onSubmit={handleAdd} className="relative mt-2 group">
         <input 
           type="text"
           placeholder="Add a new task..."
           value={newTodo}
           onChange={e => setNewTodo(e.target.value)}
           disabled={loading}
-          className="w-full bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 rounded-xl pl-4 pr-12 py-3 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500/30 transition shadow-sm"
+          className="w-full bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-xl pl-4 pr-12 py-3.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500/30 transition shadow-sm"
         />
         <button 
           type="submit"
           disabled={!newTodo.trim() || loading}
-          className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-violet-500 hover:bg-violet-600 disabled:opacity-50 disabled:bg-slate-400 text-white rounded-lg transition"
+          className="absolute right-2 top-1.5 bottom-1.5 w-10 flex items-center justify-center bg-violet-500 hover:bg-violet-600 disabled:opacity-50 disabled:bg-slate-400 text-white rounded-lg transition-all shadow-md shadow-violet-500/20 active:scale-95"
         >
           <Plus className="w-5 h-5" />
         </button>

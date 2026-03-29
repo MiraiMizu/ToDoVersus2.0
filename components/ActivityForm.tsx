@@ -102,7 +102,7 @@ export default function ActivityForm({ matchId, onSuccess }: ActivityFormProps) 
       {/* Category selector */}
       <div>
         <label className="block text-xs text-slate-400 mb-2 font-medium uppercase tracking-wider">Category</label>
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-3 gap-2 md:gap-3">
           {categories.map((cat: { id: string; name: string; weight: number; color: string }) => (
             <button
               key={cat.id}
@@ -112,17 +112,19 @@ export default function ActivityForm({ matchId, onSuccess }: ActivityFormProps) 
                 setCategoryId(cat.id)
                 setName('') // reset name when category changes
               }}
-              className={`px-3 py-2.5 rounded-xl text-xs font-medium border transition-all text-left ${
+              className={`px-2 py-3 md:px-3 md:py-4 rounded-2xl text-xs font-medium border transition-all flex flex-col items-center justify-center text-center gap-2 ${
                 categoryId === cat.id
-                  ? 'border-violet-500 bg-violet-500/10 dark:bg-violet-500/20 text-violet-600 dark:text-violet-300'
-                  : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/60 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-600 hover:text-slate-900 dark:hover:text-slate-300'
+                   ? 'border-violet-500 bg-violet-500/10 dark:bg-violet-500/20 text-violet-600 dark:text-violet-300 shadow-sm ring-1 ring-violet-500/20'
+                  : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-900/60'
               }`}
             >
-              <div className="flex items-center gap-1.5 mb-0.5">
-                <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: cat.color }} />
-                <div className="font-semibold text-xs">{cat.name}</div>
+              <div className="flex flex-col items-center gap-1.5">
+                <div className="w-2.5 h-2.5 rounded-full shadow-sm" style={{ backgroundColor: cat.color }} />
+                <div className="font-bold text-[11px] md:text-xs leading-none">{cat.name}</div>
               </div>
-              <div className="text-[10px] opacity-70">×{cat.weight} pts/min</div>
+              <div className="text-[9px] md:text-[10px] font-bold opacity-60 uppercase tracking-tighter">
+                ×{cat.weight} pts/m
+              </div>
             </button>
           ))}
         </div>

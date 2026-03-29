@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
       select: { durationMinutes: true, name: true },
     })
 
-    const existingMinutes = todayLogs.reduce((sum, log) => sum + log.durationMinutes, 0)
+    const existingMinutes = todayLogs.reduce((sum: number, log: { durationMinutes: number }) => sum + log.durationMinutes, 0)
     if (existingMinutes + totalMinutes > DAILY_CAP_MINUTES) {
       return NextResponse.json({
         error: `Daily limit reached. You can only log ${DAILY_CAP_MINUTES - existingMinutes} more minutes today (${Math.floor((DAILY_CAP_MINUTES - existingMinutes) / 60)}h ${(DAILY_CAP_MINUTES - existingMinutes) % 60}m).`,
@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Anti-cheat: check same-name entries count
-    const sameNameCount = todayLogs.filter((l) => l.name.toLowerCase() === name.toLowerCase()).length
+    const sameNameCount = todayLogs.filter((l: { name: string }) => l.name.toLowerCase() === name.toLowerCase()).length
     if (sameNameCount >= MAX_SAME_NAME_PER_DAY) {
       await prisma.suspiciousLog.create({
         data: { userId, reason: 'Repeated activity name', metadata: JSON.stringify({ name, count: sameNameCount + 1 }) },

@@ -18,6 +18,8 @@ if (fs.existsSync(defaultModulesPath)) {
         '@prisma/client/runtime/*.wasm-base64.*',
         '@prisma/client/runtime/index-browser.js',
         '@prisma/client/runtime/edge-runtime.js.map',
+        'next/dist/compiled/@vercel/og/resvg.wasm',
+        'next/dist/compiled/@vercel/og/index.edge.js',
         'next/dist/server/capsize-font-metrics.json',
         'next/dist/server/load-components.js.map',
         'next/dist/server/next-server.js.map',

@@ -1,10 +1,13 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from '@prisma/client/edge'
 import { PrismaD1 } from '@prisma/adapter-d1'
 import { getCloudflareContext } from '@opennextjs/cloudflare'
 
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined
+// Global interface for Prisma instance
+interface CustomNodeGlobal extends Global {
+  prisma: PrismaClient
 }
+
+declare const global: CustomNodeGlobal
 
 function createPrismaClient(): PrismaClient {
   // 1. Try Cloudflare Context (Production D1)
@@ -13,18 +16,20 @@ function createPrismaClient(): PrismaClient {
     const env = context.env as any;
 
     if (env && env.DB) {
+      console.log("Initializing Prisma with Cloudflare D1 adapter");
       const adapter = new PrismaD1(env.DB);
-      return new PrismaClient({ adapter });
+      return new PrismaClient({ 
+        adapter,
+        log: ['error', 'warn']
+      });
     }
   } catch (err) {
-    // Context not found (expected during build or local dev without bindings)
+    // Expected during build or local dev without bindings
   }
 
   // 2. Try Local SQLite (Development)
   if (process.env.NODE_ENV !== 'production') {
     try {
-      // We use eval('require') to hide these native modules from the Cloudflare/OpenNext bundler.
-      // These are only used in local development.
       const { PrismaBetterSqlite3 } = eval('require')('@prisma/adapter-better-sqlite3');
       const Database = eval('require')('better-sqlite3');
       const path = eval('require')('path');
@@ -35,12 +40,11 @@ function createPrismaClient(): PrismaClient {
       const adapter = new PrismaBetterSqlite3(sqlite);
       return new PrismaClient({ adapter });
     } catch (err) {
-      console.warn("Local SQLite adapter not found or failed to initialize.", err);
+      console.warn("Local SQLite adapter not found or failed.", err);
     }
   }
 
-  // 3. Fallback for Build-time: Prisma v7 requires an adapter if driverAdapters is enabled.
-  // We provide a minimal mock adapter to satisfy the constructor during 'next build'.
+  // 3. Fallback for Build-time
   const mockAdapter = {
     provider: 'sqlite',
     adapterName: 'mock-build-adapter',
@@ -51,6 +55,12 @@ function createPrismaClient(): PrismaClient {
   return new PrismaClient({ adapter: mockAdapter });
 }
 
-export const prisma = globalForPrisma.prisma ?? createPrismaClient()
+// Ensure Prisma client is a singleton in production (Edge) and development
+export const prisma = (globalThis as any).prisma || createPrismaClient();
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
+if (process.env.NODE_ENV !== "production") {
+  (globalThis as any).prisma = prisma;
+} else if (!(globalThis as any).prisma) {
+  // Even in Edge, we can try to cache the instance in globalThis
+  (globalThis as any).prisma = prisma;
+}

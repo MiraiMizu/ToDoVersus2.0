@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import bcrypt from 'bcryptjs'
+import { hashPassword } from '@/lib/auth-util'
 import { prisma } from '@/lib/prisma'
-import { signIn } from '@/lib/auth'
 
 export async function POST(request: NextRequest) {
   try {
@@ -24,7 +23,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Username or email already taken' }, { status: 409 })
     }
 
-    const passwordHash = await bcrypt.hash(password, 12)
+    const passwordHash = await hashPassword(password)
 
     const user = await prisma.user.create({
       data: { username, email, passwordHash },
@@ -32,8 +31,16 @@ export async function POST(request: NextRequest) {
     })
 
     return NextResponse.json({ user }, { status: 201 })
-  } catch (error) {
-    console.error('Register error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  } catch (error: any) {
+    console.error('Register error detail:', {
+      message: error.message,
+      code: error.code,
+      meta: error.meta,
+      stack: error.stack
+    })
+    return NextResponse.json({ 
+      error: 'Internal server error', 
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined 
+    }, { status: 500 })
   }
 }

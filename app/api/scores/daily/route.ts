@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
       where: { userId, date },
     })
 
-    const totalScore = scores.reduce((sum, s) => sum + s.totalScore, 0)
+    const totalScore = scores.reduce((sum: number, s: { totalScore: number }) => sum + s.totalScore, 0)
 
     return NextResponse.json({ scores, totalScore })
   } catch (error) {

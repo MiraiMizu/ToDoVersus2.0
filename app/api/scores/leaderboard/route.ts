@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
       })
 
       const usersWithScores = await Promise.all(
-        scores.map(async (s) => {
+        scores.map(async (s: { userId: string; _sum: { totalScore: number | null } }) => {
           const user = await prisma.user.findUnique({
             where: { id: s.userId },
             select: { id: true, username: true, avatarUrl: true, rank: true },
@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
       })
 
       const leaderboard = await Promise.all(
-        scores.map(async (s) => {
+        scores.map(async (s: { userId: string; _sum: { totalScore: number | null } }) => {
           const user = await prisma.user.findUnique({
             where: { id: s.userId },
             select: { id: true, username: true, avatarUrl: true, rank: true },
@@ -65,7 +65,7 @@ export async function GET(request: NextRequest) {
       })
 
       const leaderboard = await Promise.all(
-        scores.map(async (s) => {
+        scores.map(async (s: { userId: string; _sum: { totalScore: number | null } }) => {
           const user = await prisma.user.findUnique({
             where: { id: s.userId },
             select: { id: true, username: true, avatarUrl: true, rank: true },
@@ -92,7 +92,7 @@ export async function GET(request: NextRequest) {
       },
     })
 
-    const leaderboard = users.map((u) => ({
+    const leaderboard = users.map((u: any) => ({
       user: { id: u.id, username: u.username, avatarUrl: u.avatarUrl, rank: u.rank },
       totalScore: u.allTimeScore,
       streak: u.streak,

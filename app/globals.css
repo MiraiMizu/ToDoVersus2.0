@@ -2,7 +2,16 @@
 
 :root {
   --color-brand: #6366f1;
-  --color-brand-glow: rgba(99, 102, 241, 0.3);
+  --color-brand-glow: rgba(99, 102, 241, 0.4);
+  --bg-main: #f8fafc;
+  --card-bg: rgba(255, 255, 255, 0.8);
+  --card-border: rgba(226, 232, 240, 0.8);
+}
+
+.dark {
+  --bg-main: #020617;
+  --card-bg: rgba(15, 23, 42, 0.7);
+  --card-border: rgba(30, 41, 59, 0.5);
 }
 
 * {
@@ -17,6 +26,13 @@ html {
 
 body {
   min-height: 100vh;
+  background-color: var(--bg-main);
+  color: #1e293b;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.dark body {
+  color: #f1f5f9;
 }
 
 /* Scrollbar */
@@ -119,14 +135,21 @@ body {
    Glass card
    ============================ */
 .glass {
-  background: rgba(255, 255, 255, 0.8);
+  background: var(--card-bg);
   backdrop-filter: blur(16px);
-  border: 1px solid rgba(99, 102, 241, 0.1);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--card-border);
+  box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .dark .glass {
-  background: rgba(15, 23, 42, 0.8);
-  border: 1px solid rgba(99, 102, 241, 0.15);
+  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+}
+
+.glass:hover {
+  border-color: rgba(99, 102, 241, 0.3);
+  box-shadow: 0 12px 32px -4px rgba(99, 102, 241, 0.08);
 }
 
 /* ============================
@@ -134,23 +157,20 @@ body {
    ============================ */
 .gradient-border {
   position: relative;
-  background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+  background: white;
   border-radius: 16px;
-}
-.dark .gradient-border {
-  background: linear-gradient(135deg, #1e293b, #0f172a);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  transition: all 0.3s ease;
 }
 
-.gradient-border::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 16px;
-  padding: 1px;
-  background: linear-gradient(135deg, rgba(99,102,241,0.5), rgba(168,85,247,0.3), transparent);
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
+.dark .gradient-border {
+  background: #1e293b;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.gradient-border:hover {
+  border-color: rgba(99, 102, 241, 0.5);
+  box-shadow: 0 4px 20px -2px rgba(99, 102, 241, 0.15);
 }
 
 .score-badge {
