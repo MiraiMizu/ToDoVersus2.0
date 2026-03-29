@@ -21,12 +21,15 @@ export default function CalendarView({ activities }: { activities: any[] }) {
 
   const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 
-  const scoreMap = activities.reduce((acc, a) => {
+  const dayDataMap = activities.reduce((acc, a) => {
     const key = a.date
-    if (!acc[key]) acc[key] = 0
-    acc[key] += a.score
+    if (!acc[key]) acc[key] = { score: 0, colors: new Set<string>() }
+    acc[key].score += a.score
+    if (a.category?.color) {
+      acc[key].colors.add(a.category.color)
+    }
     return acc
-  }, {} as Record<string, number>)
+  }, {} as Record<string, { score: number, colors: Set<string> }>)
 
   const renderDays = () => {
     const blanks = Array.from({ length: startDayOfWeek }).map((_, i) => (
@@ -36,7 +39,9 @@ export default function CalendarView({ activities }: { activities: any[] }) {
     const days = Array.from({ length: daysInMonth }).map((_, i) => {
       const d = i + 1
       const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`
-      const score = scoreMap[dateString] || 0
+      const dayData = dayDataMap[dateString] || { score: 0, colors: new Set<string>() }
+      const score = dayData.score
+      const colors = Array.from(dayData.colors)
       
       const isToday = dateString === new Date().toISOString().split('T')[0]
 
@@ -48,10 +53,24 @@ export default function CalendarView({ activities }: { activities: any[] }) {
       return (
         <div 
           key={d} 
-          className={`h-14 md:h-20 flex flex-col items-center justify-center rounded-xl md:rounded-2xl border transition-all cursor-default ${bgClass} relative ${isToday ? 'ring-2 ring-violet-500 ring-offset-2 dark:ring-offset-slate-900' : ''}`}
+          className={`h-16 md:h-24 flex flex-col items-center justify-between p-1.5 md:p-2 rounded-xl md:rounded-2xl border transition-all cursor-default ${bgClass} relative ${isToday ? 'ring-2 ring-violet-500 ring-offset-2 dark:ring-offset-slate-900' : ''}`}
         >
-          <span className={`text-sm md:text-base font-bold ${score >= 500 ? 'text-white' : 'text-slate-700 dark:text-slate-300'}`}>{d}</span>
-          {score > 0 && <span className={`text-[10px] md:text-xs font-semibold opacity-90`}>{score}</span>}
+          <span className={`text-sm md:text-base font-bold select-none ${score >= 500 ? 'text-white' : 'text-slate-800 dark:text-slate-200'}`}>{d}</span>
+          
+          <div className="flex flex-col items-center gap-1 w-full">
+            {score > 0 && <span className={`text-[10px] md:text-xs font-bold opacity-90 truncate w-full text-center leading-none`}>{score}</span>}
+            
+            {colors.length > 0 && (
+              <div className="flex gap-0.5 md:gap-1 flex-wrap justify-center mt-0.5 opacity-80">
+                {colors.slice(0, 3).map((c, i) => (
+                  <div key={i} className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full shadow-sm" style={{ backgroundColor: c as string }} />
+                ))}
+                {colors.length > 3 && (
+                  <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-slate-400 dark:bg-slate-500" />
+                )}
+              </div>
+            )}
+          </div>
         </div>
       )
     })

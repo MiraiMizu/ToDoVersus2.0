@@ -44,10 +44,10 @@ export default function Navbar() {
       <header className="fixed top-0 left-0 right-0 z-50 h-16 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800/60 flex items-center justify-center px-4">
         <div className="w-full max-w-7xl flex items-center justify-between">
           <Link href="/dashboard" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 bg-gradient-to-br from-violet-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-violet-500/20 group-hover:scale-105 transition-transform">
+            <div className="w-9 h-9 bg-gradient-to-br from-violet-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-violet-500/20 group-hover:scale-105 transition-transform shadow-violet-500/30">
               <Zap className="w-5 h-5 text-white" />
             </div>
-            <span className="font-black text-slate-900 dark:text-white text-base tracking-tight">ToDoVersus</span>
+            <span className="font-black text-slate-900 dark:text-white text-base tracking-tight leading-none mt-0.5">ToDoVersus</span>
           </Link>
 
         {/* Desktop nav links (hidden on mobile — we use bottom nav instead) */}
@@ -61,8 +61,8 @@ export default function Navbar() {
                 href={resolvedHref}
                 className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium transition-all ${
                   isActive
-                    ? 'bg-violet-500/20 text-violet-300'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                    ? 'bg-violet-100 dark:bg-violet-500/20 text-violet-700 dark:text-violet-300'
+                    : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800/60'
                 }`}
               >
                 <Icon className="w-4 h-4" />
@@ -105,7 +105,8 @@ export default function Navbar() {
       </header>
 
       {/* Mobile bottom navigation bar */}
-      <nav className="md:hidden fixed bottom-6 left-6 right-6 z-50 h-16 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200/50 dark:border-slate-800/50 flex items-center justify-around px-4 rounded-3xl shadow-2xl shadow-black/10">
+      <nav className="md:hidden fixed z-50 h-16 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200/50 dark:border-slate-800/50 flex items-center justify-around px-4 rounded-3xl shadow-2xl shadow-black/10"
+           style={{ bottom: 'max(1.5rem, env(safe-area-inset-bottom))', left: '1.5rem', right: '1.5rem' }}>
         {navItems.map(({ href, label, icon: Icon, dynamic }) => {
           const resolvedHref = dynamic ? profileHref : href
           const isActive = pathname === resolvedHref || (href !== '/dashboard' && pathname.startsWith(href))

@@ -26,9 +26,15 @@ const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
 function SkeletonCard() {
   return (
-    <div className="glass rounded-2xl p-5 animate-pulse">
-      <div className="h-3 bg-slate-200 dark:bg-slate-800 rounded w-1/2 mb-3" />
-      <div className="h-8 bg-slate-200 dark:bg-slate-800 rounded w-1/3" />
+    <div className="glass rounded-3xl p-6 md:p-8 flex flex-col justify-between gap-6 min-h-[160px] animate-pulse">
+      <div className="flex items-start justify-between w-full">
+        <div className="flex-1 pr-4">
+          <div className="h-2 md:h-2.5 bg-slate-200 dark:bg-slate-700/50 rounded-full w-2/3 mb-4" />
+          <div className="h-8 md:h-10 bg-slate-200 dark:bg-slate-700/50 rounded-lg w-3/4" />
+        </div>
+        <div className="w-12 h-12 bg-slate-200 dark:bg-slate-700/50 rounded-2xl shrink-0" />
+      </div>
+      <div className="h-5 bg-slate-200 dark:bg-slate-700/50 rounded-xl w-1/3 mt-auto" />
     </div>
   )
 }
@@ -47,19 +53,19 @@ function StatCard({
   sub?: string
 }) {
   return (
-    <div className="glass rounded-2xl p-5 md:p-6 flex flex-col justify-between gap-6 hover:border-violet-500/30 transition-all duration-300 relative overflow-hidden group min-h-[140px]">
+    <div className="glass rounded-3xl p-6 md:p-8 flex flex-col justify-between gap-6 hover:border-violet-500/40 transition-all duration-500 relative overflow-hidden group min-h-[160px] shadow-sm hover:shadow-xl hover:shadow-violet-500/5">
       <div className="flex items-start justify-between relative z-10 w-full">
-        <div className="flex-1 min-w-0 pr-3">
-           <span className="block text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest truncate mb-2">{label}</span>
-           <div className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white truncate leading-none">{value}</div>
+        <div className="flex-1 min-w-0 pr-4">
+           <span className="block text-[10px] md:text-[11px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-[0.2em] truncate mb-3">{label}</span>
+           <div className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white truncate leading-none tracking-tighter">{value}</div>
         </div>
-        <div className={`w-10 h-10 ${color} rounded-xl flex items-center justify-center shadow-lg shadow-black/5 shrink-0 -mt-1 group-hover:scale-110 transition-transform`}>
-          <Icon className="w-5 h-5 text-white" />
+        <div className={`w-12 h-12 ${color} rounded-2xl flex items-center justify-center shadow-lg shadow-black/5 shrink-0 m-1 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}>
+          <Icon className="w-6 h-6 text-white drop-shadow-md" />
         </div>
       </div>
       {sub && (
         <div className="relative z-10 mt-auto">
-          <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 truncate uppercase tracking-tighter bg-slate-100 dark:bg-slate-800/80 w-fit px-2.5 py-1 rounded-lg border border-slate-200/50 dark:border-slate-700/50">
+          <div className="text-[10px] md:text-[11px] font-bold text-slate-600 dark:text-slate-300 truncate uppercase tracking-tight bg-slate-100 dark:bg-slate-800 w-fit px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 group-hover:border-violet-500/30 transition-colors">
             {sub}
           </div>
         </div>
@@ -127,9 +133,9 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="p-4 md:p-8 lg:p-10 max-w-7xl mx-auto space-y-10 animate-fadeInUp mb-24 md:mb-10">
+    <div className="p-4 md:p-8 lg:p-10 max-w-7xl mx-auto space-y-10 animate-fadeInUp mb-32 md:mb-10">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 mt-2">
         <div>
           <h1 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
             {greeting},{' '}
@@ -142,7 +148,7 @@ export default function DashboardPage() {
         <Link
           href="/matches/new"
           id="challenge-button"
-          className="flex items-center justify-center gap-2.5 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-sm font-bold px-6 py-3.5 rounded-2xl transition-all shadow-xl shadow-violet-500/25 active:scale-95"
+          className="flex items-center justify-center gap-2.5 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-sm font-bold px-6 py-3.5 rounded-2xl transition-all shadow-xl shadow-violet-500/25 active:scale-95 flex-shrink-0"
         >
           <Plus className="w-5 h-5" />
           <span>New Challenge</span>

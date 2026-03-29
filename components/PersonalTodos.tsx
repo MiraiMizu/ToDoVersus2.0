@@ -56,7 +56,7 @@ export default function PersonalTodos() {
 
       <div className="space-y-3 py-2">
         {todos.map((todo: any) => (
-          <div key={todo.id} className="group flex items-center gap-4 p-3 bg-slate-50/50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800/50 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/80 transition shadow-sm">
+          <div key={todo.id} className="group flex items-center gap-4 p-3 bg-slate-50/50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800/50 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/80 transition-all duration-300 ease-out shadow-sm hover:shadow-md">
             <button 
               onClick={() => toggleComplete(todo.id, todo.isCompleted)}
               className={`w-6 h-6 rounded-lg flex items-center justify-center shrink-0 border-2 transition-all ${
@@ -72,7 +72,7 @@ export default function PersonalTodos() {
             </span>
             <button
               onClick={() => handleDelete(todo.id)}
-              className="opacity-0 group-hover:opacity-100 p-1.5 text-slate-400 hover:text-red-500 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition"
+              className="opacity-0 group-hover:opacity-100 p-2 text-slate-400 hover:text-red-500 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-all active:scale-90"
             >
               <Trash2 className="w-4 h-4" />
             </button>
@@ -90,12 +90,12 @@ export default function PersonalTodos() {
           value={newTodo}
           onChange={e => setNewTodo(e.target.value)}
           disabled={loading}
-          className="w-full bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-xl pl-4 pr-12 py-3.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500/30 transition shadow-sm"
+          className="w-full bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-xl pl-4 pr-14 py-3.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/20 transition-all shadow-sm"
         />
         <button 
           type="submit"
           disabled={!newTodo.trim() || loading}
-          className="absolute right-2 top-1.5 bottom-1.5 w-10 flex items-center justify-center bg-violet-500 hover:bg-violet-600 disabled:opacity-50 disabled:bg-slate-400 text-white rounded-lg transition-all shadow-md shadow-violet-500/20 active:scale-95"
+          className="absolute right-2 top-2 bottom-2 w-10 flex items-center justify-center bg-violet-600 hover:bg-violet-500 disabled:opacity-50 disabled:bg-slate-400 text-white rounded-lg transition-all shadow-md shadow-violet-500/20 active:scale-95"
         >
           <Plus className="w-5 h-5" />
         </button>
