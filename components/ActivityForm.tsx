@@ -114,15 +114,15 @@ export default function ActivityForm({ matchId, onSuccess }: ActivityFormProps) 
               }}
               className={`px-2 py-4 md:px-3 md:py-6 rounded-3xl text-xs font-medium border transition-all flex flex-col items-center justify-center text-center gap-3 active:scale-95 ${
                 categoryId === cat.id
-                   ? 'border-violet-500 bg-violet-500/10 dark:bg-violet-500/20 text-violet-600 dark:text-violet-300 shadow-lg shadow-violet-500/10 ring-1 ring-violet-500/20'
+                   ? 'border-violet-600 bg-violet-600 text-white shadow-xl shadow-violet-500/30'
                   : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 text-slate-500 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-900/60'
               }`}
             >
               <div className="flex flex-col items-center gap-2">
-                <div className="w-3 h-3 rounded-full shadow-sm border-2 border-white/20" style={{ backgroundColor: cat.color }} />
+                <div className="w-3.5 h-3.5 rounded-full shadow-sm border-2 border-white/40" style={{ backgroundColor: cat.color }} />
                 <div className="font-extrabold text-[11px] md:text-sm leading-none tracking-tight">{cat.name}</div>
               </div>
-              <div className={`text-[10px] md:text-[11px] font-black uppercase tracking-[0.1em] ${categoryId === cat.id ? 'text-violet-500 dark:text-violet-400 opacity-100' : 'text-slate-500 opacity-70'}`}>
+              <div className={`text-[10px] md:text-[11px] font-black uppercase tracking-[0.1em] ${categoryId === cat.id ? 'text-white opacity-90' : 'text-slate-500 opacity-70'}`}>
                 {cat.weight}× PTS/M
               </div>
             </button>

@@ -137,8 +137,8 @@ export default function NewMatchPage() {
                         {u.username[0]?.toUpperCase()}
                       </div>
                       <div>
-                        <div className="text-sm font-medium text-slate-900 dark:text-white">{u.username}</div>
-                        <div className="text-xs text-slate-500">{u.rank} · {u.allTimeScore} pts</div>
+                        <div className="text-sm font-bold text-slate-900 dark:text-white transition-colors">{u.username}</div>
+                        <div className="text-[10px] text-slate-500 font-medium uppercase tracking-tight">{u.rank} · {u.allTimeScore} pts</div>
                       </div>
                     </button>
                   ))}
@@ -178,7 +178,7 @@ export default function NewMatchPage() {
                       >
                          <option value="" disabled>Type</option>
                          {categories.map((cat: any) => (
-                            <option key={cat.id} value={cat.id}>{cat.name} (x{cat.weight})</option>
+                            <option key={cat.id} value={cat.id} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">{cat.name} (x{cat.weight})</option>
                          ))}
                       </select>
                       {matchTasks.length > 1 && (

@@ -80,7 +80,7 @@ export default function LoginPage() {
                   type="text"
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
-                  placeholder="mizu or mizu@gmail.com"
+                  placeholder="Username or email"
                   required
                   className="w-full bg-slate-50/50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/50 rounded-2xl pr-4 py-3.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/20 transition-all shadow-inner"
                   style={{ paddingLeft: '3rem' }}
