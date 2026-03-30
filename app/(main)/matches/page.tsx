@@ -40,11 +40,11 @@ export default function MatchesPage() {
           <Link href="/dashboard" id="back-to-dashboard-matches" className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-violet-400 transition mb-2">
             <LayoutDashboard className="w-3.5 h-3.5" /> Dashboard
           </Link>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-            <Swords className="w-6 h-6 text-violet-400" />
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <Swords className="w-6 h-6 text-violet-500 dark:text-violet-400" />
             Matches
           </h1>
-          <p className="text-slate-400 text-sm mt-1">{active.length} active battle{active.length !== 1 ? 's' : ''}</p>
+          <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">{active.length} active battle{active.length !== 1 ? 's' : ''}</p>
         </div>
         <Link
           href="/matches/new"
@@ -125,7 +125,7 @@ function Section({ title, icon, children }: { title: string; icon: React.ReactNo
     <div>
       <div className="flex items-center gap-2 mb-3">
         {icon}
-        <h2 className="text-sm font-semibold text-slate-300">{title}</h2>
+        <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-300">{title}</h2>
       </div>
       <div className="space-y-3">{children}</div>
     </div>
@@ -153,8 +153,8 @@ function MatchCard({
           {opponent.username[0]?.toUpperCase()}
         </div>
         <div className="flex-1 min-w-0">
-          <div className="text-sm font-semibold text-white">
-            vs <Link href={`/profile/${opponent.id}`} className="hover:text-violet-300 transition">{opponent.username}</Link>
+          <div className="text-sm font-semibold text-slate-900 dark:text-white">
+            vs <Link href={`/profile/${opponent.id}`} className="hover:text-violet-600 dark:hover:text-violet-300 transition">{opponent.username}</Link>
           </div>
           <div className="text-xs text-slate-500">{opponent.rank}</div>
         </div>
@@ -178,10 +178,10 @@ function MatchCard({
 
       {/* Bet */}
       {match.bet && (
-        <div className="text-xs text-slate-500 mb-3 bg-slate-900/60 rounded-xl px-3 py-2">
+        <div className="text-xs text-slate-600 dark:text-slate-400 mb-3 bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800/40 rounded-xl px-3 py-2">
           🤝 Bet: &quot;{match.bet.content}&quot;
-          <span className="ml-2 text-emerald-400">{match.bet.challengerApproved ? '✓' : '○'}</span>
-          <span className="ml-1 text-emerald-400">{match.bet.opponentApproved ? '✓' : '○'}</span>
+          <span className="ml-2 text-emerald-600 dark:text-emerald-400">{match.bet.challengerApproved ? '✓' : '○'}</span>
+          <span className="ml-1 text-emerald-600 dark:text-emerald-400">{match.bet.opponentApproved ? '✓' : '○'}</span>
         </div>
       )}
 
@@ -219,7 +219,7 @@ function MatchCard({
         {(match.status === 'COMPLETED' || match.status === 'DECLINED') && (
           <Link
             href={`/matches/${match.id}`}
-            className="flex-1 flex items-center justify-center gap-1.5 bg-slate-800/60 hover:bg-slate-800 text-slate-400 text-xs font-semibold py-2 rounded-xl transition"
+            className="flex-1 flex items-center justify-center gap-1.5 bg-slate-100 dark:bg-slate-800/60 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-xs font-semibold py-2 rounded-xl transition"
           >
             View Summary <ChevronRight className="w-3.5 h-3.5" />
           </Link>

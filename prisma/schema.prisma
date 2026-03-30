@@ -8,112 +8,105 @@ datasource db {
 }
 
 model User {
-  id            String   @id @default(cuid())
-  username      String   @unique
-  email         String   @unique
-  passwordHash  String
-  avatarUrl     String?
-  rank          String   @default("Bronze")
-  streak        Int      @default(0)
-  lastLogDate   DateTime?
-  allTimeScore  Int      @default(0)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  challengedMatches Match[] @relation("Challenger")
-  opponentMatches   Match[] @relation("Opponent")
+  id                String            @id @default(cuid())
+  username          String            @unique
+  email             String            @unique
+  passwordHash      String
+  avatarUrl         String?
+  rank              String            @default("Bronze")
+  streak            Int               @default(0)
+  lastLogDate       DateTime?
+  allTimeScore      Int               @default(0)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
   activityLogs      ActivityLog[]
   dailyScores       DailyScore[]
-  achievements      UserAchievement[]
-  suspiciousLogs    SuspiciousLog[]
   wonMatches        Match[]           @relation("Winner")
+  opponentMatches   Match[]           @relation("Opponent")
+  challengedMatches Match[]           @relation("Challenger")
+  suspiciousLogs    SuspiciousLog[]
   todos             Todo[]
+  achievements      UserAchievement[]
 }
 
 model Category {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  weight      Int
-  description String?
-  color       String   @default("#6366f1")
-
-  matchCategories MatchCategory[]
+  id              String          @id @default(cuid())
+  name            String          @unique
+  weight          Int
+  description     String?
+  color           String          @default("#6366f1")
   activityLogs    ActivityLog[]
-  todos           Todo[]
+  matchCategories MatchCategory[]
   matchTasks      MatchTask[]
+  todos           Todo[]
 }
 
 model Match {
-  id           String      @id @default(cuid())
+  id           String          @id @default(cuid())
   challengerId String
   opponentId   String
-  status       String      @default("PENDING")
+  status       String          @default("PENDING")
   startDate    DateTime?
   endDate      DateTime?
   winnerId     String?
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-
-  challenger     User            @relation("Challenger", fields: [challengerId], references: [id])
-  opponent       User            @relation("Opponent", fields: [opponentId], references: [id])
-  winner         User?           @relation("Winner", fields: [winnerId], references: [id])
-  bet            Bet?
-  categories     MatchCategory[]
-  matchTasks     MatchTask[]
-  activityLogs   ActivityLog[]
-  dailyScores    DailyScore[]
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  activityLogs ActivityLog[]
+  bet          Bet?
+  dailyScores  DailyScore[]
+  winner       User?           @relation("Winner", fields: [winnerId], references: [id])
+  opponent     User            @relation("Opponent", fields: [opponentId], references: [id])
+  challenger   User            @relation("Challenger", fields: [challengerId], references: [id])
+  categories   MatchCategory[]
+  matchTasks   MatchTask[]
 }
 
 model Bet {
-  id                  String  @id @default(cuid())
-  matchId             String  @unique
-  content             String
-  challengerApproved  Boolean @default(false)
-  opponentApproved    Boolean @default(false)
-  createdAt           DateTime @default(now())
-
-  match Match @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  id                 String   @id @default(cuid())
+  matchId            String   @unique
+  content            String
+  challengerApproved Boolean  @default(false)
+  opponentApproved   Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  match              Match    @relation(fields: [matchId], references: [id], onDelete: Cascade)
 }
 
 model MatchCategory {
-  id         String @id @default(cuid())
+  id         String   @id @default(cuid())
   matchId    String
   categoryId String
-
-  match    Match    @relation(fields: [matchId], references: [id], onDelete: Cascade)
-  category Category @relation(fields: [categoryId], references: [id])
+  category   Category @relation(fields: [categoryId], references: [id])
+  match      Match    @relation(fields: [matchId], references: [id], onDelete: Cascade)
 
   @@unique([matchId, categoryId])
 }
 
 model MatchTask {
-  id         String @id @default(cuid())
-  matchId    String
-  content    String
-  categoryId String
-  createdAt  DateTime @default(now())
-
-  match    Match    @relation(fields: [matchId], references: [id], onDelete: Cascade)
-  category Category @relation(fields: [categoryId], references: [id])
+  id           String        @id @default(cuid())
+  matchId      String
+  content      String
+  categoryId   String
+  createdAt    DateTime      @default(now())
   activityLogs ActivityLog[]
+  category     Category      @relation(fields: [categoryId], references: [id])
+  match        Match         @relation(fields: [matchId], references: [id], onDelete: Cascade)
 }
 
 model Todo {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   userId      String
   content     String
-  isCompleted Boolean  @default(false)
-  date        String   // YYYY-MM-DD
-  categoryId  String?  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  isCompleted Boolean   @default(false)
+  date        String
+  categoryId  String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
   category    Category? @relation(fields: [categoryId], references: [id])
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model ActivityLog {
-  id              String   @id @default(cuid())
+  id              String     @id @default(cuid())
   userId          String
   matchId         String?
   matchTaskId     String?
@@ -121,48 +114,44 @@ model ActivityLog {
   name            String
   durationMinutes Int
   score           Int
-  loggedAt        DateTime @default(now())
-  date            String   // YYYY-MM-DD for easy daily grouping
-
-  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  match     Match?     @relation(fields: [matchId], references: [id], onDelete: SetNull)
-  matchTask MatchTask? @relation(fields: [matchTaskId], references: [id], onDelete: SetNull)
-  category  Category   @relation(fields: [categoryId], references: [id])
+  loggedAt        DateTime   @default(now())
+  date            String
+  category        Category   @relation(fields: [categoryId], references: [id])
+  matchTask       MatchTask? @relation(fields: [matchTaskId], references: [id])
+  match           Match?     @relation(fields: [matchId], references: [id])
+  user            User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model DailyScore {
   id         String   @id @default(cuid())
   userId     String
   matchId    String?
-  date       String   // YYYY-MM-DD
+  date       String
   totalScore Int      @default(0)
   updatedAt  DateTime @updatedAt
-
-  user  User   @relation(fields: [userId], references: [id])
-  match Match? @relation(fields: [matchId], references: [id])
+  match      Match?   @relation(fields: [matchId], references: [id])
+  user       User     @relation(fields: [userId], references: [id])
 
   @@unique([userId, matchId, date])
 }
 
 model Achievement {
-  id          String @id @default(cuid())
-  code        String @unique
-  name        String
-  description String
-  icon        String @default("🏆")
-  rarity      String @default("Common")
-
+  id               String            @id @default(cuid())
+  code             String            @unique
+  name             String
+  description      String
+  icon             String            @default("🏆")
+  rarity           String            @default("Common")
   userAchievements UserAchievement[]
 }
 
 model UserAchievement {
-  id            String   @id @default(cuid())
+  id            String      @id @default(cuid())
   userId        String
   achievementId String
-  awardedAt     DateTime @default(now())
-
-  user        User        @relation(fields: [userId], references: [id])
-  achievement Achievement @relation(fields: [achievementId], references: [id])
+  awardedAt     DateTime    @default(now())
+  achievement   Achievement @relation(fields: [achievementId], references: [id])
+  user          User        @relation(fields: [userId], references: [id])
 
   @@unique([userId, achievementId])
 }
@@ -173,6 +162,5 @@ model SuspiciousLog {
   reason    String
   metadata  String?
   createdAt DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
 }

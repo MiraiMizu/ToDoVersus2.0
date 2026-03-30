@@ -69,9 +69,9 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
             <div className="w-14 h-14 bg-gradient-to-br from-violet-500 to-indigo-600 rounded-full flex items-center justify-center text-xl font-bold text-white mx-auto mb-2">
               {me.username[0]?.toUpperCase()}
             </div>
-            <div className="text-sm font-semibold text-white">{me.username}</div>
+            <div className="text-sm font-semibold text-slate-900 dark:text-white">{me.username}</div>
             <div className="text-xs text-slate-500">{me.rank}</div>
-            <div className="text-2xl font-bold text-violet-400 mt-2">{formatScore(myTotal)}</div>
+            <div className="text-2xl font-bold text-violet-600 dark:text-violet-400 mt-2">{formatScore(myTotal)}</div>
           </div>
 
           <div className="text-center">
@@ -85,9 +85,9 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
             <div className="w-14 h-14 bg-gradient-to-br from-rose-500 to-orange-600 rounded-full flex items-center justify-center text-xl font-bold text-white mx-auto mb-2">
               {opponent.username[0]?.toUpperCase()}
             </div>
-            <div className="text-sm font-semibold text-white">{opponent.username}</div>
+            <div className="text-sm font-semibold text-slate-900 dark:text-white">{opponent.username}</div>
             <div className="text-xs text-slate-500">{opponent.rank}</div>
-            <div className="text-2xl font-bold text-rose-400 mt-2">{formatScore(opponentTotal)}</div>
+            <div className="text-2xl font-bold text-rose-600 dark:text-rose-400 mt-2">{formatScore(opponentTotal)}</div>
           </div>
         </div>
 
@@ -98,7 +98,7 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
               className="bg-gradient-to-r from-violet-600 to-indigo-500 transition-all duration-700 rounded-l-full"
               style={{ width: `${(myTotal / maxScore) * 50}%` }}
             />
-            <div className="flex-1 bg-slate-800 text-center" />
+            <div className="bg-slate-200 dark:bg-slate-800 flex-1 text-center" />
             <div
               className="bg-gradient-to-l from-rose-600 to-orange-500 transition-all duration-700 rounded-r-full"
               style={{ width: `${(opponentTotal / maxScore) * 50}%` }}
@@ -110,13 +110,13 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
       {/* Today's scores */}
       <div className="grid grid-cols-2 gap-4">
         <div className="glass rounded-2xl p-4">
-          <div className="text-xs text-slate-400 mb-1">Your Today</div>
-          <div className="text-2xl font-bold text-violet-400">{formatScore(myTodayScore)}</div>
+          <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">Your Today</div>
+          <div className="text-2xl font-bold text-violet-600 dark:text-violet-400">{formatScore(myTodayScore)}</div>
           <div className="text-xs text-slate-500">{myTodayLogs.length} entries</div>
         </div>
         <div className="glass rounded-2xl p-4">
-          <div className="text-xs text-slate-400 mb-1">{opponent.username}&apos;s Today</div>
-          <div className="text-2xl font-bold text-rose-400">{formatScore(opponentTodayScore)}</div>
+          <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">{opponent.username}&apos;s Today</div>
+          <div className="text-2xl font-bold text-rose-600 dark:text-rose-400">{formatScore(opponentTodayScore)}</div>
           <div className="text-xs text-slate-500">{opponentTodayLogs.length} entries</div>
         </div>
       </div>
@@ -124,8 +124,8 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
       {/* Bet */}
       {match.bet && (
         <div className="glass rounded-2xl p-4">
-          <div className="text-xs text-slate-400 mb-2 font-medium uppercase tracking-wider">🤝 The Bet (Idda)</div>
-          <div className="text-sm text-white">"{match.bet.content}"</div>
+          <div className="text-xs text-slate-500 dark:text-slate-400 mb-2 font-medium uppercase tracking-wider">🤝 The Bet (Idda)</div>
+          <div className="text-sm text-slate-900 dark:text-white">"{match.bet.content}"</div>
           <div className="flex gap-4 mt-3 text-xs">
             <span className={match.bet.challengerApproved ? 'text-emerald-400' : 'text-slate-500'}>
               {match.bet.challengerApproved ? '✓' : '○'} {match.challenger.username} approved
@@ -158,7 +158,7 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
         {/* Log activity */}
         {isActive && (
           <div className="glass rounded-2xl p-5">
-            <h2 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
+            <h2 className="text-sm font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
               <Clock className="w-4 h-4 text-violet-400" />
               Log Activity for this Match
             </h2>
@@ -206,15 +206,15 @@ function LogList({ logs }: { logs: LogEntry[] }) {
   return (
     <div className="space-y-2 max-h-80 overflow-y-auto">
       {logs.map((log) => (
-        <div key={log.id} className="flex items-center gap-3 p-3 bg-slate-900/60 rounded-xl">
+        <div key={log.id} className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800/40 rounded-xl">
           <div className="w-2 h-10 rounded-full flex-shrink-0" style={{ backgroundColor: log.category.color }} />
           <div className="flex-1 min-w-0">
-            <div className="text-sm font-medium text-white truncate">{log.name}</div>
+            <div className="text-sm font-medium text-slate-900 dark:text-white truncate">{log.name}</div>
             <div className="text-xs text-slate-500">
               {formatDuration(log.durationMinutes)} · {log.category.name} · {log.date}
             </div>
           </div>
-          <div className="text-sm font-bold text-violet-400">{formatScore(log.score)}</div>
+          <div className="text-sm font-bold text-violet-600 dark:text-violet-400">{formatScore(log.score)}</div>
         </div>
       ))}
     </div>

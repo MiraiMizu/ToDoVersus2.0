@@ -102,7 +102,7 @@ function LeaderboardSection({
                     {entry.streak}d
                   </div>
                 )}
-                <div className="text-base font-bold text-violet-400">{formatScore(entry.totalScore)}</div>
+                <div className="text-base font-bold text-violet-600 dark:text-violet-400">{formatScore(entry.totalScore)}</div>
               </div>
             )
           })}
