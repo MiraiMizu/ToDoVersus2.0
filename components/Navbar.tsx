@@ -41,12 +41,12 @@ export default function Navbar() {
   const isProfileActive = pathname.startsWith('/profile')
 
   return (
-    <div className="fixed bottom-6 left-0 right-0 z-50 px-4 pointer-events-none">
-      <div className="max-w-fit mx-auto flex items-center bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl border border-slate-200/50 dark:border-slate-800/50 p-2 rounded-[2.5rem] shadow-2xl shadow-black/10 pointer-events-auto transition-all animate-fadeIn">
+    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-4 pointer-events-none w-full max-w-fit flex justify-center">
+      <div className="flex items-center bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl border border-slate-200/50 dark:border-slate-800/50 p-1.5 sm:p-2 rounded-[2.5rem] shadow-2xl shadow-black/20 pointer-events-auto transition-all animate-fadeIn">
         
         {/* Brand / Logo */}
-        <Link href="/dashboard" className="hidden sm:flex items-center justify-center w-12 h-12 bg-gradient-to-br from-violet-600 to-indigo-600 rounded-[1.5rem] shadow-lg shadow-violet-500/20 active:scale-95 transition-transform mr-2">
-          <Zap className="w-5 h-5 text-white" />
+        <Link href="/dashboard" className="hidden sm:flex items-center justify-center w-10 md:w-12 h-10 md:h-12 bg-gradient-to-br from-violet-600 to-indigo-600 rounded-[1.2rem] md:rounded-[1.5rem] shadow-lg shadow-violet-500/20 active:scale-95 transition-transform mr-1 md:mr-2">
+          <Zap className="w-4 h-4 md:w-5 md:h-5 text-white" />
         </Link>
 
         <div className="flex items-center gap-0.5 sm:gap-1">
@@ -56,13 +56,13 @@ export default function Navbar() {
               <Link
                 key={href}
                 href={href}
-                className={`group relative flex items-center justify-center w-12 h-12 rounded-[1.5rem] transition-all duration-300 ${
+                className={`group relative flex items-center justify-center w-10 md:w-12 h-10 md:h-12 rounded-[1.2rem] md:rounded-[1.5rem] transition-all duration-300 ${
                   isActive ? 'bg-violet-100 dark:bg-violet-500/20 text-violet-700 dark:text-violet-400' : 'text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
                 }`}
               >
-                <Icon className={`w-5.5 h-5.5 transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} />
+                <Icon className={`w-5 h-5 md:w-5.5 md:h-5.5 transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} />
                 {isActive && (
-                  <span className="absolute -top-1 px-2 py-0.5 bg-violet-600 text-[10px] text-white font-bold rounded-full scale-0 group-hover:scale-100 transition-transform origin-bottom translate-y-[-100%] pointer-events-none">
+                  <span className="absolute -top-3 px-2 py-0.5 bg-violet-600 text-[10px] text-white font-bold rounded-full scale-0 group-hover:scale-100 transition-all duration-200 origin-bottom translate-y-[-100%] pointer-events-none whitespace-nowrap shadow-xl">
                     {href.slice(1).toUpperCase()}
                   </span>
                 )}

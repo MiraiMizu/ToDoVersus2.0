@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import useSWR from 'swr'
 import Link from 'next/link'
 import { Search, Swords, X, Plus, AlertCircle, LayoutDashboard, Trash2 } from 'lucide-react'
+import { formatScore } from '@/lib/scoring'
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
@@ -96,8 +97,8 @@ export default function NewMatchPage() {
       <div className="space-y-5">
         {/* Step 1: Pick opponent */}
         <div className="glass rounded-2xl p-5">
-          <h2 className="text-sm font-semibold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
-            <span className="w-5 h-5 bg-violet-500 rounded-full text-xs flex items-center text-white justify-center font-bold">1</span>
+          <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-100 mb-3 flex items-center gap-2">
+            <span className="w-5 h-5 bg-violet-600 dark:bg-violet-500 rounded-full text-[10px] flex items-center text-white justify-center font-bold">1</span>
             Choose Opponent
           </h2>
 
@@ -123,7 +124,7 @@ export default function NewMatchPage() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search by username..."
-                className="w-full bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 rounded-xl pl-10 pr-4 py-3 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500/30 transition shadow-sm"
+                className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl pl-10 pr-4 py-3 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500/30 transition shadow-sm"
               />
               {searchResults.length > 0 && (
                 <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden z-20 shadow-xl">
@@ -138,7 +139,7 @@ export default function NewMatchPage() {
                       </div>
                       <div>
                         <div className="text-sm font-bold text-slate-900 dark:text-white transition-colors">{u.username}</div>
-                        <div className="text-[10px] text-slate-500 font-medium uppercase tracking-tight">{u.rank} · {u.allTimeScore} pts</div>
+                        <div className="text-[10px] text-slate-500 font-medium uppercase tracking-tight">{u.rank} · {formatScore(u.allTimeScore)} pts</div>
                       </div>
                     </button>
                   ))}
@@ -151,8 +152,8 @@ export default function NewMatchPage() {
         {/* Step 2: Custom Tasks */}
         <div className="glass rounded-2xl p-5">
           <div className="flex items-center justify-between mb-1">
-             <h2 className="text-sm font-semibold text-slate-900 dark:text-white flex items-center gap-2">
-               <span className="w-5 h-5 bg-violet-500 rounded-full text-xs flex items-center text-white justify-center font-bold">2</span>
+             <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+               <span className="w-5 h-5 bg-violet-600 dark:bg-violet-500 rounded-full text-[10px] flex items-center text-white justify-center font-bold">2</span>
                Define Battle Tasks
              </h2>
              <span className="text-xs text-slate-500 font-medium bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">{matchTasks.length}/5 Tasks</span>
@@ -168,17 +169,17 @@ export default function NewMatchPage() {
                       placeholder="e.g. Read 20 pages"
                       value={task.content}
                       onChange={(e) => updateTask(idx, 'content', e.target.value)}
-                      className="flex-1 w-full bg-transparent border-none text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-0"
+                      className="flex-1 w-full bg-slate-100/50 dark:bg-slate-800/30 border-none text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-0"
                    />
                    <div className="flex items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0">
                       <select 
                          value={task.categoryId} 
                          onChange={(e) => updateTask(idx, 'categoryId', e.target.value)}
-                         className="flex-1 sm:w-[130px] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs rounded-lg px-2 py-1.5 text-slate-700 dark:text-slate-300 focus:outline-none focus:border-violet-500 transition"
+                         className="flex-1 sm:w-[130px] bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs rounded-lg px-2 py-1.5 text-slate-700 dark:text-slate-300 focus:outline-none focus:border-violet-500 transition"
                       >
                          <option value="" disabled>Type</option>
                          {categories.map((cat: any) => (
-                            <option key={cat.id} value={cat.id} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">{cat.name} (x{cat.weight})</option>
+                            <option key={cat.id} value={cat.id} className="bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white">{cat.name} (x{cat.weight})</option>
                          ))}
                       </select>
                       {matchTasks.length > 1 && (
@@ -203,9 +204,9 @@ export default function NewMatchPage() {
 
         {/* Step 3: Bet */}
         <div className="glass rounded-2xl p-5">
-          <h2 className="text-sm font-semibold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
-            <span className="w-5 h-5 bg-violet-500 rounded-full text-xs flex text-white items-center justify-center font-bold">3</span>
-            Bet / Idda <span className="text-slate-500 font-normal text-xs">(optional)</span>
+          <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-100 mb-3 flex items-center gap-2">
+            <span className="w-5 h-5 bg-violet-600 dark:bg-violet-500 rounded-full text-[10px] flex text-white items-center justify-center font-bold">3</span>
+            Bet / Idda <span className="text-slate-500 dark:text-slate-400 font-normal text-xs">(optional)</span>
           </h2>
           <textarea
             id="bet-content"
@@ -213,7 +214,7 @@ export default function NewMatchPage() {
             onChange={(e) => setBetContent(e.target.value)}
             placeholder="e.g. Winner gets to pick the restaurant next time 🍕"
             rows={2}
-            className="w-full bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500/30 transition resize-none shadow-sm"
+            className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500/30 transition resize-none shadow-sm"
           />
         </div>
 

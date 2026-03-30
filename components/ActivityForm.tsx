@@ -143,7 +143,7 @@ export default function ActivityForm({ matchId, onSuccess }: ActivityFormProps) 
                 className={`text-xs px-3 py-1.5 rounded-full border transition-all font-medium ${
                   name === task
                     ? 'border-violet-500 bg-violet-500/10 dark:bg-violet-500/20 text-violet-600 dark:text-violet-300'
-                    : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-500 hover:text-slate-900 dark:hover:text-white'
+                    : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/60 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-500 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
                 {task}
@@ -163,7 +163,7 @@ export default function ActivityForm({ matchId, onSuccess }: ActivityFormProps) 
           onChange={(e) => setName(e.target.value)}
           placeholder={selectedCategory ? `e.g. ${predefinedTasks[0] ?? 'My Activity'}` : 'Select a category first'}
           required
-          className="w-full bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500/30 transition shadow-sm"
+          className="w-full bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500/30 transition shadow-sm"
           style={{ fontSize: '16px' }}
         />
       </div>
@@ -185,7 +185,7 @@ export default function ActivityForm({ matchId, onSuccess }: ActivityFormProps) 
           <button
             type="button"
             onClick={() => setShowPicker(true)}
-            className="w-full flex items-center justify-between bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white transition hover:bg-slate-50 dark:hover:bg-slate-800 shadow-sm"
+            className="w-full flex items-center justify-between bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white transition hover:bg-slate-100 dark:hover:bg-slate-800 shadow-sm"
           >
             <span className="font-medium">
               {(hours || hours === 0) && (minutes || minutes === 0) 

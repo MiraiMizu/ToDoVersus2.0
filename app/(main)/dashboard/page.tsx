@@ -53,23 +53,26 @@ function StatCard({
   sub?: string
 }) {
   return (
-    <div className="glass rounded-3xl p-6 md:p-8 flex flex-col justify-between gap-6 hover:border-violet-500/40 transition-all duration-500 relative overflow-hidden group min-h-[160px] shadow-sm hover:shadow-xl hover:shadow-violet-500/5">
-      <div className="flex items-start justify-between relative z-10 w-full">
-        <div className="flex-1 min-w-0 pr-4">
-           <span className="block text-[10px] md:text-[11px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-[0.2em] truncate mb-3">{label}</span>
-           <div className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white truncate leading-none tracking-tighter">{value}</div>
-        </div>
-        <div className={`w-12 h-12 ${color} rounded-2xl flex items-center justify-center shadow-lg shadow-black/5 shrink-0 m-1 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}>
-          <Icon className="w-6 h-6 text-white drop-shadow-md" />
-        </div>
+    <div className="glass rounded-3xl p-0 flex flex-col justify-between hover:border-violet-500/40 transition-all duration-500 relative group min-h-[160px] shadow-sm hover:shadow-xl hover:shadow-violet-500/5 overflow-visible">
+      {/* Icon - Absolute Positioned */}
+      <div className={`absolute top-6 right-6 md:top-8 md:right-8 w-12 h-12 ${color} rounded-2xl flex items-center justify-center shadow-lg shadow-black/5 z-20 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 shrink-0`}>
+        <Icon className="w-6 h-6 text-white drop-shadow-md" />
       </div>
-      {sub && (
-        <div className="relative z-10 mt-auto">
-          <div className="text-[10px] md:text-[11px] font-bold text-slate-600 dark:text-slate-300 truncate uppercase tracking-tight bg-slate-100 dark:bg-slate-800 w-fit px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 group-hover:border-violet-500/30 transition-colors">
-            {sub}
-          </div>
+
+      <div className="relative z-10 w-full pt-8 pb-6 px-8 md:px-10 h-full flex flex-col justify-between">
+        <div>
+           <span className="block text-[10px] md:text-[11px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mb-2 leading-none whitespace-nowrap">{label}</span>
+           <div className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white leading-none tracking-tight">{value}</div>
         </div>
-      )}
+
+        {sub && (
+          <div className="mt-6">
+            <div className="text-[10px] md:text-[11px] font-bold text-slate-600 dark:text-slate-300 truncate uppercase tracking-tight bg-slate-100 dark:bg-slate-800 w-fit px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 group-hover:border-violet-500/30 transition-colors">
+              {sub}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
@@ -141,9 +144,7 @@ export default function DashboardPage() {
             {greeting},{' '}
             <span className="text-violet-600 dark:text-violet-400">{session?.user?.name}</span> 👋
           </h1>
-          <p className="text-slate-500 dark:text-slate-400 text-sm md:text-base font-medium mt-1">
-            {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
-          </p>
+          <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">{activeMatches.length} active battle{activeMatches.length !== 1 ? 's' : ''} · {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</p>
         </div>
         <Link
           href="/matches/new"
