@@ -22,7 +22,6 @@ const mainNavItems = [
   { href: '/dashboard', label: 'Home', icon: LayoutDashboard },
   { href: '/matches', label: 'Matches', icon: Swords },
   { href: '/todo', label: 'Tasks', icon: CheckSquare },
-  { href: '/leaderboard', label: 'Ranks', icon: Trophy },
   { href: '/social', label: 'Social', icon: Users },
 ]
 
