@@ -95,7 +95,7 @@ export default function PersonalTodos() {
         <button 
           type="submit"
           disabled={!newTodo.trim() || loading}
-          className="absolute right-2 top-2 bottom-2 w-10 flex items-center justify-center bg-violet-600 hover:bg-violet-500 disabled:opacity-50 disabled:bg-slate-400 text-white rounded-lg transition-all shadow-md shadow-violet-500/20 active:scale-95"
+          className="absolute right-1.5 top-1/2 -translate-y-1/2 h-9 w-9 flex items-center justify-center bg-violet-600 hover:bg-violet-500 disabled:opacity-50 disabled:bg-slate-400 text-white rounded-lg transition-all shadow-md shadow-violet-500/20 active:scale-95"
         >
           <Plus className="w-5 h-5" />
         </button>

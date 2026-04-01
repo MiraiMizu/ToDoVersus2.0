@@ -59,27 +59,28 @@ function StatCard({
   sub?: string
 }) {
   return (
-    <div className="glass rounded-3xl p-0 flex flex-col justify-between hover:border-violet-500/40 transition-all duration-500 relative group min-h-[160px] shadow-sm hover:shadow-xl hover:shadow-violet-500/5 overflow-visible">
-      {/* Icon - Absolute Positioned */}
-      <div className={`absolute top-6 right-6 md:top-8 md:right-8 w-12 h-12 ${color} rounded-2xl flex items-center justify-center shadow-lg shadow-black/5 z-20 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 shrink-0`}>
-        <Icon className="w-6 h-6 text-white drop-shadow-md" />
-      </div>
-
-      <div className="relative z-10 w-full pt-8 pb-6 px-8 md:px-10 h-full flex flex-col justify-between">
-        <div>
-           <span className="block text-[10px] md:text-[11px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mb-2 leading-none whitespace-nowrap">{label}</span>
-           <div className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white leading-none tracking-tight">
-             {isValueNumeric && typeof value === 'number' ? (
-               <StatCounter value={value} />
-             ) : (
-               value
-             )}
+    <div className="glass rounded-3xl p-5 md:p-6 flex flex-col justify-between hover:border-violet-500/40 transition-all duration-500 relative group min-h-[150px] shadow-sm hover:shadow-xl hover:shadow-violet-500/5 overflow-hidden">
+      <div className="relative z-10 w-full flex flex-col justify-between h-full">
+        <div className="flex justify-between items-start gap-4 mb-4">
+           <div>
+             <span className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1 leading-none">{label}</span>
+             <div className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white leading-none tracking-tight">
+               {isValueNumeric && typeof value === 'number' ? (
+                 <StatCounter value={value} />
+               ) : (
+                 value
+               )}
+             </div>
+           </div>
+           {/* Icon */}
+           <div className={`w-12 h-12 ${color} rounded-2xl flex items-center justify-center shadow-lg shadow-black/5 shrink-0 group-hover:scale-110 group-hover:-rotate-3 transition-all duration-500`}>
+             <Icon className="w-6 h-6 text-white drop-shadow-md" />
            </div>
         </div>
 
         {sub && (
-          <div className="mt-6">
-            <div className="text-[10px] md:text-[11px] font-bold text-slate-600 dark:text-slate-300 truncate uppercase tracking-tight bg-slate-100 dark:bg-slate-800 w-fit px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 group-hover:border-violet-500/30 transition-colors">
+          <div className="mt-auto">
+            <div className="text-[10px] md:text-[11px] font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/80 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700/50 inline-block text-left uppercase tracking-wider h-fit">
               {sub}
             </div>
           </div>
@@ -167,13 +168,15 @@ export default function DashboardPage() {
   return (
     <div className="p-4 md:p-8 lg:p-10 max-w-7xl mx-auto space-y-10 animate-fadeInUp mb-32 md:mb-10">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 mt-2">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 mt-4">
+        <div className="flex-1">
+          <h1 className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
             {greeting},{' '}
             <span className="text-violet-600 dark:text-violet-400">{session?.user?.name}</span> 👋
           </h1>
-          <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">{activeMatches.length} active battle{activeMatches.length !== 1 ? 's' : ''} · {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</p>
+          <p className="text-slate-500 dark:text-slate-400 text-sm mt-3 font-medium">
+             {activeMatches.length} active battle{activeMatches.length !== 1 ? 's' : ''} · {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+          </p>
         </div>
         <Link
           href="/matches/new"
@@ -376,30 +379,30 @@ export default function DashboardPage() {
               </div>
             </div>
           ) : (
-            <div className="glass rounded-2xl p-5 flex flex-col items-center justify-center text-center py-8">
-               <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-full flex justify-center items-center mb-3">
-                 <Swords className="w-6 h-6 text-slate-400" />
+            <div className="glass rounded-[2rem] p-8 md:p-12 flex flex-col items-center justify-center text-center">
+               <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800/80 rounded-3xl flex justify-center items-center mb-6 shadow-inner">
+                 <Swords className="w-8 h-8 text-slate-400" />
                </div>
-               <h3 className="text-slate-900 dark:text-white font-medium text-sm">No Active Battles</h3>
-               <p className="text-slate-500 text-xs mt-1 mb-4">Challenge someone to boost your productivity.</p>
-               <Link href="/matches/new" className="text-xs font-semibold text-violet-600 dark:text-violet-400 bg-violet-100 dark:bg-violet-500/10 px-4 py-2 rounded-lg hover:bg-violet-200 dark:hover:bg-violet-500/20 transition">
+               <h3 className="text-slate-900 dark:text-white font-bold text-lg">No Active Battles</h3>
+               <p className="text-slate-500 text-sm mt-2 mb-6">Challenge someone to boost your productivity.</p>
+               <Link href="/matches/new" className="text-sm font-bold text-violet-600 dark:text-violet-400 bg-violet-100 dark:bg-violet-500/10 px-6 py-3 rounded-xl hover:bg-violet-200 dark:hover:bg-violet-500/20 transition-colors">
                  Start a Match
                </Link>
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4 lg:gap-6">
              {/* Rank card compact */}
              {user && rank && (
-                <div className="glass rounded-2xl p-4 flex flex-col items-center justify-center text-center">
-                   <Shield className="w-5 h-5 text-violet-500 dark:text-violet-400 mb-2" />
+                <div className="glass rounded-3xl p-5 flex flex-col items-center justify-center text-center min-h-[150px]">
+                   <Shield className="w-6 h-6 text-violet-500 dark:text-violet-400 mb-3" />
                    <div
-                    className="text-xl font-extrabold"
+                    className="text-2xl font-extrabold"
                     style={{ background: `linear-gradient(135deg, ${rank.color}, #a78bfa)`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}
                    >
                     {rank.icon} {rank.name}
                    </div>
-                   <div className="text-[10px] text-slate-500 uppercase tracking-wider mt-1 mb-2">Current Rank</div>
+                   <div className="text-[10px] md:text-xs text-slate-500 uppercase tracking-wider mt-1.5 mb-3 font-semibold">Current Rank</div>
                    <div className="h-1.5 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
                      <div
                       className="h-full rounded-full transition-all duration-700"
@@ -414,19 +417,19 @@ export default function DashboardPage() {
              
              {/* Streak highlight compact */}
              {user && (
-                <div className={`glass rounded-2xl p-4 flex flex-col items-center justify-center text-center ${user.streak > 0 ? 'border-rose-500/20 bg-rose-50 dark:bg-rose-500/5' : ''}`}>
-                   <div className={`text-2xl mb-1 ${user.streak > 0 ? 'animate-pulse-glow' : 'opacity-50 blur-[1px]'}`}>🔥</div>
-                   <div className={`text-2xl font-extrabold ${user.streak > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-slate-800 dark:text-slate-400'}`}>{user.streak} <span className="text-sm font-medium">days</span></div>
-                   <div className="text-[10px] text-slate-500 uppercase tracking-wider mt-1">{user.streak > 0 ? 'Active Streak' : 'No Streak'}</div>
+                <div className={`glass rounded-3xl p-5 flex flex-col items-center justify-center text-center min-h-[150px] ${user.streak > 0 ? 'border border-rose-500/20 bg-rose-50/50 dark:bg-rose-500/5' : ''}`}>
+                   <div className={`text-3xl mb-2 ${user.streak > 0 ? 'animate-pulse-glow drop-shadow-md' : 'opacity-40 grayscale'}`}>🔥</div>
+                   <div className={`text-3xl font-black leading-none ${user.streak > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-slate-800 dark:text-slate-400'}`}>{user.streak} <span className="text-sm font-medium">days</span></div>
+                   <div className="text-[10px] md:text-xs text-slate-500 uppercase tracking-wider mt-2 font-semibold">{user.streak > 0 ? 'Active Streak' : 'No Streak'}</div>
                 </div>
              )}
           </div>
 
           {/* Daily Leaderboard */}
-          <div className="glass rounded-2xl p-5">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-base font-semibold text-slate-900 dark:text-white flex items-center gap-2">
-                <Trophy className="w-4 h-4 text-yellow-500 dark:text-yellow-400" />
+          <div className="glass rounded-3xl p-6">
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <Trophy className="w-5 h-5 text-yellow-500 dark:text-yellow-400" />
                 Today&apos;s Top
               </h2>
               <Link href="/leaderboard" className="text-xs text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 transition flex items-center gap-1">

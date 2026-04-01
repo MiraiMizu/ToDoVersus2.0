@@ -49,14 +49,14 @@ export default function Navbar() {
 
   return (
     <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-4 pointer-events-none w-full max-w-fit flex justify-center">
-      <div className="flex items-center bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl border border-slate-200/50 dark:border-slate-800/50 p-1.5 sm:p-2 rounded-[2.5rem] shadow-2xl shadow-black/20 pointer-events-auto transition-all animate-fadeIn">
+      <div className="flex items-center bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl border border-slate-200/50 dark:border-slate-800/50 p-2 sm:p-2.5 rounded-[2.5rem] shadow-2xl shadow-black/20 pointer-events-auto transition-all animate-fadeIn">
         
         {/* Brand / Logo */}
-        <Link href="/dashboard" className="hidden sm:flex items-center justify-center w-10 md:w-12 h-10 md:h-12 bg-gradient-to-br from-violet-600 to-indigo-600 rounded-[1.2rem] md:rounded-[1.5rem] shadow-lg shadow-violet-500/20 active:scale-95 transition-transform mr-1 md:mr-2">
-          <Zap className="w-4 h-4 md:w-5 md:h-5 text-white" />
+        <Link href="/dashboard" className="hidden sm:flex items-center justify-center w-11 md:w-12 h-11 md:h-12 bg-gradient-to-br from-violet-600 to-indigo-600 rounded-full shadow-lg shadow-violet-500/20 active:scale-95 transition-transform mr-1 md:mr-3">
+          <Zap className="w-5 h-5 text-white" />
         </Link>
 
-        <div className="flex items-center gap-0.5 sm:gap-1">
+        <div className="flex items-center gap-1 sm:gap-2">
           {mainNavItems.map(({ href, icon: Icon }) => {
             const isActive = pathname === href || (href !== '/dashboard' && pathname.startsWith(href))
             const showBadge = href === '/matches' && pendingCount > 0
@@ -65,11 +65,11 @@ export default function Navbar() {
               <Link
                 key={href}
                 href={href}
-                className={`group relative flex items-center justify-center w-10 md:w-12 h-10 md:h-12 rounded-[1.2rem] md:rounded-[1.5rem] transition-all duration-300 ${
-                  isActive ? 'bg-violet-100 dark:bg-violet-500/20 text-violet-700 dark:text-violet-400' : 'text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+                className={`group relative flex items-center justify-center w-11 md:w-12 h-11 md:h-12 rounded-full transition-all duration-300 ${
+                  isActive ? 'bg-violet-100 dark:bg-violet-500/20 text-violet-700 dark:text-violet-400' : 'text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
                 }`}
               >
-                <Icon className={`w-5 h-5 md:w-5.5 md:h-5.5 transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} />
+                <Icon className={`w-[22px] h-[22px] transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} />
                 
                 {showBadge && (
                    <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-rose-500 border-2 border-white dark:border-slate-900 rounded-full animate-pulse-glow" />
@@ -89,23 +89,23 @@ export default function Navbar() {
           {/* Profile link */}
           <Link
             href={profileHref}
-            className={`flex items-center justify-center w-12 h-12 rounded-[1.5rem] transition-all duration-300 ${
-              isProfileActive ? 'bg-violet-100 dark:bg-violet-500/20 text-violet-700 dark:text-violet-400' : 'text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+            className={`flex items-center justify-center w-11 md:w-12 h-11 md:h-12 rounded-full transition-all duration-300 ${
+              isProfileActive ? 'bg-violet-100 dark:bg-violet-500/20 text-violet-700 dark:text-violet-400' : 'text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
             }`}
           >
-            <User className={`w-5.5 h-5.5 ${isProfileActive ? 'scale-110' : ''}`} />
+            <User className={`w-[22px] h-[22px] ${isProfileActive ? 'scale-110' : ''}`} />
           </Link>
 
-          <div className="w-px h-6 bg-slate-200 dark:bg-slate-800 mx-1" />
+          <div className="w-px h-6 bg-slate-200 dark:bg-slate-800 mx-1 sm:mx-2" />
 
           {/* Utility buttons */}
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 sm:gap-1.5">
             <button
               onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
-              className="w-12 h-12 flex items-center justify-center rounded-[1.5rem] text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+              className="w-11 md:w-12 h-11 md:h-12 flex items-center justify-center rounded-full text-slate-500 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
               aria-label="Toggle theme"
             >
-              {resolvedTheme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              {resolvedTheme === 'dark' ? <Sun className="w-[22px] h-[22px]" /> : <Moon className="w-[22px] h-[22px]" />}
             </button>
 
             {session?.user && (
@@ -113,9 +113,9 @@ export default function Navbar() {
                 onClick={() => signOut({ callbackUrl: '/login' })}
                 id="bottom-logout"
                 title="Sign out"
-                className="w-12 h-12 flex items-center justify-center rounded-[1.5rem] text-slate-400 hover:text-red-500 hover:bg-red-500/10 transition-all"
+                className="w-11 md:w-12 h-11 md:h-12 flex items-center justify-center rounded-full text-slate-500 hover:text-red-500 hover:bg-red-500/10 transition-all mr-0.5 sm:mr-0"
               >
-                <LogOut className="w-5 h-5" />
+                <LogOut className="w-[22px] h-[22px]" />
               </button>
             )}
           </div>

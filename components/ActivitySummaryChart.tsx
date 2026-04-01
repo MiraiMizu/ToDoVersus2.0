@@ -53,18 +53,18 @@ export default function ActivitySummaryChart({ data }: { data: CategoryData[] })
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.6, delay: 0.2 }}
-      className="glass rounded-3xl p-6 h-[320px] flex flex-col"
+      className="glass rounded-[2rem] p-6 md:p-8 h-[340px] flex flex-col mt-6"
     >
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-8">
         <div>
           <h2 className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Activity Split</h2>
           <div className="text-2xl font-black text-slate-900 dark:text-white">Category Focus</div>
         </div>
       </div>
 
-      <div className="flex-1 flex items-center justify-center relative">
+      <div className="flex-1 flex items-center justify-center relative w-full h-full">
         {total === 0 ? (
-          <div className="text-center">
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
              <div className="text-slate-400 text-sm mb-2 opacity-50">No logs today</div>
              <div className="text-violet-500 animate-pulse font-medium text-xs">Waiting for your first focus...</div>
           </div>

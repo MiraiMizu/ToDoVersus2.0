@@ -64,9 +64,9 @@ export default function PerformanceChart({ data }: { data: PerformanceData[] }) 
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
-      className="glass rounded-3xl p-6 h-[320px] relative overflow-hidden"
+      className="glass rounded-[2rem] p-6 md:p-8 h-[340px] relative overflow-hidden mt-6"
     >
-      <div className="flex items-center justify-between mb-6 relative z-10">
+      <div className="flex items-center justify-between mb-8 relative z-10">
         <div>
           <h2 className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Weekly Performance</h2>
           <div className="text-2xl font-black text-slate-900 dark:text-white">Trend Analysis</div>
@@ -78,15 +78,13 @@ export default function PerformanceChart({ data }: { data: PerformanceData[] }) 
           <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
             <defs>
               <linearGradient id="colorScore" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#7c3aed" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#7c3aed" stopOpacity={0} />
+                <stop offset="5%" stopColor="#7c3aed" stopOpacity={0.4} />
+                <stop offset="95%" stopColor="#7c3aed" stopOpacity={0.05} />
               </linearGradient>
             </defs>
             <CartesianGrid 
-              vertical={false} 
-              strokeDasharray="3 3" 
-              stroke="currentColor" 
-              className="text-slate-200 dark:text-slate-800" 
+              vertical={false}
+              horizontal={false} /* Removed dashed lines completely to look cleaner */
             />
             <XAxis 
               dataKey="day" 
