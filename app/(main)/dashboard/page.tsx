@@ -20,7 +20,11 @@ import PersonalTodos from '@/components/PersonalTodos'
 import { ScrollTimePicker } from '@/components/ScrollTimePicker'
 import { formatScore } from '@/lib/scoring'
 import { getRank, getRankProgress, getNextRank } from '@/lib/ranks'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
+import PerformanceChart from '@/components/PerformanceChart'
+import ActivitySummaryChart from '@/components/ActivitySummaryChart'
+import StatCounter from '@/components/StatCounter'
+import { motion } from 'framer-motion'
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
@@ -43,12 +47,14 @@ function StatCard({
   icon: Icon,
   label,
   value,
+  isValueNumeric = false,
   color,
   sub,
 }: {
   icon: React.ElementType
   label: string
   value: string | number
+  isValueNumeric?: boolean
   color: string
   sub?: string
 }) {
@@ -62,7 +68,13 @@ function StatCard({
       <div className="relative z-10 w-full pt-8 pb-6 px-8 md:px-10 h-full flex flex-col justify-between">
         <div>
            <span className="block text-[10px] md:text-[11px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mb-2 leading-none whitespace-nowrap">{label}</span>
-           <div className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white leading-none tracking-tight">{value}</div>
+           <div className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white leading-none tracking-tight">
+             {isValueNumeric && typeof value === 'number' ? (
+               <StatCounter value={value} />
+             ) : (
+               value
+             )}
+           </div>
         </div>
 
         {sub && (
@@ -93,11 +105,13 @@ export default function DashboardPage() {
   )
   const { data: matchesData } = useSWR(userId ? `/api/matches` : null, fetcher)
   const { data: leaderData } = useSWR('/api/scores/leaderboard?period=daily', fetcher, { refreshInterval: 60000 })
+  const { data: perfData } = useSWR('/api/user/performance', fetcher)
 
   const user = userdata?.user
   const activities = activitiesData?.activities ?? []
   const matches = matchesData?.matches ?? []
   const leaders = leaderData?.leaderboard ?? []
+  const performanceData = perfData?.performanceData ?? []
 
   const todayScore = activities.reduce((sum: number, a: { score: number }) => sum + a.score, 0)
   const activeMatches = matches.filter((m: { status: string }) => m.status === 'ACTIVE')
@@ -112,6 +126,21 @@ export default function DashboardPage() {
 
   const hour = new Date().getHours()
   const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening'
+
+  const categorySummary = useMemo(() => {
+    const summary: Record<string, { name: string; value: number; color: string }> = {}
+    activities.forEach((a: any) => {
+      if (!summary[a.category.name]) {
+        summary[a.category.name] = {
+          name: a.category.name,
+          value: 0,
+          color: a.category.color,
+        }
+      }
+      summary[a.category.name].value += a.score
+    })
+    return Object.values(summary)
+  }, [activities])
 
   const handleQuickLog = async (hours: number, minutes: number) => {
     if (!activeLogTask) return
@@ -178,14 +207,16 @@ export default function DashboardPage() {
             <StatCard
               icon={Zap}
               label="Today's Score"
-              value={formatScore(todayScore)}
+              value={todayScore}
+              isValueNumeric={true}
               color="bg-gradient-to-br from-violet-500 to-indigo-600"
               sub={`${activities.length} activities`}
             />
             <StatCard
               icon={TrendingUp}
               label="All-Time Score"
-              value={user ? formatScore(user.allTimeScore) : '—'}
+              value={user?.allTimeScore ?? 0}
+              isValueNumeric={true}
               color="bg-gradient-to-br from-blue-500 to-cyan-600"
             />
             <StatCard
@@ -204,6 +235,16 @@ export default function DashboardPage() {
             />
           </>
         )}
+      </div>
+
+      {/* Charts Section */}
+      <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
+        <div className="lg:col-span-2">
+          <PerformanceChart data={performanceData} />
+        </div>
+        <div className="lg:col-span-1">
+          <ActivitySummaryChart data={categorySummary} />
+        </div>
       </div>
 
       {/* Main content grid */}
@@ -247,8 +288,10 @@ export default function DashboardPage() {
                   score: number
                   category: { name: string; weight: number; color: string }
                 }) => (
-                  <div
+                  <motion.div
                     key={a.id}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
                     className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800/40 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-900/80 transition-colors"
                   >
                     <div
@@ -263,7 +306,7 @@ export default function DashboardPage() {
                       </div>
                     </div>
                     <div className="text-sm font-bold text-violet-600 dark:text-violet-400">+{formatScore(a.score)}</div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             )}
