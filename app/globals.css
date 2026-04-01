@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:is(.dark *));
+
 :root {
   --color-brand: #6366f1;
   --color-brand-glow: rgba(99, 102, 241, 0.4);

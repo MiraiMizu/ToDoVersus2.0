@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
 
   try {
     // Fetch activities instead of dailyScore since dailyScore might not be consistently updated for all dates
-    const activities = await prisma.activity.findMany({
+    const activities = await prisma.activityLog.findMany({
       where: {
         userId,
         date: {

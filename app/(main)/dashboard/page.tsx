@@ -63,7 +63,7 @@ function StatCard({
       <div className="relative z-10 w-full flex flex-col justify-between h-full">
         <div className="flex justify-between items-start gap-4 mb-4">
            <div>
-             <span className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1 leading-none">{label}</span>
+             <span className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1 leading-none drop-shadow-sm">{label}</span>
              <div className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white leading-none tracking-tight">
                {isValueNumeric && typeof value === 'number' ? (
                  <StatCounter value={value} />
@@ -174,7 +174,7 @@ export default function DashboardPage() {
             {greeting},{' '}
             <span className="text-violet-600 dark:text-violet-400">{session?.user?.name}</span> 👋
           </h1>
-          <p className="text-slate-500 dark:text-slate-400 text-sm mt-3 font-medium">
+          <p className="text-slate-500 dark:text-slate-300 text-sm mt-3 font-medium">
              {activeMatches.length} active battle{activeMatches.length !== 1 ? 's' : ''} · {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
           </p>
         </div>
