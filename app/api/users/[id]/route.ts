@@ -30,6 +30,11 @@ export async function GET(
             wonMatches: true,
           },
         },
+        activityLogs: {
+          take: 10,
+          orderBy: { loggedAt: 'desc' },
+          include: { category: true },
+        },
       },
     })
 

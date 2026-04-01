@@ -137,18 +137,24 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
         </div>
       )}
 
-      {/* Categories */}
-      <div className="glass rounded-2xl p-4">
-        <div className="text-xs text-slate-400 mb-2 font-medium uppercase tracking-wider">Categories</div>
-        <div className="flex flex-wrap gap-2">
-          {match.categories.map((mc: { category: { name: string; weight: number; color: string } }, i: number) => (
-            <span
-              key={i}
-              className="text-xs px-3 py-1 rounded-full border"
-              style={{ borderColor: mc.category.color + '40', color: mc.category.color, backgroundColor: mc.category.color + '15' }}
-            >
-              {mc.category.name} ×{mc.category.weight}
-            </span>
+      {/* Match Tasks */}
+      <div className="glass rounded-2xl p-5">
+        <div className="text-xs text-slate-400 mb-3 font-medium uppercase tracking-wider flex items-center justify-between">
+           <span>Battle Objectives</span>
+           <span className="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full text-[10px]">{match.matchTasks?.length || 0} Tasks</span>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {match.matchTasks && match.matchTasks.map((task: { id: string; content: string; category: { name: string; weight: number; color: string } }, i: number) => (
+            <div key={i} className="flex gap-3 bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800/40 p-3 rounded-xl items-center">
+              <div 
+                className="w-1.5 h-10 rounded-full flex-shrink-0" 
+                style={{ backgroundColor: task.category.color }}
+              />
+              <div className="flex-1">
+                <div className="text-sm font-medium text-slate-900 dark:text-white leading-tight">{task.content}</div>
+                <div className="text-[10px] text-slate-500 mt-0.5 uppercase tracking-wider font-bold">{task.category.name} (x{task.category.weight})</div>
+              </div>
+            </div>
           ))}
         </div>
       </div>

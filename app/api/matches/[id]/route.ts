@@ -19,7 +19,7 @@ export async function GET(
         challenger: { select: { id: true, username: true, avatarUrl: true, rank: true, streak: true } },
         opponent: { select: { id: true, username: true, avatarUrl: true, rank: true, streak: true } },
         bet: true,
-        categories: { include: { category: true } },
+        matchTasks: { include: { category: true } },
         winner: { select: { id: true, username: true } },
         activityLogs: {
           include: { user: { select: { id: true, username: true } }, category: true },

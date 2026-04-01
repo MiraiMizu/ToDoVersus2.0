@@ -131,6 +131,30 @@ export default function ProfilePage({ params }: { params: Promise<{ id: string }
           </div>
         </div>
       )}
+
+      {/* Recent Activity */}
+      {user.activityLogs && user.activityLogs.length > 0 && (
+        <div className="glass rounded-2xl p-5 md:p-6 border border-slate-200 dark:border-slate-800/60 shadow-sm mt-6">
+          <h2 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-4 uppercase tracking-wider">
+             <LayoutDashboard className="w-5 h-5 text-violet-500 dark:text-violet-400 drop-shadow-sm" />
+             Recent Activity
+          </h2>
+          <div className="space-y-2">
+            {user.activityLogs.map((log: any) => (
+              <div key={log.id} className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800/40 rounded-xl">
+                 <div className="w-2 h-10 rounded-full flex-shrink-0" style={{ backgroundColor: log.category.color }} />
+                 <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium text-slate-900 dark:text-white truncate">{log.name}</div>
+                    <div className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">
+                       {Math.floor(log.durationMinutes / 60)}h {log.durationMinutes % 60}m · {log.category.name} · {log.date}
+                    </div>
+                 </div>
+                 <div className="text-sm font-bold text-violet-600 dark:text-violet-400">+{formatScore(log.score)}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

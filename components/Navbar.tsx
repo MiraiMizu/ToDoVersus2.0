@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { signOut, useSession } from 'next-auth/react'
+import useSWR from 'swr'
 import {
   Zap,
   LayoutDashboard,
@@ -14,8 +15,11 @@ import {
   Medal,
   Sun,
   Moon,
+  Bell
 } from 'lucide-react'
 import { useTheme } from 'next-themes'
+
+const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
 const mainNavItems = [
   { href: '/dashboard', label: 'Home', icon: LayoutDashboard },
@@ -29,6 +33,9 @@ export default function Navbar() {
   const pathname = usePathname()
   const { resolvedTheme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
+
+  const { data: notifData } = useSWR(session?.user?.id ? '/api/user/notifications' : null, fetcher, { refreshInterval: 60000 })
+  const pendingCount = notifData?.notifications?.pendingMatches || 0
 
   // Avoid hydration mismatch
   useEffect(() => {
@@ -52,6 +59,8 @@ export default function Navbar() {
         <div className="flex items-center gap-0.5 sm:gap-1">
           {mainNavItems.map(({ href, icon: Icon }) => {
             const isActive = pathname === href || (href !== '/dashboard' && pathname.startsWith(href))
+            const showBadge = href === '/matches' && pendingCount > 0
+            
             return (
               <Link
                 key={href}
@@ -61,6 +70,11 @@ export default function Navbar() {
                 }`}
               >
                 <Icon className={`w-5 h-5 md:w-5.5 md:h-5.5 transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} />
+                
+                {showBadge && (
+                   <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-rose-500 border-2 border-white dark:border-slate-900 rounded-full animate-pulse-glow" />
+                )}
+
                 {isActive && (
                   <span className="absolute -top-3 px-2 py-0.5 bg-violet-600 text-[10px] text-white font-bold rounded-full scale-0 group-hover:scale-100 transition-all duration-200 origin-bottom translate-y-[-100%] pointer-events-none whitespace-nowrap shadow-xl">
                     {href.slice(1).toUpperCase()}

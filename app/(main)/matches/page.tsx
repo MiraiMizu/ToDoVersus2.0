@@ -115,7 +115,7 @@ type MatchItem = {
   challenger: { id: string; username: string; rank: string }
   opponent: { id: string; username: string; rank: string }
   winner?: { id: string; username: string } | null
-  categories: { category: { name: string; weight: number; color: string } }[]
+  matchTasks?: { id: string; content: string; category: { name: string; weight: number; color: string } }[]
   bet?: { content: string; challengerApproved: boolean; opponentApproved: boolean } | null
   createdAt: string
 }
@@ -163,17 +163,22 @@ function MatchCard({
         </span>
       </div>
 
-      {/* Categories */}
-      <div className="flex flex-wrap gap-1.5 mb-3">
-        {match.categories.map((mc, i) => (
-          <span
-            key={i}
-            className="text-xs px-2 py-0.5 rounded-full border border-slate-700 text-slate-400"
-            style={{ borderColor: mc.category.color + '40', color: mc.category.color }}
-          >
-            {mc.category.name}
-          </span>
+      {/* Match Tasks */}
+      <div className="space-y-1.5 mb-3 px-1">
+        {match.matchTasks && match.matchTasks.slice(0, 3).map((task, i) => (
+          <div key={i} className="flex items-start gap-2 text-xs">
+            <span 
+              className="mt-0.5 font-bold uppercase tracking-wider text-[8px] px-1.5 py-0.5 rounded-md flex-shrink-0"
+              style={{ backgroundColor: task.category.color + '20', color: task.category.color, border: `1px solid ${task.category.color}40` }}
+            >
+              {task.category.name}
+            </span>
+            <span className="text-slate-600 dark:text-slate-300 leading-tight">{task.content}</span>
+          </div>
         ))}
+        {match.matchTasks && match.matchTasks.length > 3 && (
+           <div className="text-[10px] text-slate-400 italic pl-1">+ {match.matchTasks.length - 3} more tasks</div>
+        )}
       </div>
 
       {/* Bet */}
