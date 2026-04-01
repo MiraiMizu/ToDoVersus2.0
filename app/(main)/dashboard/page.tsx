@@ -16,7 +16,6 @@ import {
   Clock,
 } from 'lucide-react'
 import ActivityForm from '@/components/ActivityForm'
-import PersonalTodos from '@/components/PersonalTodos'
 import { ScrollTimePicker } from '@/components/ScrollTimePicker'
 import { formatScore } from '@/lib/scoring'
 import { getRank, getRankProgress, getNextRank } from '@/lib/ranks'
@@ -255,8 +254,6 @@ export default function DashboardPage() {
         
         {/* Left Column: Command Center (7 cols) */}
         <div className="lg:col-span-7 space-y-6">
-          
-          <PersonalTodos />
 
           <div className="glass rounded-2xl p-5 lg:p-6 opacity-100">
             <h2 className="text-base font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">

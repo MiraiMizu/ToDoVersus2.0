@@ -12,26 +12,23 @@ import {
   Trophy,
   User,
   LogOut,
-  Medal,
-  Sun,
-  Moon,
-  Bell
+  CheckSquare,
+  Users
 } from 'lucide-react'
-import { useTheme } from 'next-themes'
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
 const mainNavItems = [
   { href: '/dashboard', label: 'Home', icon: LayoutDashboard },
   { href: '/matches', label: 'Matches', icon: Swords },
+  { href: '/todo', label: 'Tasks', icon: CheckSquare },
   { href: '/leaderboard', label: 'Ranks', icon: Trophy },
-  { href: '/achievements', label: 'Badges', icon: Medal },
+  { href: '/social', label: 'Social', icon: Users },
 ]
 
 export default function Navbar() {
   const { data: session } = useSession()
   const pathname = usePathname()
-  const { resolvedTheme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
 
   const { data: notifData } = useSWR(session?.user?.id ? '/api/user/notifications' : null, fetcher, { refreshInterval: 60000 })
@@ -100,13 +97,6 @@ export default function Navbar() {
 
           {/* Utility buttons */}
           <div className="flex items-center gap-1 sm:gap-1.5">
-            <button
-              onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
-              className="w-11 md:w-12 h-11 md:h-12 flex items-center justify-center rounded-full text-slate-500 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
-              aria-label="Toggle theme"
-            >
-              {resolvedTheme === 'dark' ? <Sun className="w-[22px] h-[22px]" /> : <Moon className="w-[22px] h-[22px]" />}
-            </button>
 
             {session?.user && (
               <button

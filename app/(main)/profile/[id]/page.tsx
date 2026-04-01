@@ -17,6 +17,8 @@ const RARITY_COLORS: Record<string, string> = {
   Legendary: 'border-amber-500/40 bg-amber-50/50 dark:bg-transparent',
 }
 
+import { ThemeToggle } from '@/components/ThemeToggle'
+
 export default function ProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
   const { data: session } = useSession()
@@ -37,9 +39,12 @@ export default function ProfilePage({ params }: { params: Promise<{ id: string }
 
   return (
     <div className="p-4 md:p-6 max-w-4xl mx-auto animate-fadeInUp space-y-6">
-      <Link href="/dashboard" id="back-to-dashboard-profile" className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-violet-400 transition">
-        <LayoutDashboard className="w-3.5 h-3.5" /> Dashboard
-      </Link>
+      <div className="flex justify-between items-center bg-white/50 dark:bg-slate-900/40 p-3 rounded-2xl glass mb-2">
+        <Link href="/dashboard" id="back-to-dashboard-profile" className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 transition ml-2">
+          <LayoutDashboard className="w-4 h-4" /> Dashboard
+        </Link>
+        {isMe && <ThemeToggle />}
+      </div>
       {/* Profile header */}
       <div className="glass rounded-2xl p-6">
         <div className="flex flex-col md:flex-row items-center md:items-start gap-5">
