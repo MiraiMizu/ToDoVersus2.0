@@ -4,18 +4,42 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import useSWR from 'swr'
 import Link from 'next/link'
-import { Search, Swords, X, Plus, AlertCircle, LayoutDashboard, Trash2 } from 'lucide-react'
+import { Search, Swords, X, Plus, AlertCircle, LayoutDashboard, Trash2, Clock, Zap, Star, Leaf } from 'lucide-react'
 import { formatScore } from '@/lib/scoring'
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
+
+const DURATION_OPTIONS = [
+  { value: 24,  label: '1 Day',   description: 'Quick sprint' },
+  { value: 72,  label: '3 Days',  description: 'Short challenge' },
+  { value: 168, label: '1 Week',  description: 'Full commitment' },
+]
+
+// Category icons and descriptions for better UX
+const CATEGORY_META: Record<string, { icon: React.ReactNode; pts: string; examples: string }> = {
+  Critical: {
+    icon: <Zap className="w-3.5 h-3.5 text-violet-500" />,
+    pts: '4 pts/min',
+    examples: 'e.g. Studying, Exam Prep, Deep Work',
+  },
+  Important: {
+    icon: <Star className="w-3.5 h-3.5 text-amber-500" />,
+    pts: '2 pts/min',
+    examples: 'e.g. Learning to code, Fitness, Side projects',
+  },
+  Relaxing: {
+    icon: <Leaf className="w-3.5 h-3.5 text-emerald-500" />,
+    pts: '1 pt/min',
+    examples: 'e.g. Watching films, Drawing, Reading Webtoons',
+  },
+}
 
 export default function NewMatchPage() {
   const router = useRouter()
   const [query, setQuery] = useState('')
   const [selectedUser, setSelectedUser] = useState<{ id: string; username: string; rank: string; allTimeScore: number } | null>(null)
-  
-  // Replace simple categories with a complex task list
   const [matchTasks, setMatchTasks] = useState<{ content: string; categoryId: string }[]>([{ content: '', categoryId: '' }])
+  const [durationHours, setDurationHours] = useState(24)
   const [betContent, setBetContent] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -26,7 +50,7 @@ export default function NewMatchPage() {
   )
   const { data: categoriesData } = useSWR('/api/categories', fetcher)
   const searchResults = searchData?.users ?? []
-  const categories = categoriesData?.categories ?? []
+  const categories: { id: string; name: string; weight: number; description: string }[] = categoriesData?.categories ?? []
 
   const updateTask = (index: number, field: 'content' | 'categoryId', value: string) => {
     const newTasks = [...matchTasks]
@@ -58,6 +82,7 @@ export default function NewMatchPage() {
         opponentId: selectedUser.id,
         matchTasks,
         betContent: betContent || undefined,
+        durationHours,
       }),
     })
 
@@ -75,7 +100,7 @@ export default function NewMatchPage() {
   const isValid = selectedUser && matchTasks.length > 0 && matchTasks.every(t => t.content.trim() !== '' && t.categoryId !== '')
 
   return (
-    <div className="p-4 md:p-6 max-w-2xl mx-auto animate-fadeInUp">
+    <div className="p-4 md:p-6 max-w-2xl mx-auto animate-fadeInUp mb-32 md:mb-10">
       <div className="mb-6">
         <Link href="/matches" id="back-to-matches" className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-violet-600 dark:hover:text-violet-400 transition mb-2">
           <LayoutDashboard className="w-3.5 h-3.5" /> Matches
@@ -84,7 +109,7 @@ export default function NewMatchPage() {
           <Swords className="w-6 h-6 text-violet-600 dark:text-violet-400" />
           Challenge Someone
         </h1>
-        <p className="text-slate-500 text-sm mt-1">Set up a competitive match against another user</p>
+        <p className="text-slate-500 text-sm mt-1">Pick your battle tasks — your opponent will choose theirs when they accept</p>
       </div>
 
       {error && (
@@ -93,6 +118,24 @@ export default function NewMatchPage() {
           {error}
         </div>
       )}
+
+      {/* Category legend */}
+      <div className="grid grid-cols-3 gap-2 mb-5">
+        {categories.map(cat => {
+          const meta = CATEGORY_META[cat.name]
+          if (!meta) return null
+          return (
+            <div key={cat.id} className="glass rounded-xl p-3 border border-slate-100 dark:border-white/5 text-center">
+              <div className="flex items-center justify-center gap-1 mb-1">
+                {meta.icon}
+                <span className="text-xs font-semibold text-slate-800 dark:text-slate-100">{cat.name}</span>
+              </div>
+              <div className="text-[10px] font-bold text-violet-600 dark:text-violet-400">{meta.pts}</div>
+              <div className="text-[10px] text-slate-400 mt-0.5 leading-tight">{meta.examples}</div>
+            </div>
+          )
+        })}
+      </div>
 
       <div className="space-y-5">
         {/* Step 1: Pick opponent */}
@@ -109,7 +152,7 @@ export default function NewMatchPage() {
               </div>
               <div className="flex-1">
                 <div className="text-sm font-medium text-slate-900 dark:text-white">{selectedUser.username}</div>
-                <div className="text-xs text-slate-500">{selectedUser.rank}</div>
+                <div className="text-xs text-slate-500">{selectedUser.rank} · {formatScore(selectedUser.allTimeScore)} pts</div>
               </div>
               <button onClick={() => setSelectedUser(null)} className="text-slate-400 hover:text-red-500 transition">
                 <X className="w-4 h-4" />
@@ -138,7 +181,7 @@ export default function NewMatchPage() {
                         {u.username[0]?.toUpperCase()}
                       </div>
                       <div>
-                        <div className="text-sm font-bold text-slate-900 dark:text-white transition-colors">{u.username}</div>
+                        <div className="text-sm font-bold text-slate-900 dark:text-white">{u.username}</div>
                         <div className="text-[10px] text-slate-500 font-medium uppercase tracking-tight">{u.rank} · {formatScore(u.allTimeScore)} pts</div>
                       </div>
                     </button>
@@ -149,50 +192,88 @@ export default function NewMatchPage() {
           )}
         </div>
 
-        {/* Step 2: Custom Tasks */}
+        {/* Step 2: Duration */}
+        <div className="glass rounded-2xl p-5">
+          <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-100 mb-3 flex items-center gap-2">
+            <span className="w-5 h-5 bg-violet-600 dark:bg-violet-500 rounded-full text-[10px] flex items-center text-white justify-center font-bold">2</span>
+            <Clock className="w-3.5 h-3.5 text-slate-500" /> Match Duration
+          </h2>
+          <div className="grid grid-cols-3 gap-2">
+            {DURATION_OPTIONS.map(opt => (
+              <button
+                key={opt.value}
+                onClick={() => setDurationHours(opt.value)}
+                className={`py-3 rounded-xl border text-center transition-all ${
+                  durationHours === opt.value
+                    ? 'bg-violet-600 border-violet-600 text-white shadow-lg shadow-violet-600/25'
+                    : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-violet-400'
+                }`}
+              >
+                <div className="text-sm font-bold">{opt.label}</div>
+                <div className={`text-[10px] mt-0.5 ${durationHours === opt.value ? 'text-violet-200' : 'text-slate-400'}`}>{opt.description}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Step 3: Your Tasks */}
         <div className="glass rounded-2xl p-5">
           <div className="flex items-center justify-between mb-1">
              <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-               <span className="w-5 h-5 bg-violet-600 dark:bg-violet-500 rounded-full text-[10px] flex items-center text-white justify-center font-bold">2</span>
-               Define Battle Tasks
+               <span className="w-5 h-5 bg-violet-600 dark:bg-violet-500 rounded-full text-[10px] flex items-center text-white justify-center font-bold">3</span>
+               Your Battle Tasks
              </h2>
-             <span className="text-xs text-slate-500 font-medium bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">{matchTasks.length}/5 Tasks</span>
+             <span className="text-xs text-slate-500 font-medium bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">{matchTasks.length}/5</span>
           </div>
-          <p className="text-xs text-slate-500 mb-4 ml-7">Determine up to 5 specific goals for this match.</p>
+          <p className="text-xs text-slate-500 mb-4 ml-7">Choose what <strong>you</strong> will work on. Your opponent will pick their own tasks when they accept.</p>
           
           <div className="space-y-3">
-             {matchTasks.map((task, idx) => (
-                <div key={idx} className="flex flex-col sm:flex-row gap-2 items-start sm:items-center bg-slate-50 dark:bg-slate-900/50 p-2 pl-3 rounded-xl border border-slate-200 dark:border-slate-800 group transition">
-                   <div className="font-bold text-slate-300 dark:text-slate-600 w-4">{idx + 1}.</div>
-                   <input 
-                      type="text" 
-                      placeholder="e.g. Read 20 pages"
-                      value={task.content}
-                      onChange={(e) => updateTask(idx, 'content', e.target.value)}
-                      className="flex-1 w-full bg-slate-100/50 dark:bg-slate-800/30 border-none text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-0"
-                   />
-                   <div className="flex items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0">
-                      <select 
-                         value={task.categoryId} 
-                         onChange={(e) => updateTask(idx, 'categoryId', e.target.value)}
-                         className="flex-1 sm:w-[130px] bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs rounded-lg px-2 py-1.5 text-slate-700 dark:text-slate-300 focus:outline-none focus:border-violet-500 transition"
-                      >
-                         <option value="" disabled>Type</option>
-                         {categories.map((cat: any) => (
-                            <option key={cat.id} value={cat.id} className="bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white">{cat.name} (x{cat.weight})</option>
-                         ))}
-                      </select>
-                      {matchTasks.length > 1 && (
-                         <button onClick={() => removeTask(idx)} className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-slate-800 rounded-md transition shrink-0">
-                            <Trash2 className="w-4 h-4" />
-                         </button>
-                      )}
-                   </div>
-                </div>
-             ))}
+             {matchTasks.map((task, idx) => {
+               const selectedCat = categories.find(c => c.id === task.categoryId)
+               const meta = selectedCat ? CATEGORY_META[selectedCat.name] : null
+               return (
+                 <div key={idx} className="flex flex-col sm:flex-row gap-2 items-start sm:items-center bg-slate-50 dark:bg-slate-900/50 p-2 pl-3 rounded-xl border border-slate-200 dark:border-slate-800 group transition">
+                    <div className="font-bold text-slate-300 dark:text-slate-600 w-4">{idx + 1}.</div>
+                    <input
+                       type="text"
+                       placeholder="e.g. Study for 2 hours"
+                       value={task.content}
+                       onChange={(e) => updateTask(idx, 'content', e.target.value)}
+                       className="flex-1 w-full bg-transparent border-none text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-0"
+                    />
+                    <div className="flex items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+                       <select
+                          value={task.categoryId}
+                          onChange={(e) => updateTask(idx, 'categoryId', e.target.value)}
+                          className="flex-1 sm:w-[150px] bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs rounded-lg px-2 py-1.5 text-slate-700 dark:text-slate-300 focus:outline-none focus:border-violet-500 transition"
+                       >
+                          <option value="" disabled>Select type...</option>
+                          {categories.map(cat => {
+                            const m = CATEGORY_META[cat.name]
+                            return (
+                              <option key={cat.id} value={cat.id} className="bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white">
+                                {cat.name} ({m?.pts ?? `x${cat.weight}`})
+                              </option>
+                            )
+                          })}
+                       </select>
+                       {meta && (
+                         <div className="hidden sm:flex items-center gap-1 shrink-0">
+                           {meta.icon}
+                         </div>
+                       )}
+                       {matchTasks.length > 1 && (
+                          <button onClick={() => removeTask(idx)} className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-slate-800 rounded-md transition shrink-0">
+                             <Trash2 className="w-4 h-4" />
+                          </button>
+                       )}
+                    </div>
+                 </div>
+               )
+             })}
              
              {matchTasks.length < 5 && (
-                <button 
+                <button
                   onClick={addTask}
                   className="w-full py-2.5 border-2 border-dashed border-slate-200 dark:border-slate-800 text-slate-500 hover:text-violet-600 dark:hover:text-violet-400 hover:border-violet-300 dark:hover:border-violet-700 hover:bg-violet-50 dark:hover:bg-slate-900 rounded-xl text-sm font-medium transition flex items-center justify-center gap-2"
                 >
@@ -202,11 +283,11 @@ export default function NewMatchPage() {
           </div>
         </div>
 
-        {/* Step 3: Bet */}
+        {/* Step 4: Bet */}
         <div className="glass rounded-2xl p-5">
           <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-100 mb-3 flex items-center gap-2">
-            <span className="w-5 h-5 bg-violet-600 dark:bg-violet-500 rounded-full text-[10px] flex text-white items-center justify-center font-bold">3</span>
-            Bet / Idda <span className="text-slate-500 dark:text-slate-400 font-normal text-xs">(optional)</span>
+            <span className="w-5 h-5 bg-violet-600 dark:bg-violet-500 rounded-full text-[10px] flex text-white items-center justify-center font-bold">4</span>
+            Bet / İddia <span className="text-slate-500 dark:text-slate-400 font-normal text-xs">(optional)</span>
           </h2>
           <textarea
             id="bet-content"
@@ -226,7 +307,7 @@ export default function NewMatchPage() {
           className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-xl transition-all text-sm shadow-md"
         >
           <Swords className="w-5 h-5" />
-          {loading ? 'Sending Ravens...' : 'Confirm Challenge'}
+          {loading ? 'Sending Challenge...' : 'Confirm Challenge'}
         </button>
       </div>
     </div>

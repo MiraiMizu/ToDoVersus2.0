@@ -30,6 +30,7 @@ CREATE TABLE "Match" (
     "status" TEXT NOT NULL DEFAULT 'PENDING',
     "startDate" DATETIME,
     "endDate" DATETIME,
+    "durationHours" INTEGER NOT NULL DEFAULT 24,
     "winnerId" TEXT,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
@@ -62,11 +63,13 @@ CREATE TABLE "MatchCategory" (
 CREATE TABLE "MatchTask" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "matchId" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
     "content" TEXT NOT NULL,
     "categoryId" TEXT NOT NULL,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "MatchTask_matchId_fkey" FOREIGN KEY ("matchId") REFERENCES "Match" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT "MatchTask_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+    CONSTRAINT "MatchTask_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "MatchTask_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 -- CreateTable

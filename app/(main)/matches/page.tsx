@@ -22,6 +22,11 @@ export default function MatchesPage() {
   const matches = data?.matches ?? []
 
   const handleRespond = async (matchId: string, action: 'accept' | 'decline') => {
+    if (action === 'accept') {
+      // Navigate to the match detail page where opponent picks their tasks
+      window.location.href = `/matches/${matchId}?accept=1`
+      return
+    }
     await fetch(`/api/matches/${matchId}/respond`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },

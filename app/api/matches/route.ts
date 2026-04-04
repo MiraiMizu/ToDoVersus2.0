@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { opponentId, matchTasks, betContent } = body
+    const { opponentId, matchTasks, betContent, durationHours = 24 } = body
 
     if (!opponentId || !matchTasks || matchTasks.length === 0) {
       return NextResponse.json({ error: 'Opponent and tasks are required' }, { status: 400 })
@@ -60,15 +60,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'You cannot challenge yourself' }, { status: 400 })
     }
 
+    const validDurations = [24, 72, 168] // 1 day, 3 days, 7 days
+    const duration = validDurations.includes(Number(durationHours)) ? Number(durationHours) : 24
+
     const match = await prisma.match.create({
       data: {
         challengerId: session.user.id,
         opponentId,
         status: 'PENDING',
+        durationHours: duration,
+        // Challenger's tasks are stored with their userId
         matchTasks: {
           create: matchTasks.map((t: { content: string, categoryId: string }) => ({
              content: t.content,
-             categoryId: t.categoryId
+             categoryId: t.categoryId,
+             userId: session.user!.id,
           }))
         },
         bet: betContent

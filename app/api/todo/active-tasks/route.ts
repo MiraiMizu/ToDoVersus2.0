@@ -18,20 +18,24 @@ export async function GET(request: NextRequest) {
         status: 'ACTIVE'
       },
       include: {
+        // Only fetch THIS user's tasks for that match
         matchTasks: {
-          include: {
-            category: true
-          }
+          where: { userId: session.user.id },
+          include: { category: true }
         },
-        challenger: { select: { username: true } },
-        opponent: { select: { username: true } }
+        challenger: { select: { id: true, username: true } },
+        opponent: { select: { id: true, username: true } }
       }
     })
 
-    const allTasks = activeMatches.flatMap((match: any) => 
+    const allTasks = activeMatches.flatMap((match: any) =>
       match.matchTasks.map((task: any) => ({
         ...task,
-        matchOpponent: match.challengerId === session.user!.id ? match.opponent.username : match.challenger.username
+        matchId: match.id,
+        endDate: match.endDate,
+        matchOpponent: match.challengerId === session.user!.id
+          ? match.opponent.username
+          : match.challenger.username
       }))
     )
 
