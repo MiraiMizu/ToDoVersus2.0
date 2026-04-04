@@ -30,42 +30,42 @@ export default function SocialPage() {
   }
 
   return (
-    <div className="p-4 md:p-8 lg:p-12 max-w-6xl mx-auto space-y-12 animate-fadeInUp mb-32 md:mb-10">
+    <div className="p-4 md:p-8 lg:p-12 max-w-6xl mx-auto space-y-10 animate-fadeInUp mb-32 md:mb-10">
       
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-4 mt-4">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-4 mt-4">
         <div className="flex-1">
-          <Link href="/dashboard" className="inline-flex items-center gap-2 text-[10px] font-black text-slate-400 dark:text-slate-500 hover:text-violet-500 transition-all uppercase tracking-[0.3em] mb-4 bg-slate-100/50 dark:bg-white/5 px-3 py-1 rounded-full border border-slate-200/50 dark:border-white/5">
-            <LayoutDashboard className="w-3 h-3" /> Dashboard
+          <Link href="/dashboard" className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-400 dark:text-slate-500 hover:text-violet-500 transition-all mb-4 bg-slate-100/50 dark:bg-white/5 px-3 py-1.5 rounded-full border border-slate-200/50 dark:border-white/5">
+            <LayoutDashboard className="w-3.5 h-3.5" /> Dashboard
           </Link>
-          <h1 className="text-4xl md:text-6xl font-black text-slate-900 dark:text-white tracking-tighter leading-none uppercase">
-            THE<span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-blue-600 dark:from-violet-400 dark:to-blue-400">NETWORK</span> 🌐
+          <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white leading-snug">
+            Friends <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-blue-600 dark:from-violet-400 dark:to-blue-400">🌐</span>
           </h1>
-          <p className="text-slate-500 dark:text-slate-300 text-xs font-black uppercase tracking-[0.2em] mt-4 flex items-center gap-2">
+          <p className="text-slate-500 dark:text-slate-400 text-sm mt-2 flex items-center gap-2">
             <Users className="w-4 h-4 text-violet-500" />
-            {friends.length} ESTABLISHED CONNECTIONS
+            {friends.length} {friends.length === 1 ? 'connection' : 'connections'}
           </p>
         </div>
         <Link
           href="/matches/new"
-          className="flex items-center justify-center gap-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-black px-8 py-4 rounded-2xl transition-all shadow-xl hover:shadow-2xl hover:scale-[1.02] active:scale-95 uppercase tracking-widest whitespace-nowrap"
+          className="flex items-center justify-center gap-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-sm font-semibold px-6 py-3 rounded-xl transition-all shadow-lg hover:shadow-xl hover:scale-[1.01] active:scale-95 whitespace-nowrap"
         >
-          <Search className="w-5 h-5" />
-          <span>Find New Rivals</span>
+          <Search className="w-4 h-4" />
+          <span>Find Rivals</span>
         </Link>
       </div>
 
       {/* Friends Grid */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {friends.length === 0 && (
-          <div className="col-span-full py-32 text-center glass rounded-[3rem] border border-dashed border-slate-200 dark:border-slate-800 flex flex-col items-center">
-            <div className="w-20 h-20 bg-slate-100 dark:bg-slate-800/50 rounded-3xl flex justify-center items-center mb-8 shadow-inner">
-              <Users className="w-10 h-10 text-slate-400" />
+          <div className="col-span-full py-20 text-center glass rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 flex flex-col items-center">
+            <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800/50 rounded-2xl flex justify-center items-center mb-5 shadow-inner">
+              <Users className="w-8 h-8 text-slate-400" />
             </div>
-            <h3 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tighter">Your Circle is Empty</h3>
-            <p className="mt-4 text-xs font-bold text-slate-500 dark:text-slate-400 max-w-sm uppercase tracking-widest leading-relaxed px-6">Challenge rivals to expand your network. Every duel creates a lasting connection.</p>
-            <Link href="/matches/new" className="mt-10 text-xs font-black text-white bg-violet-600 px-10 py-4 rounded-2xl shadow-xl hover:bg-violet-500 transition-all uppercase tracking-widest">
-              Initiate Contact
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white">No connections yet</h3>
+            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400 max-w-sm leading-relaxed px-6">Challenge rivals to build your network. Every match creates a connection.</p>
+            <Link href="/matches/new" className="mt-6 text-sm font-semibold text-white bg-violet-600 px-6 py-3 rounded-xl shadow-lg hover:bg-violet-500 transition-all">
+              Challenge Someone
             </Link>
           </div>
         )}

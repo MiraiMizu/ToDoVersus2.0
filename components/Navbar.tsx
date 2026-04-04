@@ -53,7 +53,7 @@ export default function Navbar() {
         </Link>
 
         <div className="flex items-center gap-1 sm:gap-2">
-          {mainNavItems.map(({ href, icon: Icon }) => {
+          {mainNavItems.map(({ href, label, icon: Icon }) => {
             const isActive = pathname === href || (href !== '/dashboard' && pathname.startsWith(href))
             const showBadge = href === '/matches' && pendingCount > 0
             
@@ -61,20 +61,17 @@ export default function Navbar() {
               <Link
                 key={href}
                 href={href}
-                className={`group relative flex items-center justify-center w-11 md:w-12 h-11 md:h-12 rounded-full transition-all duration-300 ${
+                className={`group relative flex flex-col items-center justify-center w-14 md:w-16 h-12 md:h-13 rounded-2xl transition-all duration-300 gap-0.5 ${
                   isActive ? 'bg-violet-100 dark:bg-violet-500/20 text-violet-700 dark:text-violet-400' : 'text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
                 }`}
               >
-                <Icon className={`w-[22px] h-[22px] transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} />
+                <Icon className={`w-[20px] h-[20px] transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} />
+                <span className={`text-[9px] font-semibold tracking-wide leading-none ${
+                  isActive ? 'text-violet-600 dark:text-violet-400' : 'text-slate-400 dark:text-slate-500'
+                }`}>{label}</span>
                 
                 {showBadge && (
-                   <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-rose-500 border-2 border-white dark:border-slate-900 rounded-full animate-pulse-glow" />
-                )}
-
-                {isActive && (
-                  <span className="absolute -top-3 px-2 py-0.5 bg-violet-600 text-[10px] text-white font-bold rounded-full scale-0 group-hover:scale-100 transition-all duration-200 origin-bottom translate-y-[-100%] pointer-events-none whitespace-nowrap shadow-xl">
-                    {href.slice(1).toUpperCase()}
-                  </span>
+                   <span className="absolute top-1.5 right-2.5 w-2 h-2 bg-rose-500 border-2 border-white dark:border-slate-900 rounded-full animate-pulse-glow" />
                 )}
               </Link>
             )

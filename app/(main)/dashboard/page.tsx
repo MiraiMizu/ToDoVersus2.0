@@ -55,12 +55,12 @@ function StatCard({
   href?: string
 }) {
   const CardContent = (
-    <div className="glass rounded-[2.5rem] p-7 flex flex-col justify-between hover:border-violet-500/60 transition-all duration-700 relative group min-h-[170px] shadow-sm hover:shadow-[0_20px_50px_rgba(124,58,237,0.1)] overflow-hidden bg-white/50 dark:bg-slate-900/40 cursor-pointer border border-white/40 dark:border-white/5">
+    <div className="glass rounded-3xl p-5 md:p-6 flex flex-col justify-between hover:border-violet-500/40 transition-all duration-500 relative group min-h-[150px] shadow-sm hover:shadow-[0_12px_30px_rgba(124,58,237,0.08)] overflow-hidden bg-white/60 dark:bg-slate-900/40 cursor-pointer border border-white/40 dark:border-white/5">
       <div className="relative z-10 w-full flex flex-col justify-between h-full">
-        <div className="flex justify-between items-start gap-4 mb-4">
-           <div>
-             <span className="block text-[11px] md:text-xs font-black text-slate-500 dark:text-slate-300 uppercase tracking-[0.25em] mb-2 leading-none">{label}</span>
-             <div className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white leading-none tracking-tighter drop-shadow-sm">
+        <div className="flex justify-between items-start gap-3 mb-3">
+           <div className="flex-1 min-w-0">
+             <span className="block text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em] mb-2 leading-none truncate">{label}</span>
+             <div className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white leading-none tracking-tight">
                {isValueNumeric && typeof value === 'number' ? (
                  <StatCounter value={value} />
                ) : (
@@ -68,14 +68,14 @@ function StatCard({
                )}
              </div>
            </div>
-           <div className={`w-14 h-14 md:w-16 md:h-16 ${color} rounded-2xl flex items-center justify-center shadow-lg shadow-black/10 shrink-0 group-hover:scale-110 group-hover:-rotate-6 transition-all duration-700 border border-white/25 dark:border-white/10`}>
-             <Icon className="w-7 h-7 md:w-8 md:h-8 text-white drop-shadow-md" />
+           <div className={`w-11 h-11 md:w-12 md:h-12 ${color} rounded-xl flex items-center justify-center shadow-md shadow-black/10 shrink-0 group-hover:scale-105 transition-all duration-300 border border-white/20 dark:border-white/10`}>
+             <Icon className="w-5 h-5 md:w-6 md:h-6 text-white" />
            </div>
         </div>
 
         {sub && (
           <div className="mt-auto">
-            <div className="text-[11px] md:text-xs font-black text-slate-600 dark:text-slate-200 bg-white/80 dark:bg-slate-800/60 px-4 py-2 rounded-2xl border border-slate-200/50 dark:border-white/5 inline-block text-left uppercase tracking-widest shadow-sm">
+            <div className="text-[10px] font-medium text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/60 px-3 py-1.5 rounded-xl border border-slate-200/50 dark:border-white/5 inline-block">
               {sub}
             </div>
           </div>
@@ -83,7 +83,7 @@ function StatCard({
       </div>
       
       {/* Background Glow */}
-      <div className="absolute -right-10 -bottom-10 w-32 h-32 bg-violet-500/10 dark:bg-violet-500/5 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+      <div className="absolute -right-8 -bottom-8 w-24 h-24 bg-violet-500/8 dark:bg-violet-500/5 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
     </div>
   )
 
@@ -147,13 +147,13 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-4 mt-4">
         <div className="flex-1">
-          <h1 className="text-5xl md:text-6xl font-black text-slate-900 dark:text-white tracking-tighter leading-none mb-4">
-            {greeting},<br />
+          <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white leading-snug mb-3">
+            {greeting},{' '}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-indigo-600 dark:from-violet-400 dark:to-indigo-400">{session?.user?.name}</span> 👋
           </h1>
-          <div className="flex items-center gap-2 text-slate-500 dark:text-slate-300 text-xs md:text-sm font-black uppercase tracking-[0.2em] bg-white/50 dark:bg-white/5 w-fit px-4 py-2 rounded-full border border-slate-200/50 dark:border-white/5">
-             <Calendar className="w-4 h-4 text-violet-500" />
-             {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }).toUpperCase()}
+          <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-xs font-medium bg-white/50 dark:bg-white/5 w-fit px-3 py-1.5 rounded-full border border-slate-200/50 dark:border-white/5">
+             <Calendar className="w-3.5 h-3.5 text-violet-500" />
+             {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
           </div>
         </div>
       </div>
@@ -220,14 +220,14 @@ export default function DashboardPage() {
       )}
 
       {/* Performance Tracking Hub */}
-      <div className="grid lg:grid-cols-12 gap-8 lg:gap-12">
+      <div className="grid lg:grid-cols-12 gap-6 lg:gap-8">
         <div className="lg:col-span-8">
-           <div className="glass rounded-[3rem] p-8 lg:p-12 border border-white/40 dark:border-white/5 bg-white/40 dark:bg-slate-900/50 overflow-hidden relative shadow-2xl">
+           <div className="glass rounded-3xl p-6 lg:p-10 border border-white/40 dark:border-white/5 bg-white/40 dark:bg-slate-900/50 overflow-hidden relative shadow-lg">
               <div className="relative z-10">
-                <div className="flex items-center justify-between mb-12">
+                <div className="flex items-center justify-between mb-8">
                    <div>
-                     <h2 className="text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tighter">Your Performance</h2>
-                     <p className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-widest mt-2">Active productivity trend over time</p>
+                     <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Performance</h2>
+                     <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">Your productivity trend over time</p>
                    </div>
                 </div>
                 <PerformanceChart data={performanceData} />
@@ -235,25 +235,25 @@ export default function DashboardPage() {
            </div>
         </div>
         <div className="lg:col-span-4">
-           <div className="glass rounded-[3rem] p-8 lg:p-12 border border-white/40 dark:border-white/5 bg-white/40 dark:bg-slate-900/50 h-full shadow-2xl">
-              <h2 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tighter mb-10">Activity Mix</h2>
+           <div className="glass rounded-3xl p-6 lg:p-10 border border-white/40 dark:border-white/5 bg-white/40 dark:bg-slate-900/50 h-full shadow-lg">
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-6">Activity Mix</h2>
               <ActivitySummaryChart data={categorySummary} />
            </div>
         </div>
       </div>
 
       {/* Activity Logs Section */}
-      <div className="glass rounded-[3rem] p-8 lg:p-12 border border-white/40 dark:border-white/5 bg-white/30 dark:bg-slate-900/40 relative shadow-2xl overflow-hidden">
-        <div className="flex flex-col md:flex-row items-center justify-between mb-12 gap-6">
+      <div className="glass rounded-3xl p-6 lg:p-10 border border-white/40 dark:border-white/5 bg-white/30 dark:bg-slate-900/40 relative shadow-lg overflow-hidden">
+        <div className="flex flex-col md:flex-row items-center justify-between mb-8 gap-4">
           <div>
-            <h2 className="text-4xl font-black text-slate-900 dark:text-white tracking-tighter flex items-center gap-4">
-              <Clock className="w-10 h-10 text-violet-500" />
-              DAILY SUMMARY
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-3">
+              <Clock className="w-5 h-5 text-violet-500" />
+              Today's Log
             </h2>
-            <p className="text-slate-500 dark:text-slate-400 text-xs font-black uppercase tracking-[0.3em] mt-3">Live feed of your task accomplishments</p>
+            <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">Your completed activities for today</p>
           </div>
-          <Link href="/todo" className="w-full md:w-auto px-10 py-4 bg-violet-600 hover:bg-violet-500 text-white font-black text-xs uppercase tracking-widest rounded-2xl transition-all shadow-xl shadow-violet-600/20 active:scale-95 text-center">
-            Log New Progress ✏️
+          <Link href="/todo" className="w-full md:w-auto px-6 py-3 bg-violet-600 hover:bg-violet-500 text-white font-semibold text-sm rounded-xl transition-all shadow-lg shadow-violet-600/20 active:scale-95 text-center">
+            Log Progress ✏️
           </Link>
         </div>
         
@@ -289,43 +289,43 @@ export default function DashboardPage() {
       </div>
 
       {/* Rivals Section (Quick Peek) */}
-      <div className="glass rounded-[3rem] p-8 lg:p-12 border border-white/40 dark:border-white/5 bg-white/30 dark:bg-slate-900/40 shadow-2xl">
-        <div className="flex items-center justify-between mb-12">
-          <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter flex items-center gap-4">
-            <Swords className="w-8 h-8 text-rose-500" />
-            LIVE BATTLES
+      <div className="glass rounded-3xl p-6 lg:p-10 border border-white/40 dark:border-white/5 bg-white/30 dark:bg-slate-900/40 shadow-lg">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-3">
+            <Swords className="w-5 h-5 text-rose-500" />
+            Active Matches
           </h2>
-          <Link href="/matches" className="text-xs font-black text-rose-600 bg-rose-500/10 dark:bg-rose-500/10 px-6 py-2.5 rounded-full uppercase tracking-widest hover:bg-rose-500 hover:text-white transition-all border border-rose-500/20">
+          <Link href="/matches" className="text-xs font-medium text-rose-600 bg-rose-500/10 dark:bg-rose-500/10 px-4 py-1.5 rounded-full hover:bg-rose-500 hover:text-white transition-all border border-rose-500/20">
             All Matches
           </Link>
         </div>
         
         {activeMatches.length > 0 ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
             {activeMatches.slice(0, 3).map((m: any) => {
               const opponent = m.challenger.id === userId ? m.opponent : m.challenger
               return (
                 <Link 
                   key={m.id} 
                   href={`/matches/${m.id}`}
-                  className="group flex items-center gap-6 p-6 bg-white/60 dark:bg-slate-800/40 border border-white/40 dark:border-white/5 rounded-[2.5rem] transition-all hover:bg-white dark:hover:bg-slate-800/80 hover:scale-[1.05] shadow-lg shadow-black/5"
+                  className="group flex items-center gap-4 p-4 bg-white/60 dark:bg-slate-800/40 border border-white/40 dark:border-white/5 rounded-2xl transition-all hover:bg-white dark:hover:bg-slate-800/80 hover:scale-[1.02] shadow-sm"
                 >
-                  <div className="w-14 h-14 bg-gradient-to-br from-rose-500 to-orange-600 rounded-3xl flex items-center justify-center text-xl font-black text-white shrink-0 group-hover:-rotate-6 transition-transform shadow-lg">
+                  <div className="w-10 h-10 bg-gradient-to-br from-rose-500 to-orange-600 rounded-xl flex items-center justify-center text-sm font-bold text-white shrink-0 shadow-md">
                     {opponent.username[0]?.toUpperCase()}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-lg font-black text-slate-900 dark:text-white truncate uppercase tracking-tighter">vs {opponent.username}</div>
-                    <div className="text-[10px] text-slate-500 dark:text-slate-300 font-bold uppercase tracking-[0.2em] mt-2">Active Duel</div>
+                    <div className="text-sm font-semibold text-slate-900 dark:text-white truncate">vs {opponent.username}</div>
+                    <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Active match</div>
                   </div>
-                  <ChevronRight className="w-6 h-6 text-slate-200 dark:text-slate-700 group-hover:translate-x-1 group-hover:text-rose-500 transition-all" />
+                  <ChevronRight className="w-4 h-4 text-slate-300 dark:text-slate-600 group-hover:translate-x-0.5 group-hover:text-rose-500 transition-all" />
                 </Link>
               )
             })}
           </div>
         ) : (
-          <div className="py-20 text-center flex flex-col items-center border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-[3rem]">
-            <p className="text-slate-400 dark:text-slate-600 text-xs font-black uppercase tracking-widest">No active rivals currently matched</p>
-            <Link href="/matches" className="mt-6 text-xs text-violet-500 font-bold hover:underline">Start a new match →</Link>
+          <div className="py-10 text-center flex flex-col items-center border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl">
+            <p className="text-slate-400 dark:text-slate-500 text-sm">No active matches</p>
+            <Link href="/matches" className="mt-3 text-xs text-violet-500 font-medium hover:underline">Start a match →</Link>
           </div>
         )}
       </div>

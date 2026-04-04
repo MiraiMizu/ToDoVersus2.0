@@ -44,60 +44,62 @@ export default function PersonalTodos() {
   }
 
   return (
-    <div className="glass rounded-2xl p-5 mb-5 space-y-4">
+    <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h2 className="text-base font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+        <h2 className="text-sm font-semibold text-slate-900 dark:text-white flex items-center gap-2">
           📝 Daily Focus
         </h2>
-        <span className="text-xs font-bold text-slate-400 bg-slate-100 dark:bg-slate-800/80 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700">
+        <span className="text-xs font-medium text-slate-400 bg-slate-100 dark:bg-slate-800/80 px-2 py-0.5 rounded-lg border border-slate-200 dark:border-slate-700">
           {todos.filter((t: any) => t.isCompleted).length} / {todos.length}
         </span>
       </div>
 
-      <div className="space-y-3 py-2">
+      <div className="space-y-2 py-1">
         {todos.map((todo: any) => (
-          <div key={todo.id} className="group flex items-center gap-4 p-3 bg-slate-50/50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800/50 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/80 transition-all duration-300 ease-out shadow-sm hover:shadow-md">
+          <div key={todo.id} className="flex items-center gap-3 p-2.5 bg-slate-50/50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800/50 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-all duration-200">
             <button 
               onClick={() => toggleComplete(todo.id, todo.isCompleted)}
-              className={`w-6 h-6 rounded-lg flex items-center justify-center shrink-0 border-2 transition-all ${
+              className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 border-2 transition-all ${
                 todo.isCompleted 
-                  ? 'bg-emerald-500 border-emerald-500 text-white shadow-lg shadow-emerald-500/20' 
-                  : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 hover:border-violet-500 cursor-pointer shadow-sm'
+                  ? 'bg-emerald-500 border-emerald-500 text-white' 
+                  : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 hover:border-violet-500 cursor-pointer'
               }`}
             >
-              {todo.isCompleted && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+              {todo.isCompleted && <Check className="w-3 h-3 stroke-[3]" />}
             </button>
             <span className={`text-sm flex-1 ${todo.isCompleted ? 'text-slate-400 line-through' : 'text-slate-700 dark:text-slate-200'}`}>
               {todo.content}
             </span>
+            {/* Always visible delete button — important for mobile/touch */}
             <button
               onClick={() => handleDelete(todo.id)}
-              className="opacity-0 group-hover:opacity-100 p-2 text-slate-400 hover:text-red-500 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-all active:scale-90"
+              className="p-1.5 text-slate-300 dark:text-slate-600 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all active:scale-90 flex-shrink-0"
+              aria-label="Delete task"
             >
-              <Trash2 className="w-4 h-4" />
+              <Trash2 className="w-3.5 h-3.5" />
             </button>
           </div>
         ))}
         {todos.length === 0 && (
-          <p className="text-xs text-slate-500 text-center py-4">No tasks set for today. Add one below!</p>
+          <p className="text-sm text-slate-500 text-center py-4">No tasks for today. Add one below!</p>
         )}
       </div>
 
-      <form onSubmit={handleAdd} className="relative mt-2 group">
+      <form onSubmit={handleAdd} className="relative mt-1">
         <input 
           type="text"
           placeholder="Add a new task..."
           value={newTodo}
           onChange={e => setNewTodo(e.target.value)}
           disabled={loading}
-          className="w-full bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-xl pl-4 pr-14 py-3.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/20 transition-all shadow-sm"
+          className="w-full bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-xl pl-4 pr-12 py-3 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/20 transition-all"
         />
         <button 
           type="submit"
           disabled={!newTodo.trim() || loading}
-          className="absolute right-1.5 top-1/2 -translate-y-1/2 h-9 w-9 flex items-center justify-center bg-violet-600 hover:bg-violet-500 disabled:opacity-50 disabled:bg-slate-400 text-white rounded-lg transition-all shadow-md shadow-violet-500/20 active:scale-95"
+          className="absolute right-1.5 top-1/2 -translate-y-1/2 h-8 w-8 flex items-center justify-center bg-violet-600 hover:bg-violet-500 disabled:opacity-50 disabled:bg-slate-400 text-white rounded-lg transition-all active:scale-95"
         >
-          <Plus className="w-5 h-5" />
+          <Plus className="w-4 h-4" />
         </button>
       </form>
     </div>

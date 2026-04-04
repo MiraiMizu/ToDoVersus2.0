@@ -72,15 +72,15 @@ export default function TodoPage() {
       
       {/* Header Section */}
       <div className="flex flex-col mb-4 mt-4">
-        <Link href="/dashboard" className="inline-flex items-center gap-2 text-[10px] font-black text-slate-400 dark:text-slate-500 hover:text-violet-500 transition-all uppercase tracking-[0.3em] mb-4 bg-slate-100/50 dark:bg-white/5 px-3 py-1 rounded-full border border-slate-200/50 dark:border-white/5 w-fit">
-          <LayoutDashboard className="w-3 h-3" /> Dashboard
+        <Link href="/dashboard" className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-400 dark:text-slate-500 hover:text-violet-500 transition-all mb-4 bg-slate-100/50 dark:bg-white/5 px-3 py-1.5 rounded-full border border-slate-200/50 dark:border-white/5 w-fit">
+          <LayoutDashboard className="w-3.5 h-3.5" /> Dashboard
         </Link>
-        <h1 className="text-4xl md:text-6xl font-black text-slate-900 dark:text-white tracking-tighter leading-none uppercase">
-          OPERATIONS<span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-indigo-600 dark:from-emerald-400 dark:to-indigo-400">CENTER</span> 🛡️
+        <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white leading-snug">
+          Tasks <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-indigo-600 dark:from-emerald-400 dark:to-indigo-400">🛡️</span>
         </h1>
-        <p className="text-slate-500 dark:text-slate-300 text-xs font-black uppercase tracking-[0.2em] mt-4 flex items-center gap-2">
+        <p className="text-slate-500 dark:text-slate-400 text-sm mt-2 flex items-center gap-2">
           <Target className="w-4 h-4 text-emerald-500" />
-          ACTIVE ENGAGEMENTS & DAILY DRILLS
+          Match tasks &amp; personal goals
         </p>
       </div>
 
@@ -104,24 +104,24 @@ export default function TodoPage() {
       <div className="grid lg:grid-cols-12 gap-10 items-start">
         
         {/* Match Objectives Section (Left/Major) */}
-        <div className="lg:col-span-12 xl:col-span-8 space-y-8">
-           <div className="flex items-center gap-4 border-b border-slate-100 dark:border-white/5 pb-4">
-              <div className="p-3 bg-violet-600/10 rounded-2xl">
-                <Target className="w-6 h-6 text-violet-600 dark:text-violet-400" />
+        <div className="lg:col-span-12 xl:col-span-8 space-y-6">
+           <div className="flex items-center gap-3 border-b border-slate-100 dark:border-white/5 pb-3">
+              <div className="p-2.5 bg-violet-600/10 rounded-xl">
+                <Target className="w-5 h-5 text-violet-600 dark:text-violet-400" />
               </div>
               <div>
-                <h2 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tighter">Combat Objectives</h2>
-                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Directly improves your duel score</p>
+                <h2 className="text-base font-semibold text-slate-900 dark:text-white">Match Tasks</h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Directly improves your match score</p>
               </div>
            </div>
           
           {tasks.length === 0 ? (
-             <div className="glass rounded-[3rem] p-16 text-center border-2 border-dashed border-slate-200 dark:border-slate-800 flex flex-col items-center">
-                <CheckCircle className="w-20 h-20 text-slate-200 dark:text-slate-800 mb-8" />
-                <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">No Active Match Tasks</h3>
-                <p className="text-xs font-bold text-slate-500 mt-4 max-w-sm uppercase tracking-widest leading-relaxed">Engage in matches to see your opponent's objectives here. Every logged minute counts towards your victory.</p>
-                <Link href="/matches/new" className="mt-10 px-10 py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[10px] font-black rounded-2xl hover:scale-[1.05] transition-all uppercase tracking-widest shadow-xl">
-                  Initiate Duel
+             <div className="glass rounded-2xl p-10 text-center border border-dashed border-slate-200 dark:border-slate-800 flex flex-col items-center">
+                <CheckCircle className="w-12 h-12 text-slate-200 dark:text-slate-800 mb-4" />
+                <h3 className="text-base font-semibold text-slate-900 dark:text-white">No Active Match Tasks</h3>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 max-w-sm leading-relaxed">Start a match to see your opponent's tasks here. Every minute you log counts towards your score.</p>
+                <Link href="/matches/new" className="mt-6 px-6 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-sm font-semibold rounded-xl hover:scale-[1.02] transition-all shadow-lg">
+                  Start a Match
                 </Link>
              </div>
           ) : (
@@ -159,10 +159,10 @@ export default function TodoPage() {
                     <motion.div 
                       initial={{ opacity: 0, y: 10 }} 
                       animate={{ opacity: 1, y: 0 }}
-                      className="mt-6 border-t border-slate-100 dark:border-white/5 pt-8 space-y-6"
+                      className="mt-4 border-t border-slate-100 dark:border-white/5 pt-5 space-y-4"
                     >
-                      <div className="space-y-4">
-                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">DEPLOYMENT DURATION</span>
+                      <div className="space-y-3">
+                        <span className="text-xs font-medium text-slate-500 ml-1">Time Spent</span>
                         
                         <div className="relative group/picker">
                           {showPicker ? (
@@ -178,32 +178,32 @@ export default function TodoPage() {
                             <button
                               type="button"
                               onClick={() => setShowPicker(true)}
-                              className="w-full flex items-center justify-between bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-white/5 rounded-2xl px-6 py-5 text-lg font-black text-slate-900 dark:text-white transition hover:border-violet-500/50 shadow-inner group"
+                              className="w-full flex items-center justify-between bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-white/5 rounded-xl px-4 py-3.5 text-sm font-medium text-slate-900 dark:text-white transition hover:border-violet-500/50"
                             >
-                              <span className="uppercase tracking-tighter">
+                              <span>
                                 {(hours || hours === 0) && (minutes || minutes === 0) 
-                                  ? `${hours} H ${minutes} M` 
-                                  : 'SELECT DURATION...'}
+                                  ? `${hours}h ${minutes}m` 
+                                  : 'Select duration...'}
                               </span>
-                              <Clock className="w-6 h-6 text-violet-500 group-hover:scale-110 transition-transform" />
+                              <Clock className="w-5 h-5 text-violet-500" />
                             </button>
                           )}
                         </div>
                       </div>
 
-                      <div className="flex gap-4">
+                      <div className="flex gap-3">
                          <button
                            onClick={() => setActiveLoggingId(null)}
-                           className="flex-1 py-4 text-xs font-black rounded-2xl border border-slate-200 dark:border-white/5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all uppercase tracking-widest"
+                           className="flex-1 py-3 text-sm font-medium rounded-xl border border-slate-200 dark:border-white/5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
                          >
-                           Abort
+                           Cancel
                          </button>
                          <button
                            onClick={() => handleLogTask(task)}
                            disabled={loading === task.id || (Number(hours) === 0 && Number(minutes) === 0)}
-                           className="flex-1 py-4 text-xs font-black rounded-2xl bg-violet-600 hover:bg-violet-500 text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-xl shadow-violet-600/30 uppercase tracking-widest"
+                           className="flex-1 py-3 text-sm font-semibold rounded-xl bg-violet-600 hover:bg-violet-500 text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-violet-600/25"
                          >
-                           {loading === task.id ? 'TRANSMITTING...' : 'COMMIT LOG'}
+                           {loading === task.id ? 'Saving...' : 'Log Progress'}
                          </button>
                       </div>
                     </motion.div>
@@ -215,9 +215,9 @@ export default function TodoPage() {
                         setMinutes(0)
                         setShowPicker(false)
                       }}
-                      className="mt-6 w-full py-4 text-[10px] font-black rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:scale-[1.02] transition-all border border-slate-800 dark:border-slate-200 shadow-xl uppercase tracking-[0.2em]"
+                      className="mt-4 w-full py-3 text-sm font-semibold rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:scale-[1.01] transition-all shadow-md"
                     >
-                      Initialize Log
+                      Log Time
                     </button>
                   )}
                 </motion.div>
@@ -227,18 +227,18 @@ export default function TodoPage() {
         </div>
 
         {/* Personal TODOs (Right/Minor) */}
-        <div className="lg:col-span-12 xl:col-span-4 space-y-8">
-           <div className="flex items-center gap-4 border-b border-slate-100 dark:border-white/5 pb-4">
-              <div className="p-3 bg-emerald-600/10 rounded-2xl">
-                <ScrollText className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+        <div className="lg:col-span-12 xl:col-span-4 space-y-6">
+           <div className="flex items-center gap-3 border-b border-slate-100 dark:border-white/5 pb-3">
+              <div className="p-2.5 bg-emerald-600/10 rounded-xl">
+                <ScrollText className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
               </div>
               <div>
-                <h2 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tighter">Daily Drills</h2>
-                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Personal habits & focused tasks</p>
+                <h2 className="text-base font-semibold text-slate-900 dark:text-white">Personal Goals</h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Daily tasks &amp; habits</p>
               </div>
            </div>
            
-           <div className="glass rounded-[3rem] p-8 border border-white/40 dark:border-white/5 bg-white/40 dark:bg-slate-900/40 shadow-2xl">
+           <div className="glass rounded-2xl p-5 border border-white/40 dark:border-white/5 bg-white/40 dark:bg-slate-900/40 shadow-lg">
               <PersonalTodos />
            </div>
         </div>
