@@ -60,8 +60,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'You cannot challenge yourself' }, { status: 400 })
     }
 
-    const validDurations = [24, 72, 168] // 1 day, 3 days, 7 days
-    const duration = validDurations.includes(Number(durationHours)) ? Number(durationHours) : 24
+    // Duration can be custom or 'Forever' (represented by a very large number like 10 years)
+    const duration = Math.min(Math.max(Number(durationHours) || 24, 1), 87600) // 1h to 10 years (87600h)
 
     const match = await prisma.match.create({
       data: {
@@ -73,8 +73,8 @@ export async function POST(request: NextRequest) {
         matchTasks: {
           create: matchTasks.map((t: { content: string, categoryId: string }) => ({
              content: t.content,
-             categoryId: t.categoryId,
-             userId: session.user!.id,
+             category: { connect: { id: t.categoryId } },
+             user: { connect: { id: session.user!.id } },
           }))
         },
         bet: betContent

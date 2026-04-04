@@ -59,6 +59,11 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
   const [declineLoading, setDeclineLoading] = useState(false)
 
   const countdown = useCountdown(match?.endDate)
+  const isForever = match?.durationHours >= 87600
+
+  const { data: suggestionsData } = useSWR('/api/tasks/suggestions', fetcher)
+  const suggestions: { content: string, categoryId: string }[] = suggestionsData?.suggestions ?? []
+  const [activeSuggestionIdx, setActiveSuggestionIdx] = useState<number | null>(null)
 
   if (!match) {
     return (
@@ -151,7 +156,7 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
             <div className="ml-auto text-right">
               <div className="text-xs text-slate-500">Duration</div>
               <div className="text-sm font-bold text-violet-600 dark:text-violet-400">
-                {match.durationHours >= 168 ? '1 Week' : match.durationHours >= 72 ? '3 Days' : '1 Day'}
+                {match.durationHours >= 87600 ? 'Forever' : match.durationHours >= 8760 ? '1 Year' : match.durationHours >= 168 ? '1 Week' : match.durationHours >= 72 ? '3 Days' : '1 Day'}
               </div>
             </div>
           </div>
@@ -212,33 +217,62 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
 
           <div className="space-y-2">
             {opponentTasks.map((task, idx) => (
-              <div key={idx} className="flex flex-col sm:flex-row gap-2 items-start sm:items-center bg-slate-50 dark:bg-slate-900/50 p-2 pl-3 rounded-xl border border-slate-200 dark:border-slate-800">
-                <div className="font-bold text-slate-300 dark:text-slate-600 w-4">{idx + 1}.</div>
-                <input
-                  type="text"
-                  placeholder="e.g. Study for exam"
-                  value={task.content}
-                  onChange={e => updateOppTask(idx, 'content', e.target.value)}
-                  className="flex-1 w-full bg-transparent border-none text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-0"
-                />
-                <div className="flex items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0">
-                  <select
-                    value={task.categoryId}
-                    onChange={e => updateOppTask(idx, 'categoryId', e.target.value)}
-                    className="flex-1 sm:w-[150px] bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs rounded-lg px-2 py-1.5 text-slate-700 dark:text-slate-300 focus:outline-none focus:border-violet-500 transition"
-                  >
-                    <option value="" disabled>Select type...</option>
-                    {categories.map(cat => {
-                      const m = CATEGORY_META[cat.name]
-                      return <option key={cat.id} value={cat.id} className="bg-slate-50 dark:bg-slate-900">{cat.name} ({m?.pts ?? `x${cat.weight}`})</option>
-                    })}
-                  </select>
-                  {opponentTasks.length > 1 && (
-                    <button onClick={() => removeOppTask(idx)} className="p-1.5 text-slate-400 hover:text-red-500 rounded-md transition">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  )}
+              <div key={idx} className="relative">
+                <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center bg-slate-50 dark:bg-slate-900/50 p-2 pl-3 rounded-xl border border-slate-200 dark:border-slate-800 transition">
+                  <div className="font-bold text-slate-300 dark:text-slate-600 w-4">{idx + 1}.</div>
+                  <input
+                    type="text"
+                    placeholder="e.g. Study for exam"
+                    value={task.content}
+                    onFocus={() => setActiveSuggestionIdx(idx)}
+                    onChange={e => updateOppTask(idx, 'content', e.target.value)}
+                    className="flex-1 w-full bg-transparent border-none text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-0"
+                  />
+                  <div className="flex items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+                    <select
+                      value={task.categoryId}
+                      onChange={e => updateOppTask(idx, 'categoryId', e.target.value)}
+                      className="flex-1 sm:w-[150px] bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs rounded-lg px-2 py-1.5 text-slate-700 dark:text-slate-300 focus:outline-none focus:border-violet-500 transition"
+                    >
+                      <option value="" disabled>Select type...</option>
+                      {categories.map(cat => {
+                        const m = CATEGORY_META[cat.name]
+                        return <option key={cat.id} value={cat.id} className="bg-slate-50 dark:bg-slate-900">{cat.name} ({m?.pts ?? `x${cat.weight}`})</option>
+                      })}
+                    </select>
+                    {opponentTasks.length > 1 && (
+                      <button onClick={() => removeOppTask(idx)} className="p-1.5 text-slate-400 hover:text-red-500 rounded-md transition">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
                 </div>
+
+                {/* Quick select suggestions */}
+                {activeSuggestionIdx === idx && suggestions.length > 0 && !task.content && (
+                   <div className="absolute top-full left-0 right-0 z-20 mt-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl p-2 animate-fadeIn">
+                      <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-2 mb-2">Quick Select (Past Tasks)</div>
+                      <div className="grid grid-cols-2 gap-1">
+                         {suggestions.map((s, sIdx) => (
+                            <button
+                               key={sIdx}
+                               onMouseDown={(e) => {
+                                  e.preventDefault();
+                                  updateOppTask(idx, 'content', s.content);
+                                  updateOppTask(idx, 'categoryId', s.categoryId);
+                                  setActiveSuggestionIdx(null);
+                               }}
+                               className="text-left px-2 py-1.5 text-xs text-slate-600 dark:text-slate-300 hover:bg-violet-50 dark:hover:bg-violet-500/10 hover:text-violet-600 dark:hover:text-violet-400 rounded-lg transition truncate"
+                            >
+                               {s.content}
+                            </button>
+                         ))}
+                      </div>
+                   </div>
+                )}
+                {activeSuggestionIdx === idx && (
+                   <div className="fixed inset-0 z-10" onClick={() => setActiveSuggestionIdx(null)} />
+                )}
               </div>
             ))}
             {opponentTasks.length < 5 && (
@@ -281,13 +315,19 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
       <div className="glass rounded-2xl p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="text-xs font-medium text-slate-500 uppercase tracking-wider">
-            {isActive ? '⚔️ Battle in Progress' : isCompleted ? '🏆 Match Complete' : '⏳ Pending'}
+            {isActive ? (isForever ? '⚔️ Battle in Progress (Forever)' : '⚔️ Battle in Progress') : isCompleted ? '🏆 Match Complete' : '⏳ Pending'}
           </div>
           <div className="flex items-center gap-3">
-            {isActive && match.endDate && (
+            {isActive && match.endDate && !isForever && (
               <div className="flex items-center gap-1.5 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 text-rose-600 dark:text-rose-400 text-xs font-bold px-3 py-1.5 rounded-full">
                 <Clock className="w-3.5 h-3.5" />
                 {countdown}
+              </div>
+            )}
+            {isActive && isForever && (
+              <div className="flex items-center gap-1.5 bg-violet-50 dark:bg-violet-500/10 border border-violet-200 dark:border-violet-500/20 text-violet-600 dark:text-violet-400 text-xs font-bold px-3 py-1.5 rounded-full">
+                <Clock className="w-3.5 h-3.5" />
+                No End Date
               </div>
             )}
             {match.winner && (

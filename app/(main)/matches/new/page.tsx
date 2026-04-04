@@ -10,9 +10,10 @@ import { formatScore } from '@/lib/scoring'
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
 const DURATION_OPTIONS = [
-  { value: 24,  label: '1 Day',   description: 'Quick sprint' },
-  { value: 72,  label: '3 Days',  description: 'Short challenge' },
-  { value: 168, label: '1 Week',  description: 'Full commitment' },
+  { value: 24,    label: '1 Day',    description: 'Quick sprint' },
+  { value: 168,   label: '1 Week',   description: 'Commitment' },
+  { value: 8760,  label: '1 Year',   description: 'Long haul' },
+  { value: 87600, label: 'Forever', description: 'No end' },
 ]
 
 // Category icons and descriptions for better UX
@@ -43,14 +44,18 @@ export default function NewMatchPage() {
   const [betContent, setBetContent] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [activeSuggestionIdx, setActiveSuggestionIdx] = useState<number | null>(null)
 
   const { data: searchData } = useSWR(
     query.length >= 2 ? `/api/users/search?q=${encodeURIComponent(query)}` : null,
     fetcher
   )
   const { data: categoriesData } = useSWR('/api/categories', fetcher)
+  const { data: suggestionsData } = useSWR('/api/tasks/suggestions', fetcher)
+
   const searchResults = searchData?.users ?? []
   const categories: { id: string; name: string; weight: number; description: string }[] = categoriesData?.categories ?? []
+  const suggestions: { content: string, categoryId: string }[] = suggestionsData?.suggestions ?? []
 
   const updateTask = (index: number, field: 'content' | 'categoryId', value: string) => {
     const newTasks = [...matchTasks]
@@ -198,12 +203,12 @@ export default function NewMatchPage() {
             <span className="w-5 h-5 bg-violet-600 dark:bg-violet-500 rounded-full text-[10px] flex items-center text-white justify-center font-bold">2</span>
             <Clock className="w-3.5 h-3.5 text-slate-500" /> Match Duration
           </h2>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             {DURATION_OPTIONS.map(opt => (
               <button
                 key={opt.value}
                 onClick={() => setDurationHours(opt.value)}
-                className={`py-3 rounded-xl border text-center transition-all ${
+                className={`py-3 px-2 rounded-xl border text-center transition-all ${
                   durationHours === opt.value
                     ? 'bg-violet-600 border-violet-600 text-white shadow-lg shadow-violet-600/25'
                     : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-violet-400'
@@ -232,42 +237,66 @@ export default function NewMatchPage() {
                const selectedCat = categories.find(c => c.id === task.categoryId)
                const meta = selectedCat ? CATEGORY_META[selectedCat.name] : null
                return (
-                 <div key={idx} className="flex flex-col sm:flex-row gap-2 items-start sm:items-center bg-slate-50 dark:bg-slate-900/50 p-2 pl-3 rounded-xl border border-slate-200 dark:border-slate-800 group transition">
-                    <div className="font-bold text-slate-300 dark:text-slate-600 w-4">{idx + 1}.</div>
-                    <input
-                       type="text"
-                       placeholder="e.g. Study for 2 hours"
-                       value={task.content}
-                       onChange={(e) => updateTask(idx, 'content', e.target.value)}
-                       className="flex-1 w-full bg-transparent border-none text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-0"
-                    />
-                    <div className="flex items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0">
-                       <select
-                          value={task.categoryId}
-                          onChange={(e) => updateTask(idx, 'categoryId', e.target.value)}
-                          className="flex-1 sm:w-[150px] bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs rounded-lg px-2 py-1.5 text-slate-700 dark:text-slate-300 focus:outline-none focus:border-violet-500 transition"
-                       >
-                          <option value="" disabled>Select type...</option>
-                          {categories.map(cat => {
-                            const m = CATEGORY_META[cat.name]
-                            return (
-                              <option key={cat.id} value={cat.id} className="bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white">
-                                {cat.name} ({m?.pts ?? `x${cat.weight}`})
-                              </option>
-                            )
-                          })}
-                       </select>
-                       {meta && (
-                         <div className="hidden sm:flex items-center gap-1 shrink-0">
-                           {meta.icon}
-                         </div>
-                       )}
-                       {matchTasks.length > 1 && (
-                          <button onClick={() => removeTask(idx)} className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-slate-800 rounded-md transition shrink-0">
-                             <Trash2 className="w-4 h-4" />
-                          </button>
-                       )}
+                 <div key={idx} className="relative">
+                    <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center bg-slate-50 dark:bg-slate-900/50 p-2 pl-3 rounded-xl border border-slate-200 dark:border-slate-800 group transition">
+                       <div className="font-bold text-slate-300 dark:text-slate-600 w-4">{idx + 1}.</div>
+                       <input
+                          type="text"
+                          placeholder="e.g. Study for 2 hours"
+                          value={task.content}
+                          onFocus={() => setActiveSuggestionIdx(idx)}
+                          onChange={(e) => updateTask(idx, 'content', e.target.value)}
+                          className="flex-1 w-full bg-transparent border-none text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-0"
+                       />
+                       <div className="flex items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+                          <select
+                             value={task.categoryId}
+                             onChange={(e) => updateTask(idx, 'categoryId', e.target.value)}
+                             className="flex-1 sm:w-[150px] bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs rounded-lg px-2 py-1.5 text-slate-700 dark:text-slate-300 focus:outline-none focus:border-violet-500 transition"
+                          >
+                             <option value="" disabled>Select type...</option>
+                             {categories.map(cat => {
+                               const m = CATEGORY_META[cat.name]
+                               return (
+                                 <option key={cat.id} value={cat.id} className="bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white">
+                                   {cat.name} ({m?.pts ?? `x${cat.weight}`})
+                                 </option>
+                               )
+                             })}
+                          </select>
+                          {matchTasks.length > 1 && (
+                             <button onClick={() => removeTask(idx)} className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-slate-800 rounded-md transition shrink-0">
+                                <Trash2 className="w-4 h-4" />
+                             </button>
+                          )}
+                       </div>
                     </div>
+
+                    {/* Quick select suggestions */}
+                    {activeSuggestionIdx === idx && suggestions.length > 0 && !task.content && (
+                       <div className="absolute top-full left-0 right-0 z-20 mt-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl p-2 animate-fadeIn">
+                          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-2 mb-2">Quick Select (Past Tasks)</div>
+                          <div className="grid grid-cols-2 gap-1">
+                             {suggestions.map((s, sIdx) => (
+                                <button
+                                   key={sIdx}
+                                   onMouseDown={(e) => {
+                                      e.preventDefault();
+                                      updateTask(idx, 'content', s.content);
+                                      updateTask(idx, 'categoryId', s.categoryId);
+                                      setActiveSuggestionIdx(null);
+                                   }}
+                                   className="text-left px-2 py-1.5 text-xs text-slate-600 dark:text-slate-300 hover:bg-violet-50 dark:hover:bg-violet-500/10 hover:text-violet-600 dark:hover:text-violet-400 rounded-lg transition truncate"
+                                >
+                                   {s.content}
+                                </button>
+                             ))}
+                          </div>
+                       </div>
+                    )}
+                    {activeSuggestionIdx === idx && (
+                       <div className="fixed inset-0 z-10" onClick={() => setActiveSuggestionIdx(null)} />
+                    )}
                  </div>
                )
              })}
