@@ -3,7 +3,8 @@
 import useSWR from 'swr'
 import Link from 'next/link'
 import { Shield, Users, Activity, PartyPopper, LayoutDashboard, Search, Zap, Clock } from 'lucide-react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
+import { useState } from 'react'
 import { formatScore } from '@/lib/scoring'
 import { formatDistanceToNow } from 'date-fns'
 
@@ -19,11 +20,14 @@ const rankColors: Record<string, string> = {
 }
 
 export default function SocialPage() {
+  const [query, setQuery] = useState('')
   const { data, isLoading: friendsLoading } = useSWR('/api/social/friends', fetcher)
   const { data: feedRes, isLoading: feedLoading } = useSWR('/api/social/feed', fetcher)
+  const { data: searchData } = useSWR(query.length >= 2 ? `/api/users/search?q=${encodeURIComponent(query)}` : null, fetcher)
   
   const friends = data?.friends || []
   const feed = feedRes?.feed || []
+  const searchResults = searchData?.users || []
 
   if (friendsLoading || feedLoading) {
     return (
@@ -51,13 +55,50 @@ export default function SocialPage() {
             {friends.length} {friends.length === 1 ? 'connection' : 'connections'}
           </p>
         </div>
-        <Link
-          href="/matches/new"
-          className="flex items-center justify-center gap-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-sm font-semibold px-6 py-3 rounded-xl transition-all shadow-lg hover:shadow-xl hover:scale-[1.01] active:scale-95 whitespace-nowrap"
-        >
-          <Search className="w-4 h-4" />
-          <span>Find Rivals</span>
-        </Link>
+        <div className="relative w-full md:w-64 z-20">
+          <div className="relative">
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search users..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 transition shadow-sm"
+            />
+          </div>
+          <AnimatePresence>
+            {query.length >= 2 && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                className="absolute top-full mt-2 w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-xl shadow-xl overflow-hidden"
+              >
+                {searchResults.length === 0 ? (
+                  <div className="p-4 text-center text-sm text-slate-500">No users found</div>
+                ) : (
+                  <div className="max-h-60 overflow-y-auto">
+                    {searchResults.map((user: any) => (
+                      <Link
+                        key={user.id}
+                        href={`/profile/${user.id}`}
+                        className="flex items-center gap-3 p-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition border-b border-slate-100 dark:border-white/5 last:border-0"
+                      >
+                       <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-white font-bold text-xs shrink-0">
+                         {user.username.charAt(0).toUpperCase()}
+                       </div>
+                       <div className="flex-1 min-w-0">
+                         <div className="text-sm font-semibold text-slate-900 dark:text-white truncate">{user.username}</div>
+                         <div className="text-[10px] text-slate-500">{user.rank}</div>
+                       </div>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
 
       {/* Friends Grid */}
