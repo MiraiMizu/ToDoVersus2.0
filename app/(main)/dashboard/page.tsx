@@ -14,11 +14,14 @@ import {
   Calendar,
 } from 'lucide-react'
 import { formatScore } from '@/lib/scoring'
+import { getLevel } from '@/lib/ranks'
 import { useMemo } from 'react'
 import PerformanceChart from '@/components/PerformanceChart'
 import ActivitySummaryChart from '@/components/ActivitySummaryChart'
 import StatCounter from '@/components/StatCounter'
 import { motion } from 'framer-motion'
+import { useState } from 'react'
+import QuickLogModal from '@/components/QuickLogModal'
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
@@ -99,6 +102,7 @@ function StatCard({
 }
 
 export default function DashboardPage() {
+  const [isQuickLogOpen, setIsQuickLogOpen] = useState(false)
   const { data: session } = useSession()
   const userId = session?.user?.id
   const today = new Date().toISOString().split('T')[0]
@@ -127,6 +131,8 @@ export default function DashboardPage() {
   const hour = new Date().getHours()
   const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening'
 
+  const level = getLevel(user?.allTimeScore ?? 0)
+
   const categorySummary = useMemo(() => {
     const summary: Record<string, { name: string; value: number; color: string }> = {}
     activities.forEach((a: any) => {
@@ -147,15 +153,28 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-4 mt-4">
         <div className="flex-1">
-          <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white leading-snug mb-3">
-            {greeting},{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-indigo-600 dark:from-violet-400 dark:to-indigo-400">{session?.user?.name}</span> 👋
-          </h1>
+          <div className="flex items-center gap-3 mb-3">
+            <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white leading-snug">
+              {greeting},{' '}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-indigo-600 dark:from-violet-400 dark:to-indigo-400">{session?.user?.name}</span> 👋
+            </h1>
+            {!userLoading && (
+              <div className="hidden sm:inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 bg-violet-100 dark:bg-violet-500/20 text-violet-700 dark:text-violet-300 rounded-lg border border-violet-200 dark:border-violet-500/30 shadow-sm mt-1">
+                Lvl {level}
+              </div>
+            )}
+          </div>
           <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-xs font-medium bg-white/50 dark:bg-white/5 w-fit px-3 py-1.5 rounded-full border border-slate-200/50 dark:border-white/5">
              <Calendar className="w-3.5 h-3.5 text-violet-500" />
              {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
           </div>
         </div>
+        <button 
+          onClick={() => setIsQuickLogOpen(true)}
+          className="flex items-center justify-center gap-2 bg-violet-600 hover:bg-violet-500 text-white text-sm font-bold px-6 py-3 rounded-2xl transition-all shadow-lg hover:shadow-violet-500/25 hover:scale-[1.02] active:scale-95 whitespace-nowrap"
+        >
+          <Zap className="w-4 h-4" /> Quick Log
+        </button>
       </div>
 
       {/* Stats grid */}

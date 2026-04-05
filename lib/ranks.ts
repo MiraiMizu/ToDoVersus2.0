@@ -30,3 +30,15 @@ export function getRankProgress(allTimeScore: number): number {
   const progress = ((allTimeScore - rank.minScore) / (rank.maxScore - rank.minScore + 1)) * 100
   return Math.min(Math.round(progress), 100)
 }
+
+export function getLevel(allTimeScore: number): number {
+  // Level 1 starts at 0 score. Every 10 points = 1 more level.
+  return 1 + Math.floor(allTimeScore / 10)
+}
+
+export function getXPLabel(allTimeScore: number): string {
+  const level = getLevel(allTimeScore)
+  const currentLevelScore = (level - 1) * 10
+  const xpIntoLevel = allTimeScore - currentLevelScore
+  return `${xpIntoLevel}/10 XP`
+}

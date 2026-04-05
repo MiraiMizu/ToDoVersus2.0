@@ -2,8 +2,10 @@
 
 import useSWR from 'swr'
 import Link from 'next/link'
-import { Shield, Users, Activity, PartyPopper, LayoutDashboard, Search, Zap } from 'lucide-react'
+import { Shield, Users, Activity, PartyPopper, LayoutDashboard, Search, Zap, Clock } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { formatScore } from '@/lib/scoring'
+import { formatDistanceToNow } from 'date-fns'
 
 const fetcher = (url: string) => fetch(url).then(r => r.json())
 
@@ -17,10 +19,13 @@ const rankColors: Record<string, string> = {
 }
 
 export default function SocialPage() {
-  const { data, isLoading } = useSWR('/api/social/friends', fetcher)
+  const { data, isLoading: friendsLoading } = useSWR('/api/social/friends', fetcher)
+  const { data: feedRes, isLoading: feedLoading } = useSWR('/api/social/feed', fetcher)
+  
   const friends = data?.friends || []
+  const feed = feedRes?.feed || []
 
-  if (isLoading) {
+  if (friendsLoading || feedLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
         <div className="w-12 h-12 border-4 border-violet-500 border-t-transparent rounded-full animate-spin shadow-lg"></div>
@@ -133,6 +138,55 @@ export default function SocialPage() {
             </motion.div>
           )
         })}
+      </div>
+
+      {/* Activity Feed Section */}
+      <div className="mt-16 mb-8 border-t border-slate-200 dark:border-white/10 pt-10">
+        <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
+          <Activity className="w-5 h-5 text-violet-500" />
+          Live Activity Feed
+        </h2>
+        
+        {feed.length === 0 ? (
+          <div className="glass rounded-2xl p-8 text-center border border-slate-200 dark:border-white/5">
+            <Clock className="w-8 h-8 text-slate-400 mx-auto mb-3" />
+            <p className="text-slate-500 font-medium">It's quiet here. Challenge someone or log an activity to start the feed!</p>
+          </div>
+        ) : (
+          <div className="flex flex-col space-y-4">
+            {feed.map((log: any, idx: number) => {
+               const dt = new Date(log.loggedAt)
+               return (
+                 <div key={log.id} className="glass rounded-2xl p-5 border border-slate-200 dark:border-white/5 flex items-center gap-4 transition-all hover:bg-white/60 dark:hover:bg-slate-800/40">
+                   <div 
+                     className="w-12 h-12 rounded-2xl flex items-center justify-center text-white font-bold text-lg shadow-inner shrink-0"
+                     style={{ background: `linear-gradient(135deg, ${log.category.color}, #6366f1)` }}
+                   >
+                     {log.user.username.charAt(0).toUpperCase()}
+                   </div>
+                   <div className="flex-1 min-w-0">
+                     <div className="flex items-center gap-2">
+                       <span className="font-bold text-slate-900 dark:text-white truncate">{log.user.username}</span>
+                       <span className="text-xs text-slate-400 whitespace-nowrap hidden sm:inline-block">({formatScore(log.user.allTimeScore)} pts)</span>
+                     </div>
+                     <p className="text-sm text-slate-600 dark:text-slate-300 mt-0.5 truncate">
+                       Logged <span className="font-semibold text-slate-800 dark:text-slate-200">"{log.name}"</span>
+                     </p>
+                     <div className="flex items-center gap-3 mt-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                       <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {formatDistanceToNow(dt, { addSuffix: true })}</span>
+                       <span className="flex items-center gap-1">• {log.category.name} ({log.durationMinutes}m)</span>
+                     </div>
+                   </div>
+                   <div className="text-right shrink-0">
+                     <span className="inline-flex items-center justify-center px-3 py-1.5 rounded-full font-black text-sm text-violet-700 dark:text-violet-300 bg-violet-100 dark:bg-violet-500/20 border border-violet-200 dark:border-violet-500/30">
+                       +{log.score}
+                     </span>
+                   </div>
+                 </div>
+               )
+            })}
+          </div>
+        )}
       </div>
 
       {/* Footer Visual Filler */}

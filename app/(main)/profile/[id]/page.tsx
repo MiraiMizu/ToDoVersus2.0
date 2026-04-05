@@ -5,7 +5,7 @@ import useSWR from 'swr'
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
 import { formatScore } from '@/lib/scoring'
-import { getRank, getRankProgress } from '@/lib/ranks'
+import { getRank, getRankProgress, getLevel, getXPLabel } from '@/lib/ranks'
 import { User, Flame, Trophy, Shield, Medal, Calendar, LayoutDashboard } from 'lucide-react'
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
@@ -33,6 +33,8 @@ export default function ProfilePage({ params }: { params: Promise<{ id: string }
 
   const rank = getRank(user.allTimeScore)
   const progress = getRankProgress(user.allTimeScore)
+  const level = getLevel(user.allTimeScore)
+  const xpLabel = getXPLabel(user.allTimeScore)
   const earnedAchievements = user.achievements ?? []
   const totalMatches = (user._count?.challengedMatches ?? 0) + (user._count?.opponentMatches ?? 0)
   const wins = user._count?.wonMatches ?? 0
@@ -54,12 +56,17 @@ export default function ProfilePage({ params }: { params: Promise<{ id: string }
           <div className="flex-1 text-center md:text-left">
             <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{user.username}</h1>
             <div className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">{isMe ? user.email : ''}</div>
-            <div
-              className="inline-flex items-center gap-1.5 mt-2 text-sm font-semibold px-3 py-1 rounded-full shadow-sm"
-              style={{ background: `${rank.color}15`, color: rank.color, borderColor: `${rank.color}30`, border: '1px solid' }}
-            >
-              <Shield className="w-3.5 h-3.5" />
-              {rank.icon} {rank.name}
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mt-2">
+              <div
+                className="inline-flex items-center gap-1.5 text-sm font-semibold px-3 py-1 rounded-full shadow-sm"
+                style={{ background: `${rank.color}15`, color: rank.color, borderColor: `${rank.color}30`, border: '1px solid' }}
+              >
+                <Shield className="w-3.5 h-3.5" />
+                {rank.icon} {rank.name}
+              </div>
+              <div className="inline-flex items-center gap-1 text-sm font-bold px-3 py-1 bg-violet-100 dark:bg-violet-500/20 text-violet-700 dark:text-violet-300 rounded-full border border-violet-200 dark:border-violet-500/30">
+                Lvl {level}
+              </div>
             </div>
 
             {/* Rank progress */}
@@ -70,7 +77,10 @@ export default function ProfilePage({ params }: { params: Promise<{ id: string }
                   style={{ width: `${progress}%`, background: `linear-gradient(90deg, ${rank.color}, #7c3aed)` }}
                 />
               </div>
-              <div className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 font-medium">{progress}% to next rank</div>
+              <div className="flex justify-between items-center text-xs text-slate-500 dark:text-slate-400 mt-1.5 font-medium">
+                <span>{xpLabel} to Lvl {level + 1}</span>
+                <span>{progress}% to next rank</span>
+              </div>
             </div>
           </div>
 
