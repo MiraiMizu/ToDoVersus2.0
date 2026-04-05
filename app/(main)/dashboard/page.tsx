@@ -55,11 +55,11 @@ function StatCard({
   href?: string
 }) {
   const CardContent = (
-    <div className="glass rounded-3xl p-5 md:p-6 flex flex-col justify-between hover:border-violet-500/40 transition-all duration-500 relative group min-h-[150px] shadow-sm hover:shadow-[0_12px_30px_rgba(124,58,237,0.08)] overflow-hidden bg-white/60 dark:bg-slate-900/40 cursor-pointer border border-white/40 dark:border-white/5">
+    <div className="glass rounded-3xl p-5 md:p-6 flex flex-col justify-between hover:border-violet-500/40 transition-all duration-500 relative group min-h-[150px] shadow-sm hover:shadow-[0_12px_30px_rgba(124,58,237,0.08)] bg-white/60 dark:bg-slate-900/40 cursor-pointer border border-white/40 dark:border-white/5">
       <div className="relative z-10 w-full flex flex-col justify-between h-full">
         <div className="flex justify-between items-start gap-3 mb-3">
-           <div className="flex-1 min-w-0">
-             <span className="block text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em] mb-2 leading-none truncate">{label}</span>
+           <div className="flex-1">
+             <span className="block text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2 leading-none">{label}</span>
              <div className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white leading-none tracking-tight">
                {isValueNumeric && typeof value === 'number' ? (
                  <StatCounter value={value} />
