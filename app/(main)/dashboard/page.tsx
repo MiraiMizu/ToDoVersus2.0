@@ -120,6 +120,7 @@ export default function DashboardPage() {
   const activities = activitiesData?.activities ?? []
   const matches = matchesData?.matches ?? []
   const performanceData = perfData?.performanceData ?? []
+  const monthlySummary = perfData?.monthlySummary ?? { thisMonthScore: 0, lastMonthScore: 0 }
 
   const todayScore = activities.reduce((sum: number, a: { score: number }) => sum + a.score, 0)
   const activeMatches = matches.filter((m: { status: string }) => m.status === 'ACTIVE')
@@ -249,6 +250,21 @@ export default function DashboardPage() {
                      <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">Your productivity trend over time</p>
                    </div>
                 </div>
+                
+                 {/* Monthly Summary Mini-Report */}
+                 <div className="grid grid-cols-2 gap-4 mb-6">
+                    <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-4 border border-slate-100 dark:border-slate-700 shadow-sm relative overflow-hidden group">
+                      <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-fuchsia-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <div className="text-xs text-slate-500 uppercase font-black tracking-wider mb-1">This Month</div>
+                      <div className="text-xl font-bold text-violet-600 dark:text-violet-400">{monthlySummary.thisMonthScore} <span className="text-xs text-slate-400 font-medium">pts</span></div>
+                    </div>
+                    <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-4 border border-slate-100 dark:border-slate-700 shadow-sm relative overflow-hidden group">
+                      <div className="absolute inset-0 bg-gradient-to-br from-slate-500/5 to-slate-400/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <div className="text-xs text-slate-500 uppercase font-black tracking-wider mb-1">Last Month</div>
+                      <div className="text-xl font-bold text-slate-600 dark:text-slate-400">{monthlySummary.lastMonthScore} <span className="text-xs text-slate-400 font-medium">pts</span></div>
+                    </div>
+                 </div>
+
                 <PerformanceChart data={performanceData} />
               </div>
            </div>

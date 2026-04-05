@@ -35,6 +35,7 @@ export async function GET(
           orderBy: { loggedAt: 'desc' },
           include: { category: true },
         },
+        motto: true,
       },
     })
 
@@ -42,7 +43,17 @@ export async function GET(
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
-    return NextResponse.json({ user })
+    const totalMinutesData = await prisma.activityLog.aggregate({
+      where: { userId: id },
+      _sum: { durationMinutes: true },
+    })
+
+    return NextResponse.json({ 
+      user: {
+        ...user,
+        totalMinutesLogged: totalMinutesData._sum.durationMinutes || 0
+      } 
+    })
   } catch (error) {
     console.error('Get user error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

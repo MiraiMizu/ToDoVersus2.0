@@ -44,7 +44,8 @@ export async function GET(request: Request) {
       },
       include: {
         category: true,
-        user: { select: { id: true, username: true, allTimeScore: true } }
+        user: { select: { id: true, username: true, allTimeScore: true } },
+        reactions: true
       },
       orderBy: {
         loggedAt: 'desc'

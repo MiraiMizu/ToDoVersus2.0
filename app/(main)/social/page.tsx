@@ -2,11 +2,12 @@
 
 import useSWR from 'swr'
 import Link from 'next/link'
-import { Shield, Users, Activity, PartyPopper, LayoutDashboard, Search, Zap, Clock } from 'lucide-react'
+import { Shield, Users, Activity, PartyPopper, LayoutDashboard, Search, Zap, Clock, SmilePlus } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
 import { formatScore } from '@/lib/scoring'
 import { formatDistanceToNow } from 'date-fns'
+import { useSession } from 'next-auth/react'
 
 const fetcher = (url: string) => fetch(url).then(r => r.json())
 
@@ -20,14 +21,47 @@ const rankColors: Record<string, string> = {
 }
 
 export default function SocialPage() {
+  const { data: session } = useSession()
+  const userId = session?.user?.id
+
   const [query, setQuery] = useState('')
   const { data, isLoading: friendsLoading } = useSWR('/api/social/friends', fetcher)
-  const { data: feedRes, isLoading: feedLoading } = useSWR('/api/social/feed', fetcher)
+  const { data: feedRes, isLoading: feedLoading, mutate: mutateFeed } = useSWR('/api/social/feed', fetcher)
   const { data: searchData } = useSWR(query.length >= 2 ? `/api/users/search?q=${encodeURIComponent(query)}` : null, fetcher)
   
   const friends = data?.friends || []
   const feed = feedRes?.feed || []
   const searchResults = searchData?.users || []
+
+  const handleReact = async (logId: string, emoji: string) => {
+    if (!userId) return
+
+    // Optimistic toggle
+    mutateFeed((currentData: any) => {
+      if (!currentData) return currentData
+      const newFeed = currentData.feed.map((log: any) => {
+        if (log.id === logId) {
+          const reactions = [...(log.reactions || [])]
+          const existingIdx = reactions.findIndex(r => r.userId === userId && r.emoji === emoji)
+          if (existingIdx !== -1) {
+            reactions.splice(existingIdx, 1)
+          } else {
+            reactions.push({ userId, emoji, activityLogId: logId })
+          }
+          return { ...log, reactions }
+        }
+        return log
+      })
+      return { ...currentData, feed: newFeed }
+    }, false)
+
+    await fetch(`/api/social/feed/${logId}/react`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ emoji })
+    })
+    mutateFeed()
+  }
 
   if (friendsLoading || feedLoading) {
     return (
@@ -218,10 +252,35 @@ export default function SocialPage() {
                        <span className="flex items-center gap-1">• {log.category.name} ({log.durationMinutes}m)</span>
                      </div>
                    </div>
-                   <div className="text-right shrink-0">
+                   <div className="text-right shrink-0 flex flex-col items-end gap-2">
                      <span className="inline-flex items-center justify-center px-3 py-1.5 rounded-full font-black text-sm text-violet-700 dark:text-violet-300 bg-violet-100 dark:bg-violet-500/20 border border-violet-200 dark:border-violet-500/30">
                        +{log.score}
                      </span>
+                     <div className="flex items-center gap-1.5 opacity-60 hover:opacity-100 transition-opacity">
+                        {['🔥', '👍', '💪'].map(emoji => {
+                          const count = log.reactions?.filter((r: any) => r.emoji === emoji).length || 0
+                          const hasReacted = log.reactions?.some((r: any) => r.emoji === emoji && r.userId === userId)
+                          
+                          if (count === 0 && !hasReacted) {
+                            return (
+                              <button key={emoji} onClick={() => handleReact(log.id, emoji)} className="text-xs grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition px-1.5 py-0.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800">
+                                {emoji}
+                              </button>
+                            )
+                          }
+                          
+                          return (
+                            <button
+                              key={emoji}
+                              onClick={() => handleReact(log.id, emoji)}
+                              className={`flex items-center gap-1 text-xs px-2 py-0.5 rounded-full transition ${hasReacted ? 'bg-violet-100 dark:bg-violet-500/30 text-violet-700 dark:text-violet-300' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}`}
+                            >
+                              <span>{emoji}</span>
+                              <span className="font-bold">{count}</span>
+                            </button>
+                          )
+                        })}
+                     </div>
                    </div>
                  </div>
                )

@@ -66,7 +66,42 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    return NextResponse.json({ performanceData })
+    // Calculate monthly summary
+    const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0]
+    const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString().split('T')[0]
+    const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0).toISOString().split('T')[0]
+
+    const monthlyActivities = await prisma.activityLog.findMany({
+      where: {
+        userId,
+        date: {
+          gte: startOfLastMonth 
+        }
+      },
+      select: {
+        date: true,
+        score: true
+      }
+    })
+
+    let thisMonthScore = 0
+    let lastMonthScore = 0
+
+    monthlyActivities.forEach((a: any) => {
+      if (a.date >= startOfThisMonth) {
+        thisMonthScore += a.score
+      } else if (a.date >= startOfLastMonth && a.date <= endOfLastMonth) {
+        lastMonthScore += a.score
+      }
+    })
+
+    return NextResponse.json({ 
+      performanceData,
+      monthlySummary: {
+        thisMonthScore,
+        lastMonthScore
+      }
+    })
   } catch (error) {
     console.error('Performance API error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

@@ -13,6 +13,7 @@ model User {
   email             String            @unique
   passwordHash      String
   avatarUrl         String?
+  motto             String?           @default("Ready for battle!")
   rank              String            @default("Bronze")
   streak            Int               @default(0)
   lastLogDate       DateTime?
@@ -28,6 +29,7 @@ model User {
   todos             Todo[]
   achievements      UserAchievement[]
   matchTasks        MatchTask[]
+  reactions         Reaction[]
 }
 
 model Category {
@@ -124,6 +126,7 @@ model ActivityLog {
   matchTask       MatchTask? @relation(fields: [matchTaskId], references: [id])
   match           Match?     @relation(fields: [matchId], references: [id])
   user            User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reactions       Reaction[]
 }
 
 model DailyScore {
@@ -167,4 +170,16 @@ model SuspiciousLog {
   metadata  String?
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id])
+}
+
+model Reaction {
+  id            String      @id @default(cuid())
+  activityLogId String
+  userId        String
+  emoji         String
+  createdAt     DateTime    @default(now())
+  activityLog   ActivityLog @relation(fields: [activityLogId], references: [id], onDelete: Cascade)
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([activityLogId, userId, emoji])
 }

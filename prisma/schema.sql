@@ -5,6 +5,7 @@ CREATE TABLE "User" (
     "email" TEXT NOT NULL,
     "passwordHash" TEXT NOT NULL,
     "avatarUrl" TEXT,
+    "motto" TEXT DEFAULT 'Ready for battle!',
     "rank" TEXT NOT NULL DEFAULT 'Bronze',
     "streak" INTEGER NOT NULL DEFAULT 0,
     "lastLogDate" DATETIME,
@@ -146,6 +147,17 @@ CREATE TABLE "SuspiciousLog" (
     CONSTRAINT "SuspiciousLog_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
+-- CreateTable
+CREATE TABLE "Reaction" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "activityLogId" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "emoji" TEXT NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "Reaction_activityLogId_fkey" FOREIGN KEY ("activityLogId") REFERENCES "ActivityLog" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "Reaction_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "User_username_key" ON "User"("username");
 
@@ -169,4 +181,7 @@ CREATE UNIQUE INDEX "Achievement_code_key" ON "Achievement"("code");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "UserAchievement_userId_achievementId_key" ON "UserAchievement"("userId", "achievementId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Reaction_activityLogId_userId_emoji_key" ON "Reaction"("activityLogId", "userId", "emoji");
 
