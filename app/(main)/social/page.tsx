@@ -22,7 +22,7 @@ export default function SocialPage() {
 
   if (isLoading) {
     return (
-      <div className="p-6 md:p-8 max-w-5xl mx-auto flex flex-col items-center justify-center min-h-[60vh] space-y-4">
+      <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
         <div className="w-12 h-12 border-4 border-violet-500 border-t-transparent rounded-full animate-spin shadow-lg"></div>
         <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] animate-pulse">Syncing Rivals...</p>
       </div>
@@ -30,7 +30,7 @@ export default function SocialPage() {
   }
 
   return (
-    <div className="p-4 md:p-8 lg:p-12 max-w-6xl mx-auto space-y-10 animate-fadeInUp mb-32 md:mb-10">
+    <div className="space-y-10 animate-fadeInUp mb-24 md:mb-10">
       
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-4 mt-4">

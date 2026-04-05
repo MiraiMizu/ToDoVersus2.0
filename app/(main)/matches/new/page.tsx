@@ -105,7 +105,7 @@ export default function NewMatchPage() {
   const isValid = selectedUser && matchTasks.length > 0 && matchTasks.every(t => t.content.trim() !== '' && t.categoryId !== '')
 
   return (
-    <div className="p-4 md:p-6 max-w-2xl mx-auto animate-fadeInUp mb-32 md:mb-10">
+    <div className="max-w-2xl mx-auto animate-fadeInUp mb-24 md:mb-10">
       <div className="mb-6">
         <Link href="/matches" id="back-to-matches" className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-violet-600 dark:hover:text-violet-400 transition mb-2">
           <LayoutDashboard className="w-3.5 h-3.5" /> Matches

@@ -40,7 +40,7 @@ export default function MatchesPage() {
   const completed = matches.filter((m: { status: string }) => ['COMPLETED', 'DECLINED'].includes(m.status))
 
   return (
-    <div className="p-6 md:p-10 lg:p-12 max-w-5xl mx-auto space-y-10 animate-fadeInUp mb-32 md:mb-10">
+    <div className="space-y-10 animate-fadeInUp mb-24 md:mb-10">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-4 mt-4">
         <div className="flex-1">
           <Link href="/dashboard" className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-400 dark:text-slate-500 hover:text-violet-500 transition-all mb-4 bg-slate-100/50 dark:bg-white/5 px-3 py-1.5 rounded-full border border-slate-200/50 dark:border-white/5">

@@ -38,7 +38,7 @@ export default function ProfilePage({ params }: { params: Promise<{ id: string }
   const wins = user._count?.wonMatches ?? 0
 
   return (
-    <div className="p-4 md:p-6 max-w-4xl mx-auto animate-fadeInUp space-y-6">
+    <div className="animate-fadeInUp space-y-6 mb-24 md:mb-10">
       <div className="flex justify-between items-center bg-white/50 dark:bg-slate-900/40 p-3 rounded-2xl glass mb-2">
         <Link href="/dashboard" id="back-to-dashboard-profile" className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 transition ml-2">
           <LayoutDashboard className="w-4 h-4" /> Dashboard

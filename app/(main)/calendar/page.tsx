@@ -15,7 +15,7 @@ export default function CalendarPage() {
   const activities = activitiesData?.activities || []
 
   return (
-    <div className="p-4 md:p-6 max-w-5xl mx-auto space-y-6 animate-fadeInUp">
+    <div className="space-y-6 animate-fadeInUp mb-24 md:mb-10">
        <div className="flex items-center gap-3 mb-6">
           <div className="w-12 h-12 bg-violet-100 dark:bg-violet-500/10 rounded-xl flex items-center justify-center">
              <CalendarIcon className="w-6 h-6 text-violet-600 dark:text-violet-400" />

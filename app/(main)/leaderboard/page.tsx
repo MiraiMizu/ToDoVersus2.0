@@ -19,7 +19,7 @@ export default function LeaderboardPage() {
   const userId = session?.user?.id
 
   return (
-    <div className="p-4 md:p-6 max-w-4xl mx-auto animate-fadeInUp">
+    <div className="animate-fadeInUp mb-24 md:mb-10">
       <div className="mb-6">
         <Link href="/dashboard" id="back-to-dashboard-leaderboard" className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-violet-600 dark:hover:text-violet-400 transition mb-2">
           <LayoutDashboard className="w-3.5 h-3.5" /> Dashboard

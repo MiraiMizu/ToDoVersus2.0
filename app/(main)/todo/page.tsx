@@ -68,7 +68,7 @@ export default function TodoPage() {
   }
 
   return (
-    <div className="p-4 md:p-8 lg:p-12 max-w-6xl mx-auto space-y-12 animate-fadeInUp mb-32 md:mb-10">
+    <div className="space-y-10 animate-fadeInUp mb-24 md:mb-10">
       
       {/* Header Section */}
       <div className="flex flex-col mb-4 mt-4">

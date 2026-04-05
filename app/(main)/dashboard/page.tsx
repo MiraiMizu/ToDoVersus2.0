@@ -143,7 +143,7 @@ export default function DashboardPage() {
   }, [activities])
 
   return (
-    <div className="p-4 md:p-8 lg:p-12 max-w-7xl mx-auto space-y-12 animate-fadeInUp mb-32 md:mb-10">
+    <div className="space-y-10 animate-fadeInUp mb-24 md:mb-10">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-4 mt-4">
         <div className="flex-1">

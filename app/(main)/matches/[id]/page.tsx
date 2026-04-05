@@ -140,7 +140,7 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
   // ------- opponent task selection screen -------
   if (isPendingForMe && (shouldAccept || true)) {
     return (
-      <div className="p-4 md:p-6 max-w-2xl mx-auto animate-fadeInUp mb-32 md:mb-10">
+      <div className="max-w-2xl mx-auto animate-fadeInUp mb-24 md:mb-10">
         <Link href="/matches" className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-violet-600 dark:hover:text-violet-400 transition mb-4">
           <LayoutDashboard className="w-3.5 h-3.5" /> Matches
         </Link>
@@ -306,7 +306,7 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
 
   // ------- normal match view -------
   return (
-    <div className="p-4 md:p-6 max-w-5xl mx-auto animate-fadeInUp space-y-6 mb-32 md:mb-10">
+    <div className="animate-fadeInUp space-y-6 mb-24 md:mb-10">
       <Link href="/matches" id="back-to-matches-detail" className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-violet-400 transition">
         <LayoutDashboard className="w-3.5 h-3.5" /> Matches
       </Link>
