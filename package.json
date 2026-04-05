@@ -10,7 +10,7 @@
     "db:generate": "prisma generate",
     "db:apply:local": "wrangler d1 execute todoversus-db --local --file=./prisma/schema.sql",
     "postinstall": "prisma generate",
-    "build:cf": "next build && npx @opennextjs/cloudflare@latest build && node patch-worker.mjs && rm -rf node_modules/next/dist/compiled/@vercel/og/*",
+    "build:cf": "mkdir -p node_modules/next/dist/compiled/@vercel/og && cp -r node_modules/@vercel/og/dist/* node_modules/next/dist/compiled/@vercel/og/ && next build && npx @opennextjs/cloudflare@latest build && node patch-worker.mjs",
     "deploy:cf": "npx wrangler deploy",
     "deploy": "npm run deploy:cf",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview"
