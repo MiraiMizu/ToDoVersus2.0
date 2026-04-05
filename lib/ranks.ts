@@ -32,13 +32,22 @@ export function getRankProgress(allTimeScore: number): number {
 }
 
 export function getLevel(allTimeScore: number): number {
-  // Level 1 starts at 0 score. Every 10 points = 1 more level.
-  return 1 + Math.floor(allTimeScore / 10)
+  if (allTimeScore <= 0) return 1
+  // Formula for Total XP for Level L: XP = (L-1)(900 + 50L)
+  // Solving for L: L = [-17 + sqrt(361 + allTimeScore / 12.5)] / 2
+  // We add a tiny epsilon to handle floating point precision
+  const level = (-17 + Math.sqrt(361 + (allTimeScore + 0.001) / 12.5)) / 2
+  return Math.max(1, Math.floor(level))
 }
 
 export function getXPLabel(allTimeScore: number): string {
   const level = getLevel(allTimeScore)
-  const currentLevelScore = (level - 1) * 10
-  const xpIntoLevel = allTimeScore - currentLevelScore
-  return `${xpIntoLevel}/10 XP`
+  
+  // Total XP required for current level L
+  const currentTotalXp = (level - 1) * (900 + 50 * level)
+  // XP required for next level step (L -> L+1)
+  const xpNeededForNext = 1000 + (level - 1) * 100
+  
+  const xpIntoLevel = Math.max(0, allTimeScore - currentTotalXp)
+  return `${Math.round(xpIntoLevel)}/${Math.round(xpNeededForNext)} XP`
 }
