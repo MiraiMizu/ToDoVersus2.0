@@ -7,7 +7,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { formatScore, formatDuration } from '@/lib/scoring'
 import ActivityForm from '@/components/ActivityForm'
-import { Swords, Trophy, Flame, Clock, LayoutDashboard, Plus, Trash2, Zap, Star, Leaf, CheckCircle, AlertCircle } from 'lucide-react'
+import { Swords, Trophy, Flame, Clock, LayoutDashboard, Plus, Trash2, Zap, Star, Leaf, CheckCircle, AlertCircle, Share2 } from 'lucide-react'
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
@@ -335,6 +335,24 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
                 🥇 {match.winner.username} wins!
               </div>
             )}
+            <button
+               onClick={() => {
+                  if (navigator.share) {
+                     navigator.share({
+                        title: `${match.challenger.username} vs ${match.opponent.username} | ToDoVersus`,
+                        text: `Check out the battle results between ${match.challenger.username} and ${match.opponent.username}!`,
+                        url: window.location.href
+                     }).catch(() => {});
+                  } else {
+                     navigator.clipboard.writeText(window.location.href);
+                     alert('Link copied to clipboard!');
+                  }
+               }}
+               className="p-1.5 text-slate-400 hover:text-violet-400 transition hover:bg-slate-800 rounded-lg"
+               title="Share Results"
+            >
+               <Share2 className="w-4 h-4" />
+            </button>
           </div>
         </div>
 
