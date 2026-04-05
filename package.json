@@ -19,7 +19,6 @@
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
-    "@napi-rs/canvas-darwin-arm64": "^0.1.97",
     "@prisma/adapter-d1": "^7.5.0",
     "@prisma/client": "^7.5.0",
     "@resvg/resvg-js": "^2.6.2",
@@ -55,5 +54,9 @@
     "tsx": "^4.21.0",
     "typescript": "^5",
     "wrangler": "^4.77.0"
+  },
+  "optionalDependencies": {
+    "@napi-rs/canvas-darwin-arm64": "^0.1.97",
+    "@napi-rs/canvas-linux-x64-gnu": "^0.1.97"
   }
 }
