@@ -1,4 +1,4 @@
-import { ImageResponse } from 'next/og'
+import { ImageResponse } from '@vercel/og'
 import { prisma } from '@/lib/prisma'
 
 export const runtime = 'edge'

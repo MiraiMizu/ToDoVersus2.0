@@ -19,9 +19,12 @@
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
+    "@napi-rs/canvas-darwin-arm64": "^0.1.97",
     "@prisma/adapter-d1": "^7.5.0",
     "@prisma/client": "^7.5.0",
+    "@resvg/resvg-js": "^2.6.2",
     "@types/better-sqlite3": "^7.6.13",
+    "@vercel/og": "^0.11.1",
     "bcryptjs": "^3.0.3",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.38.0",
@@ -33,6 +36,7 @@
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "recharts": "^3.8.1",
+    "satori": "^0.26.0",
     "swr": "^2.4.1"
   },
   "devDependencies": {

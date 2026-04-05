@@ -27,24 +27,7 @@ function createPrismaClient(): PrismaClient {
     // Expected during build or local dev without bindings
   }
 
-  // 2. Try Local SQLite (Development)
-  if (process.env.NODE_ENV !== 'production') {
-    try {
-      const { PrismaBetterSqlite3 } = eval('require')('@prisma/adapter-better-sqlite3');
-      const Database = eval('require')('better-sqlite3');
-      const path = eval('require')('path');
-      
-      const dbFile = process.env.DATABASE_URL?.replace('file:', '') ?? './dev.db';
-      const resolvedPath = path.resolve(process.cwd(), dbFile);
-      const sqlite = new Database(resolvedPath);
-      const adapter = new PrismaBetterSqlite3(sqlite);
-      return new PrismaClient({ adapter });
-    } catch (err) {
-      console.warn("Local SQLite adapter not found or failed.", err);
-    }
-  }
-
-  // 3. Fallback for Build-time
+  // 2. Fallback for Build-time or local dev without D1
   const mockAdapter = {
     provider: 'sqlite',
     adapterName: 'mock-build-adapter',
