@@ -10,7 +10,7 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from 'recharts'
-import { motion } from 'framer-motion'
+
 
 interface PerformanceData {
   date: string
@@ -60,11 +60,8 @@ export default function PerformanceChart({ data }: { data: PerformanceData[] }) 
   }
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      className="glass rounded-[2rem] p-6 md:p-8 h-[340px] relative overflow-hidden mt-6"
+    <div 
+      className="glass rounded-[2rem] p-6 md:p-8 h-[340px] relative overflow-hidden mt-6 animate-fadeInUp"
     >
       <div className="flex items-center justify-between mb-8 relative z-10">
         <div>
@@ -114,6 +111,6 @@ export default function PerformanceChart({ data }: { data: PerformanceData[] }) 
           </AreaChart>
         </ResponsiveContainer>
       </div>
-    </motion.div>
+    </div>
   )
 }

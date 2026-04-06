@@ -6,7 +6,7 @@ import { AlertCircle, CheckCircle, Clock, LayoutDashboard, Zap, Target, ScrollTe
 import PersonalTodos from '@/components/PersonalTodos'
 import { ScrollTimePicker } from '@/components/ScrollTimePicker'
 import Link from 'next/link'
-import { motion } from 'framer-motion'
+
 
 const fetcher = (url: string) => fetch(url).then(r => r.json())
 
@@ -127,10 +127,9 @@ export default function TodoPage() {
           ) : (
             <div className="grid md:grid-cols-2 gap-6">
               {tasks.map((task: any) => (
-                <motion.div 
-                  layout
+                <div 
                   key={task.id} 
-                  className={`glass rounded-[2.5rem] p-8 border border-white/40 dark:border-white/5 transition-all duration-500 flex flex-col group hover:shadow-2xl hover:shadow-violet-500/5 ${activeLoggingId === task.id ? 'bg-white/80 dark:bg-slate-900/80 ring-2 ring-violet-500/20' : 'bg-white/40 dark:bg-slate-900/40'}`}
+                  className={`glass rounded-[2.5rem] p-8 border border-white/40 dark:border-white/5 transition-all duration-500 flex flex-col group hover:shadow-2xl hover:shadow-violet-500/5 animate-fadeInUp ${activeLoggingId === task.id ? 'bg-white/80 dark:bg-slate-900/80 ring-2 ring-violet-500/20' : 'bg-white/40 dark:bg-slate-900/40'}`}
                 >
                   <div className="flex items-start justify-between mb-6">
                     <div className="flex-1 space-y-2">
@@ -156,10 +155,8 @@ export default function TodoPage() {
 
                   {/* Logging Form (Toggled) */}
                   {activeLoggingId === task.id ? (
-                    <motion.div 
-                      initial={{ opacity: 0, y: 10 }} 
-                      animate={{ opacity: 1, y: 0 }}
-                      className="mt-4 border-t border-slate-100 dark:border-white/5 pt-5 space-y-4"
+                    <div 
+                      className="mt-4 border-t border-slate-100 dark:border-white/5 pt-5 space-y-4 animate-slideDown"
                     >
                       <div className="space-y-3">
                         <span className="text-xs font-medium text-slate-500 ml-1">Time Spent</span>
@@ -206,7 +203,7 @@ export default function TodoPage() {
                            {loading === task.id ? 'Saving...' : 'Log Progress'}
                          </button>
                       </div>
-                    </motion.div>
+                    </div>
                   ) : (
                     <button
                       onClick={() => {
@@ -220,7 +217,7 @@ export default function TodoPage() {
                       Log Time
                     </button>
                   )}
-                </motion.div>
+                </div>
               ))}
             </div>
           )}

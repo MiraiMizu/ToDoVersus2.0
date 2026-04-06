@@ -4,7 +4,7 @@ import useSWR from 'swr'
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
 import { Swords, Plus, ChevronRight, Clock, CheckCircle, XCircle, LayoutDashboard, Zap } from 'lucide-react'
-import { motion } from 'framer-motion'
+
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
@@ -163,11 +163,8 @@ function MatchCard({
   const isPendingForMe = match.status === 'PENDING' && match.opponentId === currentUserId
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 10 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      className={`glass rounded-2xl p-5 lg:p-6 border border-white/40 dark:border-white/5 bg-white/50 dark:bg-slate-900/40 relative shadow-md hover:shadow-lg transition-all group ${isCompact ? 'opacity-75 hover:opacity-100' : ''}`}
+    <div 
+      className={`glass rounded-2xl p-5 lg:p-6 border border-white/40 dark:border-white/5 bg-white/50 dark:bg-slate-900/40 relative shadow-md hover:shadow-lg transition-all group animate-fadeInUp ${isCompact ? 'opacity-75 hover:opacity-100' : ''}`}
     >
       <div className="flex items-start justify-between mb-5 gap-3">
         <div className="flex items-center gap-3">
@@ -263,6 +260,6 @@ function MatchCard({
           </div>
         )}
       </div>
-    </motion.div>
+    </div>
   )
 }

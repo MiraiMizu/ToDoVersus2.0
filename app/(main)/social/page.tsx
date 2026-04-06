@@ -3,7 +3,6 @@
 import useSWR from 'swr'
 import Link from 'next/link'
 import { Shield, Users, Activity, PartyPopper, LayoutDashboard, Search, Zap, Clock, SmilePlus } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
 import { formatScore } from '@/lib/scoring'
 import { formatDistanceToNow } from 'date-fns'
@@ -36,7 +35,6 @@ export default function SocialPage() {
   const handleReact = async (logId: string, emoji: string) => {
     if (!userId) return
 
-    // Optimistic toggle
     mutateFeed((currentData: any) => {
       if (!currentData) return currentData
       const newFeed = currentData.feed.map((log: any) => {
@@ -75,7 +73,6 @@ export default function SocialPage() {
   return (
     <div className="space-y-10 animate-fadeInUp mb-24 md:mb-10">
       
-      {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-4 mt-4">
         <div className="flex-1">
           <Link href="/dashboard" className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-400 dark:text-slate-500 hover:text-violet-500 transition-all mb-4 bg-slate-100/50 dark:bg-white/5 px-3 py-1.5 rounded-full border border-slate-200/50 dark:border-white/5">
@@ -100,42 +97,37 @@ export default function SocialPage() {
               className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 transition shadow-sm"
             />
           </div>
-          <AnimatePresence>
-            {query.length >= 2 && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 10 }}
-                className="absolute top-full mt-2 w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-xl shadow-xl overflow-hidden"
-              >
-                {searchResults.length === 0 ? (
-                  <div className="p-4 text-center text-sm text-slate-500">No users found</div>
-                ) : (
-                  <div className="max-h-60 overflow-y-auto">
-                    {searchResults.map((user: any) => (
-                      <Link
-                        key={user.id}
-                        href={`/profile/${user.id}`}
-                        className="flex items-center gap-3 p-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition border-b border-slate-100 dark:border-white/5 last:border-0"
-                      >
-                       <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-white font-bold text-xs shrink-0">
-                         {user.username.charAt(0).toUpperCase()}
-                       </div>
-                       <div className="flex-1 min-w-0">
-                         <div className="text-sm font-semibold text-slate-900 dark:text-white truncate">{user.username}</div>
-                         <div className="text-[10px] text-slate-500">{user.rank}</div>
-                       </div>
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </motion.div>
-            )}
-          </AnimatePresence>
+
+          {query.length >= 2 && (
+            <div
+              className="absolute top-full mt-2 w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-xl shadow-xl overflow-hidden animate-slideDown"
+            >
+              {searchResults.length === 0 ? (
+                <div className="p-4 text-center text-sm text-slate-500">No users found</div>
+              ) : (
+                <div className="max-h-60 overflow-y-auto">
+                  {searchResults.map((user: any) => (
+                    <Link
+                      key={user.id}
+                      href={`/profile/${user.id}`}
+                      className="flex items-center gap-3 p-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition border-b border-slate-100 dark:border-white/5 last:border-0"
+                    >
+                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-white font-bold text-xs shrink-0">
+                       {user.username.charAt(0).toUpperCase()}
+                     </div>
+                     <div className="flex-1 min-w-0">
+                       <div className="text-sm font-semibold text-slate-900 dark:text-white truncate">{user.username}</div>
+                       <div className="text-[10px] text-slate-500">{user.rank}</div>
+                     </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Friends Grid */}
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {friends.length === 0 && (
           <div className="col-span-full py-20 text-center glass rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 flex flex-col items-center">
@@ -155,20 +147,16 @@ export default function SocialPage() {
           const c = rankColors[user.rank] || '#8b5cf6'
 
           return (
-            <motion.div
+            <div
               key={user.id}
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
+              className="animate-fadeInUp"
             >
               <Link 
                 href={`/profile/${user.id}`}
                 className="glass rounded-[3rem] p-8 group transition-all duration-700 hover:shadow-[0_30px_60px_rgba(0,0,0,0.1)] hover:border-violet-500/40 relative overflow-hidden flex flex-col items-center text-center bg-white/40 dark:bg-slate-900/40 border border-white/40 dark:border-white/5"
               >
-                {/* Visual Flair */}
                 <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-violet-500/5 to-transparent rounded-full blur-3xl -mr-16 -mt-16 opacity-0 group-hover:opacity-100 transition-opacity" />
 
-                {/* Avatar */}
                 <div 
                   className="w-24 h-24 rounded-[2rem] flex items-center justify-center text-4xl font-black text-white mb-6 shadow-2xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-700 border-4 border-white/20"
                   style={{ background: `linear-gradient(135deg, ${c}, #6366f1)` }}
@@ -176,7 +164,6 @@ export default function SocialPage() {
                   {user.username.charAt(0).toUpperCase()}
                 </div>
 
-                {/* Name & Rank */}
                 <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tighter uppercase mb-2">{user.username}</h3>
                 <div 
                   className="inline-flex items-center gap-2 text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest shadow-sm"
@@ -186,7 +173,6 @@ export default function SocialPage() {
                   {user.rank}
                 </div>
 
-                {/* Status Section */}
                 <div className="mt-10 w-full border-t border-slate-100 dark:border-white/5 pt-8">
                   {friendObj.matchStatus === 'ACTIVE' ? (
                     <div className="flex flex-col items-center bg-emerald-500/5 dark:bg-emerald-500/10 rounded-[2rem] p-6 border border-emerald-500/20 group-hover:border-emerald-500/40 transition-colors">
@@ -210,12 +196,11 @@ export default function SocialPage() {
                   )}
                 </div>
               </Link>
-            </motion.div>
+            </div>
           )
         })}
       </div>
 
-      {/* Activity Feed Section */}
       <div className="mt-16 mb-8 border-t border-slate-200 dark:border-white/10 pt-10">
         <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
           <Activity className="w-5 h-5 text-violet-500" />
@@ -229,7 +214,7 @@ export default function SocialPage() {
           </div>
         ) : (
           <div className="flex flex-col space-y-4">
-            {feed.map((log: any, idx: number) => {
+            {feed.map((log: any) => {
                const dt = new Date(log.loggedAt)
                return (
                  <div key={log.id} className="glass rounded-2xl p-5 border border-slate-200 dark:border-white/5 flex items-center gap-4 transition-all hover:bg-white/60 dark:hover:bg-slate-800/40">
@@ -289,7 +274,6 @@ export default function SocialPage() {
         )}
       </div>
 
-      {/* Footer Visual Filler */}
       <div className="h-20" />
     </div>
   )

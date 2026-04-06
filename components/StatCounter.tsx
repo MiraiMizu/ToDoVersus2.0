@@ -1,7 +1,6 @@
 'use client'
 
-import React, { useEffect, useRef } from 'react'
-import { animate, useMotionValue, useTransform, motion } from 'framer-motion'
+import React, { useEffect, useState } from 'react'
 
 interface StatCounterProps {
   value: number
@@ -10,29 +9,37 @@ interface StatCounterProps {
 }
 
 export default function StatCounter({ value, prefix = '', suffix = '' }: StatCounterProps) {
-  const count = useMotionValue(0)
-  const rounded = useTransform(count, (latest) => {
-    return Math.round(latest).toLocaleString()
-  })
+  const [displayValue, setDisplayValue] = useState(0)
 
   useEffect(() => {
-    const controls = animate(count, value, {
-      duration: 1.5,
-      ease: [0.16, 1, 0.3, 1], // easeOutCubic
-    })
-    return () => controls.stop()
-  }, [count, value])
+    let start = 0
+    const end = value
+    if (start === end) return
+
+    const duration = 1500
+    const increment = end / (duration / 16)
+    
+    const timer = setInterval(() => {
+      start += increment
+      if (start >= end) {
+        setDisplayValue(end)
+        clearInterval(timer)
+      } else {
+        setDisplayValue(Math.floor(start))
+      }
+    }, 16)
+
+    return () => clearInterval(timer)
+  }, [value])
 
   return (
-    <motion.span 
-      initial={{ opacity: 0, scale: 0.8 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.5 }}
+    <span 
+      className="animate-fadeIn"
       id={`stat-${value}`}
     >
       {prefix}
-      <motion.span>{rounded}</motion.span>
+      <span>{displayValue.toLocaleString()}</span>
       {suffix}
-    </motion.span>
+    </span>
   )
 }

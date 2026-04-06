@@ -8,7 +8,7 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from 'recharts'
-import { motion, AnimatePresence } from 'framer-motion'
+
 
 interface CategoryData {
   name: string
@@ -49,11 +49,8 @@ export default function ActivitySummaryChart({ data }: { data: CategoryData[] })
   }
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.6, delay: 0.2 }}
-      className="glass rounded-[2rem] p-6 md:p-8 h-[340px] flex flex-col mt-6"
+    <div 
+      className="glass rounded-[2rem] p-6 md:p-8 h-[340px] flex flex-col mt-6 animate-fadeInUp"
     >
       <div className="flex items-center justify-between mb-8">
         <div>
@@ -126,6 +123,6 @@ export default function ActivitySummaryChart({ data }: { data: CategoryData[] })
           ))}
         </div>
       )}
-    </motion.div>
+    </div>
   )
 }
