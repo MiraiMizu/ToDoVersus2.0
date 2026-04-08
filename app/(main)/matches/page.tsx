@@ -1,4 +1,5 @@
 'use client'
+export const runtime = 'edge';
 
 import useSWR from 'swr'
 import Link from 'next/link'

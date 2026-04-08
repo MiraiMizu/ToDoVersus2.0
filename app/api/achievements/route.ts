@@ -1,11 +1,13 @@
+export const runtime = 'edge';
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { getDb } from '@/db'
+import { achievements as achSchema } from '@/db/schema'
+import { asc } from 'drizzle-orm'
 
 export async function GET(request: NextRequest) {
   try {
-    const achievements = await prisma.achievement.findMany({
-      orderBy: { rarity: 'asc' },
-    })
+    const db = getDb()
+    const achievements = await db.select().from(achSchema).orderBy(asc(achSchema.rarity))
 
     return NextResponse.json({ achievements })
   } catch (error) {

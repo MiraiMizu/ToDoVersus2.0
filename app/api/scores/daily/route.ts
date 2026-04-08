@@ -1,5 +1,8 @@
+export const runtime = 'edge';
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { getDb } from '@/db'
+import { dailyScores as dsSchema } from '@/db/schema'
+import { eq, and } from 'drizzle-orm'
 
 export async function GET(request: NextRequest) {
   try {
@@ -11,9 +14,13 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'userId and date are required' }, { status: 400 })
     }
 
-    const scores = await prisma.dailyScore.findMany({
-      where: { userId, date },
-    })
+    const db = getDb()
+    const scores = await db.select().from(dsSchema).where(
+      and(
+        eq(dsSchema.userId, userId),
+        eq(dsSchema.date, date)
+      )
+    )
 
     const totalScore = scores.reduce((sum: number, s: { totalScore: number }) => sum + s.totalScore, 0)
 

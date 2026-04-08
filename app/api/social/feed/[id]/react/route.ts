@@ -1,5 +1,8 @@
+export const runtime = 'edge';
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { getDb } from '@/db'
+import { reactions } from '@/db/schema'
+import { eq, and } from 'drizzle-orm'
 import { auth } from '@/lib/auth'
 
 export async function POST(
@@ -20,28 +23,26 @@ export async function POST(
     }
 
     // Check if reaction exists
-    const existing = await prisma.reaction.findUnique({
-      where: {
-        activityLogId_userId_emoji: {
-          activityLogId,
-          userId: session.user.id,
-          emoji,
-        }
-      }
-    })
+    const db = getDb()
+    const existingList = await db.select().from(reactions).where(
+      and(
+        eq(reactions.activityLogId, activityLogId),
+        eq(reactions.userId, session.user.id),
+        eq(reactions.emoji, emoji)
+      )
+    )
+    const existing = existingList[0]
 
     if (existing) {
       // Toggle off (remove)
-      await prisma.reaction.delete({ where: { id: existing.id } })
+      await db.delete(reactions).where(eq(reactions.id, existing.id))
       return NextResponse.json({ status: 'removed' })
     } else {
       // Add
-      await prisma.reaction.create({
-        data: {
-          activityLogId,
-          userId: session.user.id,
-          emoji
-        }
+      await db.insert(reactions).values({
+        activityLogId,
+        userId: session.user.id,
+        emoji
       })
       return NextResponse.json({ status: 'added' })
     }

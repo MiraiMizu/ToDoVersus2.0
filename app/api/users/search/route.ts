@@ -1,5 +1,8 @@
+export const runtime = 'edge';
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { getDb } from '@/db'
+import { users } from '@/db/schema'
+import { or, like } from 'drizzle-orm'
 
 export async function GET(request: NextRequest) {
   try {
@@ -10,18 +13,17 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ users: [] })
     }
 
-    const users = await prisma.user.findMany({
-      where: {
-        OR: [
-          { username: { contains: q } },
-          { email: { contains: q } },
-        ],
-      },
-      select: { id: true, username: true, avatarUrl: true, rank: true, allTimeScore: true },
-      take: 10,
+    const db = getDb()
+    const usersList = await db.query.users.findMany({
+      where: or(
+        like(users.username, `%${q}%`),
+        like(users.email, `%${q}%`)
+      ),
+      columns: { id: true, username: true, avatarUrl: true, rank: true, allTimeScore: true },
+      limit: 10,
     })
 
-    return NextResponse.json({ users })
+    return NextResponse.json({ users: usersList })
   } catch (error) {
     console.error('Search users error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

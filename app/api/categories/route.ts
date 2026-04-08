@@ -1,11 +1,13 @@
+export const runtime = 'edge';
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { getDb } from '@/db'
+import { categories as catSchema } from '@/db/schema'
+import { desc } from 'drizzle-orm'
 
 export async function GET() {
   try {
-    const categories = await prisma.category.findMany({
-      orderBy: { weight: 'desc' },
-    })
+    const db = getDb()
+    const categories = await db.select().from(catSchema).orderBy(desc(catSchema.weight))
 
     return NextResponse.json({ categories })
   } catch (error) {

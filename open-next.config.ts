@@ -1,25 +1,17 @@
 import { defineCloudflareConfig } from "@opennextjs/cloudflare";
 
 const config: any = defineCloudflareConfig({
-  // No overrides here, just use the defaults
+  // Use the defaults, everything is now Edge runtime
 });
 
 config.cloudflare = {
   ...config.cloudflare,
   dangerousDisableConfigValidation: true,
+  nodeBuiltins: true,
 };
 
-config.functions = {
-  og: {
-    routes: ["app/api/og/match/[id]/route"],
-    patterns: ["api/og/match/*"],
-    runtime: "edge",
-  },
-  dashboard: {
-    routes: ["app/(main)/dashboard/page"],
-    patterns: ["dashboard"],
-    runtime: "edge",
-  },
-};
+// We don't need manual functions anymore because 
+// everything is now 'edge' runtime at the page level.
+// OpenNext will automatically create bundles for them.
 
 export default config;

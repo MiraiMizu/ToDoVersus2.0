@@ -1,4 +1,5 @@
 'use client'
+export const runtime = 'edge';
 
 import { use, useState, useEffect } from 'react'
 import useSWR from 'swr'

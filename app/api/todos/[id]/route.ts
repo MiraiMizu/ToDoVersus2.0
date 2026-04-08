@@ -1,6 +1,9 @@
+export const runtime = 'edge';
 import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
+import { getDb } from '@/db'
+import { eq } from 'drizzle-orm'
+import { todos } from '@/db/schema'
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth()
@@ -10,13 +13,13 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     const { isCompleted } = await req.json()
     const { id } = await params
 
-    const existing = await prisma.todo.findUnique({ where: { id } })
+    const db = getDb()
+    const existingList = await db.select().from(todos).where(eq(todos.id, id))
+    const existing = existingList[0]
     if (existing?.userId !== session.user.id) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
-    const todo = await prisma.todo.update({
-      where: { id },
-      data: { isCompleted }
-    })
+    const result = await db.update(todos).set({ isCompleted }).where(eq(todos.id, id)).returning()
+    const todo = result[0]
     return NextResponse.json({ todo })
   } catch (error) {
     console.error(error)
@@ -31,10 +34,12 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
   try {
     const { id } = await params
     
-    const existing = await prisma.todo.findUnique({ where: { id } })
+    const db = getDb()
+    const existingList = await db.select().from(todos).where(eq(todos.id, id))
+    const existing = existingList[0]
     if (existing?.userId !== session.user.id) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
-    await prisma.todo.delete({ where: { id } })
+    await db.delete(todos).where(eq(todos.id, id))
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error(error)

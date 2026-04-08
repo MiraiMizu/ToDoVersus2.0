@@ -1,4 +1,6 @@
-import { prisma } from './prisma'
+import { getDb } from '@/db'
+import { users as userSchema, activityLogs, matches, achievements as achSchema, userAchievements, categories } from '@/db/schema'
+import { eq, or, and, count, inArray } from 'drizzle-orm'
 
 export type AchievementCheckContext = {
   userId: string
@@ -85,25 +87,29 @@ const ACHIEVEMENT_CHECKS: {
 ]
 
 export async function checkAndAwardAchievements(ctx: AchievementCheckContext): Promise<string[]> {
-  const user = await prisma.user.findUnique({
-    where: { id: ctx.userId },
-    include: { achievements: { include: { achievement: true } } },
+  const db = getDb()
+  const user = await db.query.users.findFirst({
+    where: eq(userSchema.id, ctx.userId),
+    with: { achievements: { with: { achievement: true } } },
   })
   if (!user) return []
 
   const existingCodes = new Set(user.achievements.map((ua: any) => ua.achievement.code))
   
   // Pre-fetch all necessary data once to avoid queries inside the loop
-  const totalActivitiesCount = await prisma.activityLog.count({ where: { userId: ctx.userId } })
-  const totalMatchesCount = await prisma.match.count({
-    where: { OR: [{ challengerId: ctx.userId }, { opponentId: ctx.userId }] },
-  })
+  const logsCountArray = await db.select({ count: count() }).from(activityLogs).where(eq(activityLogs.userId, ctx.userId))
+  const totalActivitiesCount = logsCountArray[0].count
   
+  const matchesCountArray = await db.select({ count: count() }).from(matches).where(
+    or(eq(matches.challengerId, ctx.userId), eq(matches.opponentId, ctx.userId))
+  )
+  const totalMatchesCount = matchesCountArray[0].count
+
   let categoryWeightsToday: Set<number> | undefined
   if (ctx.date) {
-    const logs = await prisma.activityLog.findMany({
-      where: { userId: ctx.userId, date: ctx.date },
-      include: { category: true },
+    const logs = await db.query.activityLogs.findMany({
+      where: and(eq(activityLogs.userId, ctx.userId), eq(activityLogs.date, ctx.date)),
+      with: { category: true }
     })
     categoryWeightsToday = new Set(logs.map((l: any) => l.category.weight))
   }
@@ -116,7 +122,7 @@ export async function checkAndAwardAchievements(ctx: AchievementCheckContext): P
   }
 
   // Fetch all achievements from the database once
-  const allAchievements = await prisma.achievement.findMany() as any[]
+  const allAchievements = await db.select().from(achSchema)
   const achievementMap = new Map(allAchievements.map((a: any) => [a.code, a]))
 
   const newlyAwarded: string[] = []
@@ -126,10 +132,10 @@ export async function checkAndAwardAchievements(ctx: AchievementCheckContext): P
     try {
       const qualified = await check(enrichedCtx)
       if (qualified) {
-        const achievement = achievementMap.get(code)
+        const achievement: any = achievementMap.get(code)
         if (achievement) {
-          await prisma.userAchievement.create({
-            data: { userId: ctx.userId, achievementId: achievement.id },
+          await db.insert(userAchievements).values({
+            userId: ctx.userId, achievementId: achievement.id
           })
           newlyAwarded.push(code)
         }

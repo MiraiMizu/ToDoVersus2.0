@@ -1,5 +1,8 @@
+export const runtime = 'edge';
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { getDb } from '@/db'
+import { users } from '@/db/schema'
+import { eq } from 'drizzle-orm'
 import { auth } from '@/lib/auth'
 
 export async function PUT(request: NextRequest) {
@@ -16,18 +19,25 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Motto must be 100 characters or less' }, { status: 400 })
     }
 
-    const updatedUser = await prisma.user.update({
-      where: { id: session.user.id },
-      data: {
-        ...(motto !== undefined && { motto })
-      },
-      select: {
-        id: true,
-        username: true,
-        motto: true,
-        rank: true
-      }
-    })
+    const db = getDb()
+    const dataToUpdate: any = {}
+    if (motto !== undefined) dataToUpdate.motto = motto
+
+    const result = Object.keys(dataToUpdate).length > 0
+      ? await db.update(users).set(dataToUpdate).where(eq(users.id, session.user.id)).returning({
+          id: users.id,
+          username: users.username,
+          motto: users.motto,
+          rank: users.rank
+        })
+      : await db.select({
+          id: users.id,
+          username: users.username,
+          motto: users.motto,
+          rank: users.rank
+        }).from(users).where(eq(users.id, session.user.id))
+        
+    const updatedUser = result[0]
 
     return NextResponse.json({ user: updatedUser })
   } catch (error) {

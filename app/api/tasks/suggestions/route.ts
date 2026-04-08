@@ -1,5 +1,8 @@
+export const runtime = 'edge';
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { getDb } from '@/db'
+import { matchTasks as matchTasksSchema, activityLogs as activityLogsSchema } from '@/db/schema'
+import { eq } from 'drizzle-orm'
 import { getServerSession } from '@/lib/auth'
 
 export async function GET() {
@@ -10,18 +13,19 @@ export async function GET() {
     }
 
     // Get more past tasks and activity logs to deduplicate in memory (safer for D1/SQLite)
+    const db = getDb()
     const [matchTasks, activityLogs] = await Promise.all([
-      prisma.matchTask.findMany({
-        where: { user: { id: session.user.id } },
-        select: { content: true, categoryId: true },
-        take: 100, // Fetch more to allow for duplicates
-        orderBy: { createdAt: 'desc' }
+      db.query.matchTasks.findMany({
+        where: eq(matchTasksSchema.userId, session.user.id),
+        columns: { content: true, categoryId: true },
+        limit: 100,
+        orderBy: (tasks: any, { desc }: any) => [desc(tasks.createdAt)]
       }),
-      prisma.activityLog.findMany({
-        where: { user: { id: session.user.id } },
-        select: { name: true, categoryId: true },
-        take: 100,
-        orderBy: { loggedAt: 'desc' }
+      db.query.activityLogs.findMany({
+        where: eq(activityLogsSchema.userId, session.user.id),
+        columns: { name: true, categoryId: true },
+        limit: 100,
+        orderBy: (logs: any, { desc }: any) => [desc(logs.loggedAt)]
       })
     ])
 

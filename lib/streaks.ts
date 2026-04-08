@@ -1,8 +1,11 @@
-import { prisma } from './prisma'
+import { getDb } from '@/db'
+import { users as userSchema, dailyScores as dsSchema } from '@/db/schema'
+import { eq, and, isNull } from 'drizzle-orm'
 import { getRank } from './ranks'
 
 export async function updateStreak(userId: string): Promise<number> {
-  const user = await prisma.user.findUnique({ where: { id: userId } })
+  const db = getDb()
+  const user = await db.query.users.findFirst({ where: eq(userSchema.id, userId) })
   if (!user) return 0
 
   const today = new Date()
@@ -28,25 +31,20 @@ export async function updateStreak(userId: string): Promise<number> {
     newStreak = 1
   }
 
-  await prisma.user.update({
-    where: { id: userId },
-    data: { streak: newStreak, lastLogDate: new Date() },
-  })
+  await db.update(userSchema).set({ streak: newStreak, lastLogDate: new Date().toISOString() }).where(eq(userSchema.id, userId))
 
   return newStreak
 }
 
 export async function updateUserScore(userId: string, scoreToAdd: number): Promise<void> {
-  const user = await prisma.user.findUnique({ where: { id: userId } })
+  const db = getDb()
+  const user = await db.query.users.findFirst({ where: eq(userSchema.id, userId) })
   if (!user) return
 
   const newAllTimeScore = user.allTimeScore + scoreToAdd
   const newRank = getRank(newAllTimeScore).name
 
-  await prisma.user.update({
-    where: { id: userId },
-    data: { allTimeScore: newAllTimeScore, rank: newRank },
-  })
+  await db.update(userSchema).set({ allTimeScore: newAllTimeScore, rank: newRank }).where(eq(userSchema.id, userId))
 }
 
 export async function upsertDailyScore(
@@ -55,18 +53,15 @@ export async function upsertDailyScore(
   scoreToAdd: number,
   matchId?: string
 ): Promise<void> {
-  const existing = await prisma.dailyScore.findFirst({
-    where: { userId, date, matchId: matchId ?? null },
+  const db = getDb()
+  const matchIdCond = matchId ? eq(dsSchema.matchId, matchId) : isNull(dsSchema.matchId)
+  const existing = await db.query.dailyScores.findFirst({
+    where: and(eq(dsSchema.userId, userId), eq(dsSchema.date, date), matchIdCond)
   })
 
   if (existing) {
-    await prisma.dailyScore.update({
-      where: { id: existing.id },
-      data: { totalScore: existing.totalScore + scoreToAdd },
-    })
+    await db.update(dsSchema).set({ totalScore: existing.totalScore + scoreToAdd }).where(eq(dsSchema.id, existing.id))
   } else {
-    await prisma.dailyScore.create({
-      data: { userId, date, totalScore: scoreToAdd, matchId: matchId ?? null },
-    })
+    await db.insert(dsSchema).values({ userId, date, totalScore: scoreToAdd, matchId: matchId ?? null })
   }
 }

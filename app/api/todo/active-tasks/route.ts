@@ -1,5 +1,8 @@
+export const runtime = 'edge';
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { getDb } from '@/db'
+import { matches } from '@/db/schema'
+import { eq, or, and } from 'drizzle-orm'
 import { auth } from '@/lib/auth'
 
 export async function GET(request: NextRequest) {
@@ -9,22 +12,22 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const activeMatches = await prisma.match.findMany({
-      where: {
-        OR: [
-          { challengerId: session.user.id },
-          { opponentId: session.user.id }
-        ],
-        status: 'ACTIVE'
-      },
-      include: {
-        // Only fetch THIS user's tasks for that match
+    const db = getDb()
+    const activeMatches = await db.query.matches.findMany({
+      where: and(
+        or(
+          eq(matches.challengerId, session.user.id),
+          eq(matches.opponentId, session.user.id)
+        ),
+        eq(matches.status, 'ACTIVE')
+      ),
+      with: {
         matchTasks: {
-          where: { userId: session.user.id },
-          include: { category: true }
+          where: (tasks: any, { eq }: any) => eq(tasks.userId, session!.user!.id),
+          with: { category: true }
         },
-        challenger: { select: { id: true, username: true } },
-        opponent: { select: { id: true, username: true } }
+        challenger: { columns: { id: true, username: true } },
+        opponent: { columns: { id: true, username: true } }
       }
     })
 

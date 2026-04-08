@@ -1,5 +1,8 @@
+export const runtime = 'edge';
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { getDb } from '@/db'
+import { matches, bets } from '@/db/schema'
+import { eq } from 'drizzle-orm'
 import { getServerSession } from '@/lib/auth'
 
 export async function PUT(
@@ -16,9 +19,10 @@ export async function PUT(
     const body = await request.json()
     const { content } = body
 
-    const match = await prisma.match.findUnique({
-      where: { id },
-      include: { bet: true },
+    const db = getDb()
+    const match = await db.query.matches.findFirst({
+      where: eq(matches.id, id),
+      with: { bet: true },
     })
 
     if (!match) {
@@ -38,23 +42,20 @@ export async function PUT(
         ? { challengerApproved: true }
         : { opponentApproved: true }
 
-      const bet = await prisma.bet.update({
-        where: { matchId: id },
-        data: updateData,
-      })
+      const result = await db.update(bets).set(updateData).where(eq(bets.matchId, id)).returning()
+      const bet = result[0]
 
       return NextResponse.json({ bet })
     }
 
     // Create new bet
-    const bet = await prisma.bet.create({
-      data: {
-        matchId: id,
-        content: content || '',
-        challengerApproved: isChallenger,
-        opponentApproved: isOpponent,
-      },
-    })
+    const res = await db.insert(bets).values({
+      matchId: id,
+      content: content || '',
+      challengerApproved: isChallenger,
+      opponentApproved: isOpponent,
+    }).returning()
+    const bet = res[0]
 
     return NextResponse.json({ bet })
   } catch (error) {

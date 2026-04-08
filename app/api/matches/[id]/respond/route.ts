@@ -1,5 +1,8 @@
+export const runtime = 'edge';
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { getDb } from '@/db'
+import { matches, matchTasks as matchTasksSchema } from '@/db/schema'
+import { eq } from 'drizzle-orm'
 import { getServerSession } from '@/lib/auth'
 
 export async function PUT(
@@ -16,7 +19,9 @@ export async function PUT(
     const body = await request.json()
     const { action, matchTasks } = body // action: 'accept' | 'decline', matchTasks: opponent's task list
 
-    const match = await prisma.match.findUnique({ where: { id } })
+    const db = getDb()
+    const matchBaseList = await db.select().from(matches).where(eq(matches.id, id))
+    const match = matchBaseList[0]
     if (!match) {
       return NextResponse.json({ error: 'Match not found' }, { status: 404 })
     }
@@ -47,40 +52,31 @@ export async function PUT(
       const endDate = new Date(now.getTime() + match.durationHours * 60 * 60 * 1000)
 
       // Add opponent's tasks and activate the match atomically
-      await prisma.$transaction([
-        // Create opponent's tasks
-        prisma.matchTask.createMany({
-          data: matchTasks.map((t: { content: string; categoryId: string }) => ({
-            matchId: id,
-            userId: session.user!.id,
-            content: t.content,
-            categoryId: t.categoryId,
-          })),
-        }),
-        // Activate the match with start/end dates
-        prisma.match.update({
-          where: { id },
-          data: {
-            status: 'ACTIVE',
-            startDate: now,
-            endDate,
-          },
-        }),
-      ])
+      const tasksToInsert = matchTasks.map((t: { content: string; categoryId: string }) => ({
+        matchId: id,
+        userId: session.user!.id,
+        content: t.content,
+        categoryId: t.categoryId,
+      }))
+      
+      await db.insert(matchTasksSchema).values(tasksToInsert)
+      await db.update(matches).set({
+        status: 'ACTIVE',
+        startDate: now.toISOString(),
+        endDate: endDate.toISOString(),
+      }).where(eq(matches.id, id))
+      
     } else {
       // Decline
-      await prisma.match.update({
-        where: { id },
-        data: { status: 'DECLINED' },
-      })
+      await db.update(matches).set({ status: 'DECLINED' }).where(eq(matches.id, id))
     }
 
-    const updatedMatch = await prisma.match.findUnique({
-      where: { id },
-      include: {
-        challenger: { select: { id: true, username: true, avatarUrl: true } },
-        opponent: { select: { id: true, username: true, avatarUrl: true } },
-        matchTasks: { include: { category: true } },
+    const updatedMatch = await db.query.matches.findFirst({
+      where: eq(matches.id, id),
+      with: {
+        challenger: { columns: { id: true, username: true, avatarUrl: true } },
+        opponent: { columns: { id: true, username: true, avatarUrl: true } },
+        matchTasks: { with: { category: true } },
       },
     })
 

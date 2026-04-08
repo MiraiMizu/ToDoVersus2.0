@@ -1,5 +1,9 @@
+export const runtime = 'edge';
 import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
+import { getDb } from '@/db'
+import { matches as matchesSchema, activityLogs } from '@/db/schema'
+import { eq, or, inArray } from 'drizzle-orm'
 
 export async function GET(request: Request) {
   try {
@@ -12,19 +16,15 @@ export async function GET(request: Request) {
     // We will do a generic feed of all users' activities for now (like a global feed) 
     // or just the user's past opponents + self to keep it simple and edge-compatible.
 
-    // Import prism from main prisma file
-    const { prisma } = await import('@/lib/prisma')
-    const db = prisma
+    const db = getDb()
 
     // Find users who have had matches with the current user
-    const matches = await db.match.findMany({
-      where: {
-        OR: [
-          { challengerId: session.user.id },
-          { opponentId: session.user.id }
-        ]
-      },
-      select: { challengerId: true, opponentId: true }
+    const matches = await db.query.matches.findMany({
+      where: or(
+        eq(matchesSchema.challengerId, session.user.id),
+        eq(matchesSchema.opponentId, session.user.id)
+      ),
+      columns: { challengerId: true, opponentId: true }
     })
 
     const friendIds = new Set<string>()
@@ -38,19 +38,15 @@ export async function GET(request: Request) {
     const feedUserIds = Array.from(friendIds)
 
     // Fetch recent 20 activities from these users
-    const activities = await db.activityLog.findMany({
-      where: {
-        userId: { in: feedUserIds }
-      },
-      include: {
+    const activities = await db.query.activityLogs.findMany({
+      where: inArray(activityLogs.userId, feedUserIds),
+      with: {
         category: true,
-        user: { select: { id: true, username: true, allTimeScore: true } },
+        user: { columns: { id: true, username: true, allTimeScore: true } },
         reactions: true
       },
-      orderBy: {
-        loggedAt: 'desc'
-      },
-      take: 20
+      orderBy: (logs: any, { desc }: any) => [desc(logs.loggedAt)],
+      limit: 20
     })
 
     return NextResponse.json({ feed: activities })

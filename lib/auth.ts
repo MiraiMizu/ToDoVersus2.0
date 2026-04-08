@@ -1,7 +1,9 @@
 import NextAuth from 'next-auth'
 import Credentials from 'next-auth/providers/credentials'
 import { verifyPassword } from '@/lib/auth-util'
-import { prisma } from '@/lib/prisma'
+import { getDb } from '@/db'
+import { eq, or } from 'drizzle-orm'
+import { users } from '@/db/schema'
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -13,14 +15,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null
 
-        const user = await prisma.user.findFirst({
-          where: {
-            OR: [
-              { email: credentials.email as string },
-              { username: credentials.email as string },
-            ],
-          },
-        })
+        const db = getDb()
+        const userList = await db.select().from(users).where(
+          or(
+            eq(users.email, credentials.email as string),
+            eq(users.username, credentials.email as string)
+          )
+        )
+        const user = userList[0]
 
         if (!user) return null
 

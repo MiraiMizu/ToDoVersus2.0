@@ -1,5 +1,8 @@
+export const runtime = 'edge';
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { getDb } from '@/db'
+import { activityLogs as acSchema } from '@/db/schema'
+import { eq, and, inArray, gte } from 'drizzle-orm'
 import { auth } from '@/lib/auth'
 
 export async function GET(request: NextRequest) {
@@ -20,19 +23,19 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Fetch activities instead of dailyScore since dailyScore might not be consistently updated for all dates
-    const activities = await prisma.activityLog.findMany({
-      where: {
-        userId,
-        date: {
-          in: dates
-        }
-      },
-      select: {
+    const db = getDb()
+    const activities = await db.query.activityLogs.findMany({
+      where: and(
+        eq(acSchema.userId, userId),
+        inArray(acSchema.date, dates)
+      ),
+      columns: {
         date: true,
         score: true,
+      },
+      with: {
         category: {
-          select: {
+          columns: {
             name: true,
             color: true
           }
@@ -71,14 +74,12 @@ export async function GET(request: NextRequest) {
     const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString().split('T')[0]
     const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0).toISOString().split('T')[0]
 
-    const monthlyActivities = await prisma.activityLog.findMany({
-      where: {
-        userId,
-        date: {
-          gte: startOfLastMonth 
-        }
-      },
-      select: {
+    const monthlyActivities = await db.query.activityLogs.findMany({
+      where: and(
+        eq(acSchema.userId, userId),
+        gte(acSchema.date, startOfLastMonth)
+      ),
+      columns: {
         date: true,
         score: true
       }

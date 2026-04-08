@@ -1,5 +1,8 @@
+export const runtime = 'edge';
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { getDb } from '@/db'
+import { matches, dailyScores as dsSchema } from '@/db/schema'
+import { eq, or, desc, and } from 'drizzle-orm'
 import { auth } from '@/lib/auth'
 
 export async function GET(request: NextRequest) {
@@ -12,24 +15,21 @@ export async function GET(request: NextRequest) {
 
   try {
     // Find all matches the user is involved in
-    const matches = await prisma.match.findMany({
-      where: {
-        OR: [
-          { challengerId: userId },
-          { opponentId: userId }
-        ]
-      },
-      include: {
+    const db = getDb()
+    const matchesList = await db.query.matches.findMany({
+      where: or(
+        eq(matches.challengerId, userId),
+        eq(matches.opponentId, userId)
+      ),
+      with: {
         challenger: {
-          select: { id: true, username: true, rank: true, streak: true, allTimeScore: true }
+          columns: { id: true, username: true, rank: true, streak: true, allTimeScore: true }
         },
         opponent: {
-          select: { id: true, username: true, rank: true, streak: true, allTimeScore: true }
+          columns: { id: true, username: true, rank: true, streak: true, allTimeScore: true }
         }
       },
-      orderBy: {
-        updatedAt: 'desc'
-      }
+      orderBy: (matches: any, { desc }: any) => [desc(matches.updatedAt)]
     })
 
     const todayDateStr = new Date().toISOString().split('T')[0]
@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
     // We only need the opponent friends, not ourselves
     const friendsMap = new Map()
 
-    for (const match of matches) {
+    for (const match of matchesList) {
       const isChallenger = match.challengerId === userId
       const friend = isChallenger ? match.opponent : match.challenger
 
@@ -58,13 +58,14 @@ export async function GET(request: NextRequest) {
     // Fetch today's scores for friends in ACTIVE matches
     for (const friendRecord of friendsList) {
       if (friendRecord.matchStatus === 'ACTIVE') {
-        const dailyScore = await prisma.dailyScore.findFirst({
-          where: {
-            userId: friendRecord.user.id,
-            matchId: friendRecord.matchId,
-            date: todayDateStr
-          }
-        })
+        const dailyScoreList = await db.select().from(dsSchema).where(
+          and(
+            eq(dsSchema.userId, friendRecord.user.id),
+            eq(dsSchema.matchId, friendRecord.matchId),
+            eq(dsSchema.date, todayDateStr)
+          )
+        ).limit(1)
+        const dailyScore = dailyScoreList[0]
         friendRecord.todayScore = dailyScore?.totalScore || 0
       }
     }

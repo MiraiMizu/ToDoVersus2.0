@@ -1,4 +1,7 @@
-import { prisma } from '@/lib/prisma'
+export const runtime = 'edge';
+import { getDb } from '@/db'
+import { matches } from '@/db/schema'
+import { eq } from 'drizzle-orm'
 import { Metadata } from 'next'
 
 export async function generateMetadata({
@@ -9,11 +12,12 @@ export async function generateMetadata({
   const { id } = await params
 
   try {
-    const match = await prisma.match.findUnique({
-      where: { id },
-      include: {
-        challenger: { select: { username: true } },
-        opponent: { select: { username: true } },
+    const db = getDb()
+    const match = await db.query.matches.findFirst({
+      where: eq(matches.id, id),
+      with: {
+        challenger: { columns: { username: true } },
+        opponent: { columns: { username: true } },
       },
     })
 

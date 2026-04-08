@@ -1,5 +1,7 @@
 import { ImageResponse } from '@vercel/og'
-import { prisma } from '@/lib/prisma'
+import { getDb } from '@/db'
+import { matches } from '@/db/schema'
+import { eq } from 'drizzle-orm'
 
 export const runtime = 'edge'
 
@@ -11,13 +13,14 @@ export async function GET(
     const { id } = await params
     
     // Fetch match data
-    const match = await prisma.match.findUnique({
-      where: { id },
-      include: {
-        challenger: { select: { username: true } },
-        opponent: { select: { username: true } },
-        activityLogs: { select: { userId: true, score: true } },
-        winner: { select: { username: true } }
+    const db = getDb()
+    const match = await db.query.matches.findFirst({
+      where: eq(matches.id, id),
+      with: {
+        challenger: { columns: { username: true } },
+        opponent: { columns: { username: true } },
+        activityLogs: { columns: { userId: true, score: true } },
+        winner: { columns: { username: true } }
       }
     })
 

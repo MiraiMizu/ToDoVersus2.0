@@ -1,5 +1,8 @@
+export const runtime = 'edge';
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { getDb } from '@/db'
+import { matches } from '@/db/schema'
+import { eq } from 'drizzle-orm'
 import { getServerSession } from '@/lib/auth'
 
 export async function GET(
@@ -13,20 +16,21 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const match = await prisma.match.findUnique({
-      where: { id },
-      include: {
-        challenger: { select: { id: true, username: true, avatarUrl: true, rank: true, streak: true } },
-        opponent: { select: { id: true, username: true, avatarUrl: true, rank: true, streak: true } },
+    const db = getDb()
+    const match = await db.query.matches.findFirst({
+      where: eq(matches.id, id),
+      with: {
+        challenger: { columns: { id: true, username: true, avatarUrl: true, rank: true, streak: true } },
+        opponent: { columns: { id: true, username: true, avatarUrl: true, rank: true, streak: true } },
         bet: true,
-        matchTasks: { include: { category: true } },
-        winner: { select: { id: true, username: true } },
+        matchTasks: { with: { category: true } },
+        winner: { columns: { id: true, username: true } },
         activityLogs: {
-          include: { user: { select: { id: true, username: true } }, category: true },
-          orderBy: { loggedAt: 'desc' },
+          with: { user: { columns: { id: true, username: true } }, category: true },
+          orderBy: (logs: any, { desc }: any) => [desc(logs.loggedAt)],
         },
         dailyScores: {
-          orderBy: { date: 'desc' },
+          orderBy: (scores: any, { desc }: any) => [desc(scores.date)],
         },
       },
     })

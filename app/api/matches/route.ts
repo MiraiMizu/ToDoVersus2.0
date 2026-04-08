@@ -1,5 +1,8 @@
+export const runtime = 'edge';
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { getDb } from '@/db'
+import { matches, bets, matchTasks as matchTasksSchema } from '@/db/schema'
+import { eq, or, desc } from 'drizzle-orm'
 import { getServerSession } from '@/lib/auth'
 
 export async function GET(request: NextRequest) {
@@ -9,25 +12,24 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const matches = await prisma.match.findMany({
-      where: {
-        OR: [
-          { challengerId: session.user.id },
-          { opponentId: session.user.id },
-        ],
-      },
-      include: {
-        challenger: { select: { id: true, username: true, avatarUrl: true, rank: true } },
-        opponent: { select: { id: true, username: true, avatarUrl: true, rank: true } },
+    const db = getDb()
+    const matchesList = await db.query.matches.findMany({
+      where: or(
+        eq(matches.challengerId, session.user.id),
+        eq(matches.opponentId, session.user.id)
+      ),
+      with: {
+        challenger: { columns: { id: true, username: true, avatarUrl: true, rank: true } },
+        opponent: { columns: { id: true, username: true, avatarUrl: true, rank: true } },
         bet: true,
-        categories: { include: { category: true } },
-        matchTasks: { include: { category: true } },
-        winner: { select: { id: true, username: true } },
+        categories: { with: { category: true } },
+        matchTasks: { with: { category: true } },
+        winner: { columns: { id: true, username: true } },
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: (matches: any, { desc }: any) => [desc(matches.createdAt)],
     })
 
-    return NextResponse.json({ matches })
+    return NextResponse.json({ matches: matchesList })
   } catch (error) {
     console.error('Get matches error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
@@ -63,33 +65,38 @@ export async function POST(request: NextRequest) {
     // Duration can be custom or 'Forever' (represented by a very large number like 10 years)
     const duration = Math.min(Math.max(Number(durationHours) || 24, 1), 87600) // 1h to 10 years (87600h)
 
-    const match = await prisma.match.create({
-      data: {
-        challengerId: session.user.id,
-        opponentId,
-        status: 'PENDING',
-        durationHours: duration,
-        // Challenger's tasks are stored with their userId
-        matchTasks: {
-          create: matchTasks.map((t: { content: string, categoryId: string }) => ({
-             content: t.content,
-             category: { connect: { id: t.categoryId } },
-             user: { connect: { id: session.user!.id } },
-          }))
-        },
-        bet: betContent
-          ? {
-              create: {
-                content: betContent,
-                challengerApproved: true,
-              },
-            }
-          : undefined,
-      },
-      include: {
-        challenger: { select: { id: true, username: true, avatarUrl: true } },
-        opponent: { select: { id: true, username: true, avatarUrl: true } },
-        matchTasks: { include: { category: true } },
+    const db = getDb()
+    const result = await db.insert(matches).values({
+      challengerId: session.user.id,
+      opponentId,
+      status: 'PENDING',
+      durationHours: duration,
+    }).returning()
+    const matchBase = result[0]
+    
+    for (const t of matchTasks) {
+      await db.insert(matchTasksSchema).values({
+        matchId: matchBase.id,
+        content: t.content,
+        categoryId: t.categoryId,
+        userId: session.user.id
+      })
+    }
+    
+    if (betContent) {
+      await db.insert(bets).values({
+        matchId: matchBase.id,
+        content: betContent,
+        challengerApproved: true
+      })
+    }
+    
+    const match = await db.query.matches.findFirst({
+      where: eq(matches.id, matchBase.id),
+      with: {
+        challenger: { columns: { id: true, username: true, avatarUrl: true } },
+        opponent: { columns: { id: true, username: true, avatarUrl: true } },
+        matchTasks: { with: { category: true } },
         bet: true,
       },
     })
