@@ -6,8 +6,11 @@ import { eq, or } from 'drizzle-orm'
 import { users } from '@/db/schema'
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  secret: process.env.AUTH_SECRET,
+  trustHost: true,
   providers: [
     Credentials({
+
       credentials: {
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
