@@ -2,21 +2,21 @@ import { getDb } from '@/db'
 import { users as userSchema, dailyScores as dsSchema } from '@/db/schema'
 import { eq, and, isNull } from 'drizzle-orm'
 import { getRank } from './ranks'
+import { getLocalDateString } from './utils'
 
 export async function updateStreak(userId: string): Promise<number> {
   const db = getDb()
   const user = await db.query.users.findFirst({ where: eq(userSchema.id, userId) })
   if (!user) return 0
 
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const todayStr = today.toISOString().split('T')[0]
+  const todayStr = getLocalDateString()
 
-  const yesterday = new Date(today)
+  const yesterday = new Date()
   yesterday.setDate(yesterday.getDate() - 1)
-  const yesterdayStr = yesterday.toISOString().split('T')[0]
+  const yesterdayStr = getLocalDateString(yesterday)
 
-  const lastLogStr = user.lastLogDate ? user.lastLogDate.toISOString().split('T')[0] : null
+  const lastLogStr = user.lastLogDate ? user.lastLogDate.split('T')[0] : null
+
 
   let newStreak = user.streak
 

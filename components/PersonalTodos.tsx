@@ -3,11 +3,12 @@
 import { useState } from 'react'
 import useSWR from 'swr'
 import { Check, Plus, Trash2 } from 'lucide-react'
+import { getLocalDateString } from '@/lib/utils'
 
 const fetcher = (url: string) => fetch(url).then(r => r.json())
 
 export default function PersonalTodos() {
-  const today = new Date().toISOString().split('T')[0]
+  const today = getLocalDateString()
   const { data, mutate } = useSWR(`/api/todos?date=${today}`, fetcher)
   const [newTodo, setNewTodo] = useState('')
   const [loading, setLoading] = useState(false)
@@ -17,31 +18,63 @@ export default function PersonalTodos() {
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!newTodo.trim() || loading) return
-    setLoading(true)
-    await fetch('/api/todos', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content: newTodo, date: today })
-    })
+
+    const content = newTodo
     setNewTodo('')
-    setLoading(false)
-    mutate()
+    setLoading(true)
+
+    // Optimistic Update
+    const optimisticTodo = { id: 'temp-' + Date.now(), content, isCompleted: false, date: today }
+    mutate({ todos: [...todos, optimisticTodo] }, false)
+
+    try {
+      const res = await fetch('/api/todos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content, date: today })
+      })
+      if (!res.ok) throw new Error('Failed to add todo')
+    } catch (error) {
+      console.error(error)
+      setNewTodo(content) // Restore input on error
+    } finally {
+      setLoading(false)
+      mutate()
+    }
   }
 
   const toggleComplete = async (id: string, current: boolean) => {
+    // Optimistic Update
     mutate({ todos: todos.map((t: any) => t.id === id ? { ...t, isCompleted: !current } : t) }, false)
-    await fetch(`/api/todos/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ isCompleted: !current })
-    })
-    mutate()
+    
+    try {
+      const res = await fetch(`/api/todos/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isCompleted: !current })
+      })
+      if (!res.ok) throw new Error('Failed to toggle todo')
+    } catch (error) {
+      console.error(error)
+    } finally {
+      mutate()
+    }
   }
 
   const handleDelete = async (id: string) => {
-    await fetch(`/api/todos/${id}`, { method: 'DELETE' })
-    mutate()
+    // Optimistic Update
+    mutate({ todos: todos.filter((t: any) => t.id !== id) }, false)
+
+    try {
+      const res = await fetch(`/api/todos/${id}`, { method: 'DELETE' })
+      if (!res.ok) throw new Error('Failed to delete todo')
+    } catch (error) {
+      console.error(error)
+    } finally {
+      mutate()
+    }
   }
+
 
   return (
     <div className="space-y-3">

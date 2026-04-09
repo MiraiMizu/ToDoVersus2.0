@@ -2,24 +2,36 @@ import * as esbuild from 'esbuild';
 import fs from 'node:fs';
 import path from 'node:path';
 
+function copyRecursiveSync(src, dest) {
+    if (!fs.existsSync(src)) return;
+    const stats = fs.statSync(src);
+    if (stats.isDirectory()) {
+        if (!fs.existsSync(dest)) fs.mkdirSync(dest, { recursive: true });
+        fs.readdirSync(src).forEach((child) => copyRecursiveSync(path.join(src, child), path.join(dest, child)));
+    } else {
+        fs.copyFileSync(src, dest);
+    }
+}
+
 async function build() {
-    console.log("Starting custom bundling of OpenNext worker...");
+    if (fs.existsSync('.cloudflare-pages')) fs.rmSync('.cloudflare-pages', { recursive: true, force: true });
+    fs.mkdirSync('.cloudflare-pages');
     
-    // Cloudflare environments use node: prefixed imports for built-ins.
-    // We treat them as external so esbuild leaves them alone.
-    const nodeBuiltIns = [
-        'async_hooks', 'fs', 'path', 'os', 'crypto', 'events', 'util', 
-        'stream', 'buffer', 'http', 'https', 'url', 'zlib', 'net', 'tls',
-        'vm', 'module'
+    // Copy assets
+    const assetsDir = path.join('.open-next', 'assets');
+    if (fs.existsSync(assetsDir)) copyRecursiveSync(assetsDir, '.cloudflare-pages');
+
+    // Copy wasm files for satori/og-image
+    const wasmFiles = [
+        'node_modules/next/dist/compiled/@vercel/og/yoga.wasm',
+        'node_modules/next/dist/compiled/@vercel/og/resvg.wasm'
     ];
-    
-    const externalList = [
-        'node:*',
-        'cloudflare:*',
-        '*.wasm',
-        '*.wasm?module',
-        ...nodeBuiltIns
-    ];
+    wasmFiles.forEach(f => {
+        const dest = path.join('.cloudflare-pages', path.basename(f));
+        if (fs.existsSync(f)) fs.copyFileSync(f, dest);
+    });
+
+    console.log("Bundling worker...");
 
     await esbuild.build({
         entryPoints: ['.open-next/worker.js'],
@@ -27,58 +39,28 @@ async function build() {
         outfile: '.cloudflare-pages/_worker.js',
         format: 'esm',
         target: 'es2022',
-        platform: 'neutral',
-        minify: true,
-        external: externalList,
-        conditions: ['workerd', 'worker', 'browser'],
-        alias: {
-            // Force unprefixed node builtins to resolve to node: prefixed ones
-            ...Object.fromEntries(nodeBuiltIns.map(b => [b, `node:${b}`]))
+        platform: 'node',
+        define: {
+            'process.env.NODE_ENV': '"production"'
         },
-        mainFields: ['module', 'main'],
-        logLevel: 'info'
+
+        minify: true,
+        external: [
+            'cloudflare:*', 
+            '*.wasm', 
+            '*.wasm?module',
+            'critters',
+            '@opentelemetry/api',
+            'canvas',
+            'sharp',
+            'node:*',
+            'fs', 'path', 'os', 'url', 'vm', 'crypto', 'stream', 'util', 'module', 'http', 'https', 'async_hooks', 'process', 'events', 'buffer', 'string_decoder', 'punycode', 'querystring', 'zlib'
+        ]
+
+
     });
 
-    console.log("Successfully created flat bundle.");
-
-    // Prepare Pages Functions structure
-    console.log("Preparing Cloudflare Pages deployment structure...");
-    const pagesDir = '.cloudflare-pages';
-    const functionsDir = path.join(pagesDir, 'functions');
-    
-    if (!fs.existsSync(functionsDir)) {
-        fs.mkdirSync(functionsDir, { recursive: true });
-    }
-
-    // Move the worker to functions/[[path]].js to force ESM
-    fs.renameSync(path.join(pagesDir, '_worker.js'), path.join(functionsDir, '[[path]].js'));
-
-    // Copy static assets from open-next
-    const assetsDir = path.join('.open-next', 'assets');
-    if (fs.existsSync(assetsDir)) {
-        copyRecursiveSync(assetsDir, pagesDir);
-    }
-    
-    console.log("Deployment directory .cloudflare-pages is ready!");
+    console.log("Build success");
 }
 
-function copyRecursiveSync(src, dest) {
-    const exists = fs.existsSync(src);
-    const stats = exists && fs.statSync(src);
-    const isDirectory = exists && stats.isDirectory();
-    if (isDirectory) {
-        if (!fs.existsSync(dest)) {
-            fs.mkdirSync(dest, { recursive: true });
-        }
-        fs.readdirSync(src).forEach((childItemName) => {
-            copyRecursiveSync(path.join(src, childItemName), path.join(dest, childItemName));
-        });
-    } else {
-        fs.copyFileSync(src, dest);
-    }
-}
-
-build().catch((err) => {
-    console.error("Bundling failed", err);
-    process.exit(1);
-});
+build();

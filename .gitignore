@@ -38,8 +38,10 @@ yarn-error.log*
 
 # Cloudflare / OpenNext
 .open-next
+.cloudflare-pages
 .wrangler
 .dev.vars
+
 
 # Prisma
 dev.db

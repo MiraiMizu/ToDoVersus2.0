@@ -16,7 +16,8 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     const db = getDb()
     const existingList = await db.select().from(todos).where(eq(todos.id, id))
     const existing = existingList[0]
-    if (existing?.userId !== session.user.id) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    if (!existing) return NextResponse.json({ error: 'Not Found' }, { status: 404 })
+    if (existing.userId !== session.user.id) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
     const result = await db.update(todos).set({ isCompleted }).where(eq(todos.id, id)).returning()
     const todo = result[0]
@@ -37,7 +38,8 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     const db = getDb()
     const existingList = await db.select().from(todos).where(eq(todos.id, id))
     const existing = existingList[0]
-    if (existing?.userId !== session.user.id) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    if (!existing) return NextResponse.json({ error: 'Not Found' }, { status: 404 })
+    if (existing.userId !== session.user.id) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
     await db.delete(todos).where(eq(todos.id, id))
     return NextResponse.json({ success: true })

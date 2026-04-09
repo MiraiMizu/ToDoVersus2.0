@@ -2,46 +2,20 @@ import { drizzle } from 'drizzle-orm/d1';
 import * as schema from './schema';
 import { getCloudflareContext } from '@opennextjs/cloudflare';
 
-// Global cache for development
-let dbCache: any = null;
-
 export function getDb() {
-  if (dbCache) return dbCache;
-
-  let d1Db: any = null;
-  if (process.env.NODE_ENV === 'production') {
-    try {
-      const context = getCloudflareContext();
-      const env = context.env as any;
-      if (env && env.DB) {
-        d1Db = env.DB;
-      }
-    } catch (e) {
-      // Ignore
+  try {
+    const context = getCloudflareContext();
+    const env = context.env as any;
+    if (env && env.DB) {
+      return drizzle(env.DB, { schema });
     }
+  } catch (e) {
+    // Falls back to error if not in CF context
+    console.error('Failed to get D1 database context:', e);
   }
 
-  if (!d1Db) {
-    // Development fallback mock
-    d1Db = {
-      prepare: () => ({
-        bind: () => ({
-          all: async () => ({ results: [] }),
-          run: async () => ({ success: true }),
-          first: async () => null,
-        }),
-        all: async () => ({ results: [] }),
-        run: async () => ({ success: true }),
-        first: async () => null,
-      })
-    };
-  }
-
-  const db = drizzle(d1Db, { schema });
-  
-  if (process.env.NODE_ENV !== 'production') {
-    dbCache = db;
-  }
-  
-  return db;
+  throw new Error('Database connection failed: D1 binding not found. Ensure you are running in a Cloudflare environment.');
 }
+
+
+

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { getLocalDateString } from '@/lib/utils'
 
 export default function CalendarView({ activities }: { activities: any[] }) {
   const [currentDate, setCurrentDate] = useState(new Date())
@@ -43,7 +44,7 @@ export default function CalendarView({ activities }: { activities: any[] }) {
       const score = dayData.score
       const colors = Array.from(dayData.colors)
       
-      const isToday = dateString === new Date().toISOString().split('T')[0]
+      const isToday = dateString === getLocalDateString()
 
       let bgClass = "bg-white dark:bg-slate-800/30 border-slate-100 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800"
       if (score > 0 && score < 100) bgClass = "bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 border-violet-200 dark:border-violet-800"
