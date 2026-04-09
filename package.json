@@ -11,7 +11,7 @@
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
     "db:apply:local": "wrangler d1 execute todoversus-db --local --file=./drizzle/schema.sql",
-    "postinstall": "node patch-opennext.mjs",
+
     "build:cf": "mkdir -p node_modules/next/dist/compiled/@vercel/og && cp -r node_modules/@vercel/og/dist/* node_modules/next/dist/compiled/@vercel/og/ && next build && opennextjs-cloudflare build && node bundle-final.mjs",
     "deploy:cf": "npx wrangler deploy",
     "deploy": "npm run deploy:cf",
